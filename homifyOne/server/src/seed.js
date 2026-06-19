@@ -265,7 +265,7 @@ const seed = async () => {
     ];
 
     const created = await Product.insertMany(products);
-    console.log(`✅ ${created.length} products created`);
+    console.log(` ${created.length} products created`);
 
     
     console.log('\n Seed complete!');

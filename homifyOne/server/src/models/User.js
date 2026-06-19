@@ -2,19 +2,20 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
-  name:            { type: String, required: true, trim: true },
-  email:           { type: String, required: true, unique: true, lowercase: true },
-  passwordHash:    { type: String, required: true },
-  role:            { type: String, enum: ['buyer','developer','supplier','admin'], required: true },
+  name: { type: String, required: true, trim: true },
+  email: { type: String, required: true, unique: true, lowercase: true },
+  passwordHash: { type: String, required: true },
+  role: { type: String, enum: ['buyer','developer','supplier','admin'], required: true },
   assignedDeveloper: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  assignedPlot:    { type: mongoose.Schema.Types.ObjectId, ref: 'Plot' },
-  isActive:        { type: Boolean, default: true },
-  otpCode:         String,
-  otpExpires:      Date,
+  assignedPlot: { type: mongoose.Schema.Types.ObjectId, ref: 'Plot' },
+  isActive: { type: Boolean, default: true },
+  otp: { type: String },
+  otpExpiry: { type: Date },
 }, { timestamps: true });
 
-userSchema.pre('save', async function() {
+userSchema.pre('save', async function () {
   if (!this.isModified('passwordHash')) return;
+  if (this.passwordHash.startsWith('$2b$')) return;
   this.passwordHash = await bcrypt.hash(this.passwordHash, 12);
 });
 

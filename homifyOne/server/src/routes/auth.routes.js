@@ -3,6 +3,7 @@ const { body } = require('express-validator');
 const { login, forgotPassword, resetPassword, logout } = require('../controllers/auth.controller');
 const { verifyToken, authorise } = require('../middleware/auth');
 
+
 router.post('/login',
   [
     body('email').isEmail(),
@@ -35,5 +36,9 @@ router.post('/reset-password',
 );
 
 router.post('/logout', logout);
+
+router.post('/forgot-password', forgotPassword);
+router.post('/reset-password',  resetPassword);
+
 
 module.exports = router;
