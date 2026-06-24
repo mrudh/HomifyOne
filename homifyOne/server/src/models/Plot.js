@@ -10,9 +10,12 @@ const plotSchema = new mongoose.Schema({
     lat: { type: Number },
     lng: { type: Number }
   },
-  bedrooms: { type: Number },
-  bathrooms: { type: Number },
   deadline: { type: Date },
+  floorPlanUrl: { type: String, default: '' },
+  bedrooms: { type: Number, default: 0 },
+  bathrooms: { type: Number, default: 0 },
+  houseType: { type: String, default: '' },
+  floorArea: { type: String, default: '' },
   status: {
     type: String,
     enum: ['available', 'assigned', 'selections_pending', 'selections_submitted', 'selections_approved', 'completed'],

@@ -22,7 +22,8 @@ const userData = [{
       name: 'Dana Robert',
       email: 'dana.homifyone@gmail.com',
       password: 'Test1234!',
-      role: 'developer'
+      role: 'developer',
+      phone: '07700 900123'
    },
    {
       name: 'Kitchen Wizards',
@@ -100,6 +101,7 @@ const seed = async () => {
             email: u.email,
             passwordHash: hashed,
             role: u.role,
+            phone: u.phone || '', 
             isActive: true
          }, {
             upsert: true,
@@ -131,6 +133,9 @@ const seed = async () => {
             plotNumber: 'P101',
             address: '12 Maple Close, Leicester, LE1 2AB',
             development: 'Maple Gardens',
+            houseType: '3 Bed Semi-Detached',
+            floorArea: '1,100 sq ft',
+            floorPlanUrl: 'https://res.cloudinary.com/duueksjoq/image/upload/v1782329612/3-bed-semi-detached_pthgny.png',
             coordinates: {
                lat: 52.6369,
                lng: -1.1398

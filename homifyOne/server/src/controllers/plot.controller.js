@@ -16,9 +16,10 @@ exports.getMyPlots = async (req, res, next) => {
 
 exports.getMyPlot = async (req, res, next) => {
   try {
-    const plot = await Plot.findOne({ buyer: req.user._id }).populate('developer', 'name email');
-    if (!plot) return res.status(404).json({ success: false, message: 'No plot assigned yet.' });
-    res.status(200).json({ success: true, plot });
+    const plot = await Plot.findOne({ buyer: req.user._id })
+      .populate('developer', 'name email phone');
+    if (!plot) return res.status(404).json({ success: false, message: 'No plot assigned.' });
+    res.json({ success: true, plot });
   } catch (err) { next(err); }
 };
 

@@ -11,6 +11,7 @@ import ForgotPassword from './pages/ForgotPassword';
 import ChoicesPortal from './pages/buyer/ChoicesPortal';
 import BuyerLayout from './layout/BuyerLayout';
 import BasketPage from './pages/buyer/BasketPage';
+import MyProperty from './pages/buyer/MyProperty';
 
 
 export default function App() {
@@ -44,7 +45,7 @@ export default function App() {
               <Route path="/buyer/dashboard" element={<BuyerDashboard />} />
               <Route path="/buyer/choices" element={<ChoicesPortal />} />
               <Route path="/buyer/basket" element={<BasketPage />} />
-
+              <Route path="/buyer/property" element={<MyProperty />} />
             </Route>
           </Route>
 
