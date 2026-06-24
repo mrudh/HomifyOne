@@ -1,12 +1,16 @@
 const router = require('express').Router();
+const ctrl   = require('../controllers/product.controller');
 const { verifyToken, authorise } = require('../middleware/auth');
-const { upload } = require('../config/cloudinary');
-const ctrl = require('../controllers/product.controller');
 
-router.get('/',      verifyToken, ctrl.getProducts);
-router.get('/:id',   verifyToken, ctrl.getProduct);
-router.post('/',     verifyToken, authorise('admin'), upload.single('image'), ctrl.createProduct);  // ← upload added
-router.patch('/:id', verifyToken, authorise('admin'), upload.single('image'), ctrl.updateProduct);  // ← upload added
-router.delete('/:id',verifyToken, authorise('admin'), ctrl.deleteProduct);
+// Buyer — grouped choices for the portal
+router.get('/grouped', verifyToken, authorise('buyer'), ctrl.getGrouped);
+
+// Admin — full CRUD
+router.get('/', verifyToken, authorise('admin'), ctrl.getAllProducts);
+router.post('/', verifyToken, authorise('admin'), ctrl.createProduct);
+router.get('/:id', verifyToken, authorise('admin'), ctrl.getProduct);
+router.patch('/:id', verifyToken, authorise('admin'), ctrl.updateProduct);
+router.delete('/:id', verifyToken, authorise('admin'), ctrl.deleteProduct);
 
 module.exports = router;
+

@@ -8,6 +8,10 @@ import DeveloperDashboard from './pages/dashboards/DeveloperDashboard';
 import SupplierDashboard from './pages/dashboards/SupplierDashboard';
 import AdminDashboard from './pages/dashboards/AdminDashboard';
 import ForgotPassword from './pages/ForgotPassword';
+import ChoicesPortal from './pages/buyer/ChoicesPortal';
+import BuyerLayout from './layout/BuyerLayout';
+import BasketPage from './pages/buyer/BasketPage';
+
 
 export default function App() {
   return (
@@ -16,12 +20,6 @@ export default function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
-
-          <Route path="/dashboard/buyer" element={
-            <ProtectedRoute roles={['buyer']}>
-              <BuyerDashboard />
-            </ProtectedRoute>
-          } />
 
           <Route path="/dashboard/developer" element={
             <ProtectedRoute roles={['developer']}>
@@ -40,6 +38,15 @@ export default function App() {
               <AdminDashboard />
             </ProtectedRoute>
           } />
+
+          <Route element={<ProtectedRoute roles={['buyer']} />}>
+            <Route element={<BuyerLayout />}>
+              <Route path="/buyer/dashboard" element={<BuyerDashboard />} />
+              <Route path="/buyer/choices" element={<ChoicesPortal />} />
+              <Route path="/buyer/basket" element={<BasketPage />} />
+
+            </Route>
+          </Route>
 
           {/* Catch-all */}
           <Route path="*" element={<Navigate to="/login" replace />} />

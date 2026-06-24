@@ -39,7 +39,7 @@ exports.setDeadline = async (req, res, next) => {
   try {
     const plot = await Plot.findOneAndUpdate(
       { _id: req.params.id, developer: req.user._id },
-      { selectionDeadline: req.body.deadline },
+      { deadline: req.body.deadline }, 
       { new: true }
     );
     res.status(200).json({ success: true, plot });

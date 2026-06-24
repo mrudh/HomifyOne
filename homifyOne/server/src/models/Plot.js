@@ -12,7 +12,7 @@ const plotSchema = new mongoose.Schema({
   },
   bedrooms: { type: Number },
   bathrooms: { type: Number },
-  selectionDeadline: { type: Date },
+  deadline: { type: Date },
   status: {
     type: String,
     enum: ['available', 'assigned', 'selections_pending', 'selections_submitted', 'selections_approved', 'completed'],

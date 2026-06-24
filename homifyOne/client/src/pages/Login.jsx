@@ -4,7 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const ROLE_REDIRECTS = {
-  buyer: '/dashboard/buyer',
+  buyer: '/buyer/dashboard',
   developer: '/dashboard/developer',
   supplier: '/dashboard/supplier',
   admin: '/dashboard/admin',
