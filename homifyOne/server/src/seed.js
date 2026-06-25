@@ -4,6 +4,7 @@ const User = require('./models/User');
 const Plot = require('./models/Plot');
 const Product = require('./models/Product');
 const choicesProducts = require('./scripts/choices-products');
+const extrasRaw = require('./scripts/extras-products');
 require('dotenv').config();
 
 const userData = [{
@@ -202,7 +203,18 @@ const seed = async () => {
       await Product.insertMany(choicesWithSupplier);
       console.log(`✅ ${choicesWithSupplier.length} choice products seeded`);
 
+      const supplierMap = {
+         supplierKitchen, supplierBath, supplierPaint, supplierBlinds,
+         supplierCarpet, supplierLights, supplierFloor, supplierRadiator, supplierGarden,
+      };
 
+      const extrasWithSupplier = extrasRaw.map(({ supplierKey, ...p }) => ({
+         ...p,
+         supplier: supplierMap[supplierKey]?._id || supplierKitchen._id,
+      }));
+
+      await Product.insertMany(extrasWithSupplier);
+      console.log(`✅ ${extrasWithSupplier.length} extras products seeded`);
       
       console.log('\n Seed complete!');
       console.log('─────────────────────────────────────');
