@@ -12,6 +12,7 @@ import ChoicesPortal from './pages/buyer/ChoicesPortal';
 import BuyerLayout from './layout/BuyerLayout';
 import BasketPage from './pages/buyer/BasketPage';
 import MyProperty from './pages/buyer/MyProperty';
+import Questionnaire from "./pages/buyer/Questionnaire";
 
 
 export default function App() {
@@ -46,10 +47,11 @@ export default function App() {
               <Route path="/buyer/choices" element={<ChoicesPortal />} />
               <Route path="/buyer/basket" element={<BasketPage />} />
               <Route path="/buyer/property" element={<MyProperty />} />
+              <Route path="/buyer/questionnaire" element={<Questionnaire />} />
+
             </Route>
           </Route>
 
-          {/* Catch-all */}
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>

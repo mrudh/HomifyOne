@@ -12,6 +12,27 @@ const userSchema = new mongoose.Schema({
   isActive: { type: Boolean, default: true },
   otp: { type: String },
   otpExpiry: { type: Date },
+  questionnaireCompleted: {
+        type: Boolean,
+        default: false
+    },
+    questionnaireAnswers: {
+        type: Object,
+        default: null
+    },
+    buyerProfile: {
+        type: String,
+        default: ""
+    },
+    credit: {
+        type: Number,
+        default: 0
+    },
+    promoCode: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "PromoCode",
+        default: null
+    },
 }, { timestamps: true });
 
 userSchema.pre('save', async function () {

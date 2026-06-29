@@ -5,7 +5,17 @@ const navItems = [
   { label: 'Dashboard', icon: '⊞', path: '/buyer/dashboard' },
   { label: 'My Property', icon: '🏠', path: '/buyer/property' },
   { label: 'Standard Choices', icon: '✔️', path: '/buyer/choices' },
-  { label: 'Extra Catalogue', icon: '✨', path: '/buyer/extras' },
+  {
+    label: "Choose Your Extras",
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+      </svg>
+    ),
+    path: "/buyer/questionnaire",
+    highlight: true, 
+  },
   { label: 'My Selections', icon: '📋', path: '/buyer/selections' },
   { label: 'Basket & Quote', icon: '🛒', path: '/buyer/basket' },
   { label: 'Orders & Status', icon: '📦', path: '/buyer/orders' },

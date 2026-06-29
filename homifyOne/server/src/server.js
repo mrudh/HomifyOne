@@ -30,6 +30,7 @@ app.use(require('./middleware/errorHandler'));
 
 app.use('/api/products',   require('./routes/product.routes'));
 app.use('/api/selections', require('./routes/selection.routes'));
+app.use("/api/questionnaire", require("./routes/questionnaire.routes"));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
