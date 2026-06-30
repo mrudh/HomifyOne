@@ -13,6 +13,7 @@ import BuyerLayout from './layout/BuyerLayout';
 import BasketPage from './pages/buyer/BasketPage';
 import MyProperty from './pages/buyer/MyProperty';
 import Questionnaire from "./pages/buyer/Questionnaire";
+import Recommendations from './pages/buyer/Recommendations';
 
 
 export default function App() {
@@ -48,6 +49,7 @@ export default function App() {
               <Route path="/buyer/basket" element={<BasketPage />} />
               <Route path="/buyer/property" element={<MyProperty />} />
               <Route path="/buyer/questionnaire" element={<Questionnaire />} />
+              <Route path="/buyer/recommendations" element={<Recommendations />} />
 
             </Route>
           </Route>

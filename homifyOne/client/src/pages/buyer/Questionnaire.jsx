@@ -323,53 +323,95 @@ const Q7_OPTIONS = [{
 ];
 
 function buildBuyerProfile(answers, plot) {
-    const parts = [];
-
     const hMap = {
-        solo: "single occupant",
-        couple: "couple",
-        family_y: "family with young children",
-        family_t: "family with teenagers",
-        shared: "shared household",
+        solo: "a single occupant",
+        couple: "a couple",
+        family_y: "a family with young children",
+        family_t: "a family with teenagers",
+        shared: "a shared household",
+    };
+    const uMap = {
+        relax: "relaxing and family time",
+        work: "working from home",
+        cooking: "cooking and dining",
+        hosting: "hosting guests",
+        organised: "keeping things organised",
+        mixed: "a balanced mix of uses",
     };
     const sMap = {
         modern: "modern",
         minimal: "minimal",
         classic: "classic",
         scandi: "Scandinavian",
-        cosy: "cosy/warm",
-        bold: "bold/statement",
-        unsure: "neutral",
+        cosy: "cosy and warm",
+        bold: "bold and statement",
+        unsure: "any style",
     };
     const pMap = {
-        budget: "budget-conscious",
-        durable: "durability-focused",
-        maintain: "low-maintenance focused",
-        premium: "premium-oriented",
-        value_up: "resale-value focused",
-        comfort: "comfort-focused",
-        safety: "safety & security focused",
+        budget: "staying within budget",
+        durable: "long-term durability",
+        maintain: "easy maintenance",
+        premium: "a premium look and feel",
+        value_up: "increasing property value",
+        comfort: "comfort and lifestyle",
+        safety: "safety and security",
     };
     const bMap = {
-        low: "low budget",
-        little: "low-to-mid budget",
-        balanced: "mid-range budget",
-        invest: "premium budget",
-        unsure: "flexible budget",
+        low: "a low budget",
+        little: "a low-to-mid budget",
+        balanced: "a balanced budget",
+        invest: "a premium budget",
+        unsure: "a flexible budget",
+    };
+    const traitMap = {
+        smart_home: "smart home and tech",
+        entertain: "entertaining guests",
+        wfh_life: "working from home",
+        young_kids: "young children",
+        teen_kids: "teenagers",
+        eco: "eco and sustainability",
+        security: "home security",
+        outdoor_life: "outdoor living",
+        minimalist: "clutter-free living",
+        cosy_home: "a cosy warm home",
+        pet_life: "pets",
+        accessibility: "accessibility needs",
     };
 
-    if (answers.household) parts.push(hMap[answers.household] || answers.household);
-    if (answers.hasPets && answers.petPref !== "pet_no") parts.push("pet owner");
-    if (answers.homeUse?.length) parts.push(answers.homeUse.join(", "));
-    if (answers.wfhFreq) parts.push(`works from home: ${answers.wfhFreq}`);
-    if (answers.style) parts.push(`${sMap[answers.style] || answers.style} style`);
-    if (answers.priorities?.length) parts.push(answers.priorities.map((p) => pMap[p] || p).join(", "));
-    if (answers.budget) parts.push(bMap[answers.budget] || answers.budget);
-    if (answers.lifestyleTraits?.length) {
-        parts.push(answers.lifestyleTraits.join(", "));
+    const parts = [];
+
+    const household = hMap[answers.household];
+    const style = sMap[answers.style];
+    const budget = bMap[answers.budget];
+
+    if (household) parts.push(`This is ${household}`);
+    if (answers.hasPets && answers.petPref !== "pet_no") parts.push("with pets");
+
+    const uses = (answers.homeUse || []).map(u => uMap[u]).filter(Boolean);
+    if (uses.length) parts.push(`who primarily use their home for ${uses.join(", ")}`);
+
+    if (answers.wfhFreq) {
+        const freqMap = {
+            wfh_most: "most days",
+            wfh_few: "a few days a week",
+            wfh_occ: "occasionally",
+            wfh_rare: "rarely"
+        };
+        parts.push(`working from home ${freqMap[answers.wfhFreq] || answers.wfhFreq}`);
     }
 
-    return parts.join("; ");
+    if (style) parts.push(`preferring a ${style} style`);
+    if (budget) parts.push(`with ${budget}`);
+
+    const priorities = (answers.priorities || []).map(p => pMap[p]).filter(Boolean);
+    if (priorities.length) parts.push(`prioritising ${priorities.join(" and ")}`);
+
+    const traits = (answers.lifestyleTraits || []).map(t => traitMap[t]).filter(Boolean);
+    if (traits.length) parts.push(`with lifestyle interests in ${traits.join(", ")}`);
+
+    if (plot?.bedrooms) parts.push(`in a ${plot.bedrooms}-bed property`);
+
+    return parts.join(", ").replace(/^./, c => c.toUpperCase()) + ".";
 }
 
 function OptionCard({ emoji, label, desc, selected, onClick, tag, multi }) {
@@ -780,7 +822,7 @@ function EndScreen({ buyerProfile, onSubmit, loading }) {
       {buyerProfile && (
         <div className="bg-stone-50 border border-stone-200 rounded-2xl px-5 py-4 mb-8 text-left">
           <p className="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-1">Your profile</p>
-          <p className="text-sm text-stone-700 leading-relaxed capitalize">{buyerProfile}</p>
+          <p className="text-sm text-stone-700 leading-relaxed">{buyerProfile}</p>
         </div>
       )}
       <button onClick={onSubmit} disabled={loading}
@@ -994,6 +1036,9 @@ export default function Questionnaire() {
 
   async function handleSubmit() {
   try {
+    // ✅ Add this line:
+    localStorage.setItem('questionnaireAnswers', JSON.stringify(answers));
+
     const { data } = await axios.post(
       `${API}/questionnaire/submit`,
       { answers, buyerProfile },
@@ -1027,7 +1072,10 @@ export default function Questionnaire() {
     q5:    <Q5Screen    answers={answers} setAnswers={setAnswers} onNext={next} onBack={back} />,
     q6: <Q6Screen answers={answers} setAnswers={setAnswers} onNext={next} onBack={back} />,
     q7:    <Q7Screen    answers={answers} setAnswers={setAnswers} onNext={next} onBack={back} />,
-    reward: <RewardScreen reward={reward} onContinue={() => navigate("/buyer/recommendations")} />,
+    reward: <RewardScreen reward={reward} onContinue={() => {
+      localStorage.setItem('questionnaireAnswers', JSON.stringify(answers));
+      navigate("/buyer/recommendations");
+    }} />,
     end:   <EndScreen   buyerProfile={buyerProfile} onSubmit={handleSubmit} loading={loading} />,
   };
 
