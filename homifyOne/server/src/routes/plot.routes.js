@@ -7,5 +7,6 @@ router.get('/my', verifyToken, authorise('buyer'), ctrl.getMyPlot);
 router.get('/developer', verifyToken, authorise('developer'), ctrl.getMyPlots);
 router.patch('/:id/assign-buyer', verifyToken, authorise('admin'), ctrl.assignBuyer);
 router.patch('/:id/deadline', verifyToken, authorise('developer'), ctrl.setDeadline);
+router.patch('/:id/allowance', verifyToken, authorise('developer'), ctrl.setAllowance);
 
 module.exports = router;

@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') });
 const cloudinary = require('cloudinary').v2;
 const fs = require('fs');
 const path = require('path');
@@ -207,19 +207,36 @@ const guessPrice = (filename, subCategory, room) => {
 };
 
 const generateNames = async (items, retries = 3) => {
-  const prompt = `You are a product naming specialist for a premium UK new-build home customisation platform called HomifyOne.
+  const prompt = `You are a product content specialist for HomifyOne, a premium UK new-build home customisation platform.
 
-For each item below, generate:
-1. A fancy short branded product name (e.g. "Riviera Wardrobe", "Oslo Extractor Hood", "Kensington Ceramic Sink")
-   - Use place names, designer words, or elegant English words as prefixes
-   - 2-4 words max, must clearly reflect the item type
-2. A short professional one-sentence description (max 12 words)
+For each item below, generate the following fields. Keep all copy professional, warm, and buyer-friendly — written for someone choosing finishes for their new home.
+
+Fields to generate per item:
+- name: A short branded product name (2–4 words, e.g. "Riviera Wardrobe", "Oslo Extractor Hood"). Use elegant place names or design words as prefix.
+- description: One clear, appealing sentence (max 15 words) describing what the product is and its key benefit.
+- highlights: Array of exactly 3 short bullet points (max 8 words each) highlighting the top selling points. Focus on quality, function, and lifestyle benefit.
+- specs: An object with 4–6 relevant key-value pairs appropriate to the product type. Use real-world spec labels buyers care about (e.g. "Material", "Finish", "Dimensions", "Warranty", "Installation", "Energy Rating"). Keep values concise and realistic.
+- goodToKnow: Array of exactly 2 short practical notes a buyer should be aware of (e.g. lead times, compatibility, installation requirements). Max 12 words each.
+- installStage: One of exactly these values: "Pre-completion" or "Handover / ready to move in"
+- leadTime: A realistic lead time string (e.g. "3–4 weeks", "6–8 weeks")
 
 Items (index | filename | room | subcategory | style):
 ${items.map((it, i) => `${i + 1} | ${it.filename} | ${it.room} | ${it.subCategory} | ${it.style}`).join('\n')}
 
-Respond ONLY with a valid JSON array, no markdown, no explanation:
-[{"index":1,"name":"...","description":"..."},...]`;
+Respond ONLY with a valid JSON array. No markdown, no explanation, no code blocks:
+[
+  {
+    "index": 1,
+    "name": "...",
+    "description": "...",
+    "highlights": ["...", "...", "..."],
+    "specs": { "Material": "...", "Finish": "...", "Warranty": "..." },
+    "goodToKnow": ["...", "..."],
+    "installStage": "...",
+    "leadTime": "..."
+  },
+  ...
+]`;
 
   for (const modelName of MODELS) {
     for (let attempt = 1; attempt <= retries; attempt++) {
@@ -227,10 +244,42 @@ Respond ONLY with a valid JSON array, no markdown, no explanation:
         const model = genAI.getGenerativeModel({ model: modelName });
         const result = await model.generateContent(prompt);
         const content = result.response.text().trim();
-        const cleaned = content.replace(/^```json\s*/,'').replace(/\s*```$/,'').trim();
-        return JSON.parse(cleaned);
+
+        let cleaned = content
+          .replace(/^```json\s*/i, '')
+          .replace(/^```\s*/i, '')
+          .replace(/\s*```$/i, '')
+          .trim();
+
+        if (cleaned.startsWith('{')) {
+          const inner = cleaned.match(/"products"\s*:\s*(\[[\s\S]*\])/);
+          if (inner) cleaned = inner;
+        }
+
+        let parsed;
+        try {
+          parsed = JSON.parse(cleaned);
+        } catch (parseErr) {
+          console.warn(`\n ⚠️  JSON parse failed, attempting recovery...`);
+
+          const lastBrace = cleaned.lastIndexOf('},');
+          if (lastBrace !== -1) {
+            const recovered = cleaned.slice(0, lastBrace + 1) + ']';
+            try {
+              parsed = JSON.parse(recovered);
+              console.warn(` ✅ Recovered ${parsed.length} of ${items.length} items from batch`);
+            } catch {
+              throw parseErr; 
+            }
+          } else {
+            throw parseErr;
+          }
+        }
+
+        return parsed;
+
       } catch (err) {
-        const is503 = err.message.includes('503') || err.message.includes('high demand');
+        const is503     = err.message.includes('503') || err.message.includes('high demand');
         const isNotFound = err.message.includes('404') || err.message.includes('not found') || err.message.includes('no longer available');
         if (isNotFound) { console.log(`\n ⚠️  ${modelName} not available, trying next...`); break; }
         if (is503 && attempt < retries) {
@@ -240,12 +289,16 @@ Respond ONLY with a valid JSON array, no markdown, no explanation:
         } else if (attempt === retries) {
           console.log(`\n ⚠️  ${modelName} failed after ${retries} attempts, trying next...`);
           break;
-        } else { throw err; }
+        } else {
+          console.warn(`\n ⚠️  Attempt ${attempt} failed (${err.message.slice(0, 60)}), retrying...`);
+          await new Promise(r => setTimeout(r, 2000));
+        }
       }
     }
   }
   throw new Error('All models failed. Try again in a few minutes.');
 };
+
 
 const getAllResources = async (prefix) => {
   let resources = [], nextCursor = null;
@@ -330,7 +383,7 @@ const run = async () => {
   }
 
   console.log(`\n✅ Total extras images found: ${allItems.length}`);
-  console.log(`🤖 Generating fancy names via Gemini in batches of ${BATCH_SIZE}...\n`);
+  console.log(`🤖 Generating product details via Gemini in batches of ${BATCH_SIZE}...\n`);
 
   const products = [];
   for (let i = 0; i < allItems.length; i += BATCH_SIZE) {
@@ -347,7 +400,7 @@ const run = async () => {
       const result = names.find(n => n.index === j + 1);
 
       if (!result) {
-        console.warn(` ⚠️  No name for index ${j + 1}, using filename`);
+        console.warn(` ⚠️  No result for index ${j + 1}, using fallback`);
         products.push({
           name: item.filename.replace(/[-_]/g, ' '),
           description: `${item.style} style ${item.subCategory} for your ${item.room}.`,
@@ -356,6 +409,11 @@ const run = async () => {
           price: guessPrice(item.filename, item.subCategory, item.room),
           supplierKey: item.supplierKey, imageUrl: item.imageUrl,
           tags: toTags(item.filename, item.filename, item.room, item.subCategory, item.style),
+          highlights: [],
+          specs: {},
+          goodToKnow: [],
+          installStage: 'Handover / ready to move in',
+          leadTime:'3–4 weeks',
         });
         continue;
       }
@@ -367,6 +425,11 @@ const run = async () => {
         style: item.style, type: 'extra', price,
         supplierKey: item.supplierKey, imageUrl: item.imageUrl,
         tags: toTags(item.filename, result.name, item.room, item.subCategory, item.style),
+        highlights: result.highlights || [],
+        specs: result.specs || {},
+        goodToKnow: result.goodToKnow || [],
+        installStage: result.installStage || 'Handover / ready to move in',
+        leadTime: result.leadTime || '3–4 weeks',
       });
       console.log(` ✅ ${result.name} — £${price}`);
     }

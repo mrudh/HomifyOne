@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 const navItems = [
   { label: 'Dashboard', icon: '⊞', path: '/buyer/dashboard' },
   { label: 'My Property', icon: '🏠', path: '/buyer/property' },
-  { label: 'Standard Choices', icon: '✔️', path: '/buyer/choices' },
+  { label: 'Standard Choices', icon: '✅', path: '/buyer/choices' },
   {
     label: "Choose Your Extras",
     icon: (
@@ -16,7 +16,7 @@ const navItems = [
     path: "/buyer/questionnaire",
     highlight: true, 
   },
-  { label: 'My Selections', icon: '📋', path: '/buyer/selections' },
+  { label: 'My Recommendations', icon: '📋', path: '/buyer/my-selections' },
   { label: 'Basket & Quote', icon: '🛒', path: '/buyer/basket' },
   { label: 'Orders & Status', icon: '📦', path: '/buyer/orders' },
   { label: 'Payments', icon: '💳', path: '/buyer/payments' },

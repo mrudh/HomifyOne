@@ -14,6 +14,8 @@ import BasketPage from './pages/buyer/BasketPage';
 import MyProperty from './pages/buyer/MyProperty';
 import Questionnaire from "./pages/buyer/Questionnaire";
 import Recommendations from './pages/buyer/Recommendations';
+import ProductDetailPage from './pages/buyer/ProductDetailPage';
+import MySelections from './pages/buyer/MySelections';
 
 
 export default function App() {
@@ -50,7 +52,8 @@ export default function App() {
               <Route path="/buyer/property" element={<MyProperty />} />
               <Route path="/buyer/questionnaire" element={<Questionnaire />} />
               <Route path="/buyer/recommendations" element={<Recommendations />} />
-
+              <Route path="/buyer/extras/:slug" element={<ProductDetailPage />} />
+              <Route path="/buyer/my-selections" element={<MySelections />} />
             </Route>
           </Route>
 

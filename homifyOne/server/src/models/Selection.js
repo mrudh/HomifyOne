@@ -28,6 +28,14 @@ const selectionSchema = new mongoose.Schema({
         enum: ['pending', 'confirmed'],
         default: 'pending'
     },
+    recommendations: [{ 
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product' 
+    }],
+    questionnaireCompleted: {
+        type: Boolean,
+        default: false 
+    }
 }, {
     timestamps: true
 });

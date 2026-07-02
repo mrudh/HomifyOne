@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import loginHouse from '../assets/home.png';
 
 const ROLE_REDIRECTS = {
   buyer: '/buyer/dashboard',
@@ -48,9 +49,16 @@ export default function Login() {
     <div className={darkMode ? 'dark' : ''}>
       <div className="flex min-h-screen font-sans">
 
-        <div className="hidden lg:flex lg:w-1/2 bg-[#1a4a45] flex-col justify-between p-12 relative overflow-hidden">
-          <div className="absolute top-[-80px] left-[-80px] w-96 h-96 bg-[#2d6b62] rounded-full opacity-40" />
-          <div className="absolute bottom-[-60px] right-[-60px] w-72 h-72 bg-[#2d6b62] rounded-full opacity-30" />
+        {/* <div className="hidden lg:flex lg:w-1/2 bg-[#1a4a45] flex-col justify-between p-12 relative overflow-hidden">
+        <img
+          src={loginHouse}
+          alt="Modern new-build home"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-[#123f3a]/75" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/50" />
+
+        <div className="relative z-10 flex flex-col justify-between w-full min-h-screen p-12"></div>
 
           <div className="relative z-10 flex items-center gap-2 text-white">
             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -71,10 +79,56 @@ export default function Login() {
           </div>
 
           
+        </div> */}
+
+        <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+          <img
+            src={loginHouse}
+            alt="Modern new-build home"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+
+          <div className="absolute inset-0 bg-[#0b332f]/55" />
+
+          <div className="absolute inset-0 bg-gradient-to-b from-[#082c28]/40 via-transparent to-[#082c28]/80" />
+
+          <div className="relative z-10 flex flex-col justify-between w-full min-h-screen p-12">
+
+            <div className="flex items-center gap-3 text-white">
+              <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M3 9.75L12 3l9 6.75V21a1 1 0 01-1 1H4a1 1 0 01-1-1V9.75z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M9 21V12h6v9"
+                />
+              </svg>
+              <span className="text-2xl font-semibold tracking-tight">
+                HomifyOne
+              </span>
+            </div>
+
+            <div className="mb-12 max-w-md">
+              <p className="text-4xl font-bold text-white leading-tight">
+                Your home,{' '}
+                <span className="italic font-light text-[#a8d5cf]">
+                  personalised
+                </span>
+                <br />
+                with intention.
+              </p>
+            </div>
+
+          </div>
         </div>
 
         <div className="w-full lg:w-1/2 bg-[#f8f7f4] dark:bg-gray-900 flex items-center justify-center px-8 py-12 relative">
-
           <button
             onClick={() => setDarkMode(!darkMode)}
             className="absolute top-6 right-6 p-2 rounded-full bg-white dark:bg-gray-800 shadow text-gray-500 dark:text-gray-300 hover:scale-110 transition"
@@ -96,13 +150,6 @@ export default function Login() {
             </div>
 
             <div className="mb-8">
-              <div className="flex items-center gap-2 mb-3">
-                <svg className="w-5 h-5 text-[#1a4a45]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                    d="M3 9.75L12 3l9 6.75V21a1 1 0 01-1 1H4a1 1 0 01-1-1V9.75z" />
-                </svg>
-                <span className="text-sm font-medium text-[#1a4a45] dark:text-teal-400">HomifyOne</span>
-              </div>
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Welcome back</h1>
               <p className="text-gray-500 dark:text-gray-400 mt-1 text-sm">
                 Sign in to your HomifyOne account to continue.
@@ -199,7 +246,7 @@ export default function Login() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between">
+              <div className="flex justify-end underline">
                 {/* <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 cursor-pointer">
                   <input
                     type="checkbox"

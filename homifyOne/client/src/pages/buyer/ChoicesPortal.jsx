@@ -28,9 +28,11 @@ export default function ChoicesPortal() {
   useEffect(() => {
     api.get('/products/grouped').then(r => {
       setGrouped(r.data.grouped);
-      const first = Object.keys(r.data.grouped)[0];
-      setActiveRoom(first);
-      setActiveCategory(Object.keys(r.data.grouped[first] || {})[0] || '');
+      const targetRoom = location.state?.room;
+      const firstRoom  = Object.keys(r.data.grouped)[0];
+      const roomToUse  = targetRoom && r.data.grouped[targetRoom] ? targetRoom : firstRoom;
+      setActiveRoom(roomToUse);
+      setActiveCategory(Object.keys(r.data.grouped[roomToUse] || {})[0] || '');
     });
     api.get('/selections').then(r => {
       const map = {};

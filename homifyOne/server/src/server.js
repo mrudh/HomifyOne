@@ -32,6 +32,7 @@ app.use('/api/products',   require('./routes/product.routes'));
 app.use('/api/selections', require('./routes/selection.routes'));
 app.use("/api/questionnaire", require("./routes/questionnaire.routes"));
 app.use('/api/recommendations', require('./routes/recommendation.routes'));
+app.use('/api/extras', require('./routes/extras.routes'));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

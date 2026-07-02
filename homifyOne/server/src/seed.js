@@ -144,7 +144,8 @@ const seed = async () => {
             bedrooms: 3,
             bathrooms: 2,
             deadline: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
-            status: 'assigned'
+            status: 'assigned',
+            extrasAllowance: 5000
          },
          {
             developer: developer._id,

@@ -323,95 +323,84 @@ const Q7_OPTIONS = [{
 ];
 
 function buildBuyerProfile(answers, plot) {
-    const hMap = {
-        solo: "a single occupant",
-        couple: "a couple",
-        family_y: "a family with young children",
-        family_t: "a family with teenagers",
-        shared: "a shared household",
-    };
-    const uMap = {
-        relax: "relaxing and family time",
-        work: "working from home",
-        cooking: "cooking and dining",
-        hosting: "hosting guests",
-        organised: "keeping things organised",
-        mixed: "a balanced mix of uses",
-    };
-    const sMap = {
-        modern: "modern",
-        minimal: "minimal",
-        classic: "classic",
-        scandi: "Scandinavian",
-        cosy: "cosy and warm",
-        bold: "bold and statement",
-        unsure: "any style",
-    };
-    const pMap = {
-        budget: "staying within budget",
-        durable: "long-term durability",
-        maintain: "easy maintenance",
-        premium: "a premium look and feel",
-        value_up: "increasing property value",
-        comfort: "comfort and lifestyle",
-        safety: "safety and security",
-    };
-    const bMap = {
-        low: "a low budget",
-        little: "a low-to-mid budget",
-        balanced: "a balanced budget",
-        invest: "a premium budget",
-        unsure: "a flexible budget",
-    };
-    const traitMap = {
-        smart_home: "smart home and tech",
-        entertain: "entertaining guests",
-        wfh_life: "working from home",
-        young_kids: "young children",
-        teen_kids: "teenagers",
-        eco: "eco and sustainability",
-        security: "home security",
-        outdoor_life: "outdoor living",
-        minimalist: "clutter-free living",
-        cosy_home: "a cosy warm home",
-        pet_life: "pets",
-        accessibility: "accessibility needs",
-    };
+  const hMap = {
+    solo:     "a single occupant",
+    couple:   "a couple",
+    family_y: "a family with young children",
+    family_t: "a family with teenagers",
+    shared:   "a shared household",
+  };
+  const uMap = {
+    relax:     "relaxing and family time",
+    work:      "working from home",
+    cooking:   "cooking and dining",
+    hosting:   "hosting guests",
+    organised: "keeping things organised",
+    mixed:     "a balanced mix of everyday activities",
+  };
+  const sMap = {
+    modern:  "modern", minimal: "minimal", classic: "classic",
+    scandi:  "Scandinavian", cosy: "cosy and warm", bold: "bold and statement",
+  };
+  const pMap = {
+    budget:   "good value for money",   durable:  "long-lasting materials",
+    maintain: "easy-to-clean surfaces", premium:  "a premium finish",
+    value_up: "strong resale appeal",   comfort:  "comfort and liveability",
+    safety:   "safety and security",
+  };
+  const bMap = {
+    low:      "a tight budget",    little:   "a modest budget",
+    balanced: "a balanced budget", invest:   "a premium budget",
+    unsure:   "a flexible budget",
+  };
+  const traitMap = {
+    smart_home:    "smart home technology",  entertain:     "entertaining guests",
+    wfh_life:      "a home office setup",    young_kids:    "young children",
+    teen_kids:     "teenagers",              eco:           "eco-friendly choices",
+    security:      "home security",          outdoor_life:  "outdoor living",
+    minimalist:    "clutter-free spaces",    cosy_home:     "a cosy atmosphere",
+    pet_life:      "pet-friendly features",  accessibility: "accessibility",
+  };
 
-    const parts = [];
+  const household = hMap[answers.household];
+  const style     = sMap[answers.style]; 
+  const budget    = bMap[answers.budget];
 
-    const household = hMap[answers.household];
-    const style = sMap[answers.style];
-    const budget = bMap[answers.budget];
+  const uses = (answers.homeUse || [])
+    .filter(u => u !== "mixed")
+    .map(u => uMap[u])
+    .filter(Boolean)
+    .slice(0, 2);
+  const usesText = answers.homeUse?.includes("mixed")
+    ? "a balanced mix of everyday activities"
+    : uses.length ? uses.join(" and ") : null;
 
-    if (household) parts.push(`This is ${household}`);
-    if (answers.hasPets && answers.petPref !== "pet_no") parts.push("with pets");
+  const priorities = (answers.priorities || []).map(p => pMap[p]).filter(Boolean);
+  const topPriorities = priorities.slice(0, 2);
 
-    const uses = (answers.homeUse || []).map(u => uMap[u]).filter(Boolean);
-    if (uses.length) parts.push(`who primarily use their home for ${uses.join(", ")}`);
+  const traits = (answers.lifestyleTraits || [])
+    .map(t => traitMap[t])
+    .filter(Boolean)
+    .slice(0, 3);
 
-    if (answers.wfhFreq) {
-        const freqMap = {
-            wfh_most: "most days",
-            wfh_few: "a few days a week",
-            wfh_occ: "occasionally",
-            wfh_rare: "rarely"
-        };
-        parts.push(`working from home ${freqMap[answers.wfhFreq] || answers.wfhFreq}`);
-    }
+  const parts = [];
 
-    if (style) parts.push(`preferring a ${style} style`);
-    if (budget) parts.push(`with ${budget}`);
+  if (household) parts.push(`This is ${household}`);
+  if (answers.hasPets && answers.petPref !== "pet_no") parts.push("with pets");
+  if (usesText) parts.push(`who use their home mainly for ${usesText}`);
+  if (style) parts.push(`with a ${style} style preference`);
+  else if (answers.style === "unsure") parts.push("open to any style");
+  if (budget) parts.push(`working with ${budget}`);
+  if (topPriorities.length) parts.push(`who care most about ${topPriorities.join(" and ")}`);
+  if (traits.length) parts.push(`with an interest in ${fmt(traits)}`);
+  if (plot?.bedrooms) parts.push(`in a ${plot.bedrooms}-bed home`);
 
-    const priorities = (answers.priorities || []).map(p => pMap[p]).filter(Boolean);
-    if (priorities.length) parts.push(`prioritising ${priorities.join(" and ")}`);
+  return parts.join(", ").replace(/^./, c => c.toUpperCase()) + ".";
+}
 
-    const traits = (answers.lifestyleTraits || []).map(t => traitMap[t]).filter(Boolean);
-    if (traits.length) parts.push(`with lifestyle interests in ${traits.join(", ")}`);
-
-    if (plot?.bedrooms) parts.push(`in a ${plot.bedrooms}-bed property`);
-
-    return parts.join(", ").replace(/^./, c => c.toUpperCase()) + ".";
+function fmt(arr) {
+  if (arr.length === 1) return arr[0];
+  return arr.slice(0, -1).join(", ") + " and " + arr[arr.length - 1];
 }
 
 function OptionCard({ emoji, label, desc, selected, onClick, tag, multi }) {
@@ -1034,9 +1023,10 @@ export default function Questionnaire() {
   //   navigate("/buyer/recommendations");
   // }
 
-  async function handleSubmit() {
+
+
+async function handleSubmit() {
   try {
-    // ✅ Add this line:
     localStorage.setItem('questionnaireAnswers', JSON.stringify(answers));
 
     const { data } = await axios.post(
@@ -1044,6 +1034,9 @@ export default function Questionnaire() {
       { answers, buyerProfile },
       { withCredentials: true }
     );
+
+    console.log('submit response:', data);
+
     setReward({
       credit:    data.credit,
       promoCode: data.promoCode,

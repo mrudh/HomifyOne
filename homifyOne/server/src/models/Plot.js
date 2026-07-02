@@ -16,6 +16,7 @@ const plotSchema = new mongoose.Schema({
   bathrooms: { type: Number, default: 0 },
   houseType: { type: String, default: '' },
   floorArea: { type: String, default: '' },
+  extrasAllowance: { type: Number, default: 0 },
   status: {
     type: String,
     enum: ['available', 'assigned', 'selections_pending', 'selections_submitted', 'selections_approved', 'completed'],

@@ -46,3 +46,16 @@ exports.setDeadline = async (req, res, next) => {
     res.status(200).json({ success: true, plot });
   } catch (err) { next(err); }
 };
+
+exports.setAllowance = async (req, res, next) => {
+  try {
+    const { extrasAllowance } = req.body;
+    const plot = await Plot.findOneAndUpdate(
+      { _id: req.params.id, developer: req.user._id },
+      { extrasAllowance },
+      { new: true }
+    );
+    if (!plot) return res.status(404).json({ success: false, message: 'Plot not found.' });
+    res.json({ success: true, plot });
+  } catch (err) { next(err); }
+};
