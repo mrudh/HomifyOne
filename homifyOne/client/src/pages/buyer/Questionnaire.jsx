@@ -349,22 +349,30 @@ function buildBuyerProfile(answers, plot) {
     safety:   "safety and security",
   };
   const bMap = {
-    low:      "a tight budget",    little:   "a modest budget",
-    balanced: "a balanced budget", invest:   "a premium budget",
-    unsure:   "a flexible budget",
+    low: "a tight budget",
+    little: "a modest budget",
+    balanced: "a balanced budget",
+    invest: "a premium budget",
+    unsure: "a flexible budget",
   };
   const traitMap = {
-    smart_home:    "smart home technology",  entertain:     "entertaining guests",
-    wfh_life:      "a home office setup",    young_kids:    "young children",
-    teen_kids:     "teenagers",              eco:           "eco-friendly choices",
-    security:      "home security",          outdoor_life:  "outdoor living",
-    minimalist:    "clutter-free spaces",    cosy_home:     "a cosy atmosphere",
-    pet_life:      "pet-friendly features",  accessibility: "accessibility",
+    smart_home: "smart home technology",
+    entertain: "entertaining guests",
+    wfh_life: "a home office setup",
+    young_kids: "young children",
+    teen_kids: "teenagers",
+    eco: "eco-friendly choices",
+    security: "home security",
+    outdoor_life: "outdoor living",
+    minimalist: "clutter-free spaces",
+    cosy_home: "a cosy atmosphere",
+    pet_life: "pet-friendly features",
+    accessibility: "accessibility",
   };
 
   const household = hMap[answers.household];
-  const style     = sMap[answers.style]; 
-  const budget    = bMap[answers.budget];
+  const style = sMap[answers.style];
+  const budget = bMap[answers.budget];
 
   const uses = (answers.homeUse || [])
     .filter(u => u !== "mixed")
@@ -733,18 +741,78 @@ function Q5Screen({ answers, setAnswers, onNext, onBack }) {
 }
 
 const Q6_OPTIONS = [
-  { value: "smart_home",   emoji: "📱", label: "Smart home & tech",        desc: "Devices, EV charging, automation" },
-  { value: "entertain",    emoji: "🥂", label: "I love entertaining",       desc: "Guests, open spaces, kitchen and living focus" },
-  { value: "wfh_life",     emoji: "💻", label: "I work from home regularly", desc: "Dedicated workspace, extra sockets, lighting" },
-  { value: "young_kids",   emoji: "🧸", label: "Young children at home",    desc: "Safety, durable surfaces, easy-clean finishes" },
-  { value: "teen_kids",    emoji: "🎮", label: "Teenagers at home",         desc: "Study space, storage, flexible rooms" },
-  { value: "eco",          emoji: "🌱", label: "Eco & sustainability",      desc: "Solar, EV, energy-efficient choices" },
-  { value: "security",     emoji: "🔒", label: "Home security matters",     desc: "Alarms, cameras, smart access, lighting" },
-  { value: "outdoor_life", emoji: "🌿", label: "Outdoor living",            desc: "Garden, patio, lighting, fencing" },
-  { value: "minimalist",   emoji: "✨", label: "Clutter-free living",       desc: "Hidden storage, clean lines, less is more" },
-  { value: "cosy_home",    emoji: "🕯️", label: "Cosy, warm home feel",      desc: "Soft furnishings, warm lighting, carpets" },
-  { value: "pet_life",     emoji: "🐾", label: "Pets are part of the family", desc: "Durable, scratch-resistant, easy-clean" },
-  { value: "accessibility",emoji: "♿", label: "Accessibility needs",       desc: "Level access, wider doors, practical layout" },
+  {
+    value: "smart_home",
+    emoji: "📱",
+    label: "Smart home & tech",
+    desc: "Devices, EV charging, automation",
+  },
+  {
+    value: "entertain",
+    emoji: "🥂",
+    label: "I love entertaining",
+    desc: "Guests, open spaces, kitchen and living focus",
+  },
+  {
+    value: "wfh_life",
+    emoji: "💻",
+    label: "I work from home regularly",
+    desc: "Dedicated workspace, extra sockets, lighting",
+  },
+  {
+    value: "young_kids",
+    emoji: "🧸",
+    label: "Young children at home",
+    desc: "Safety, durable surfaces, easy-clean finishes",
+  },
+  {
+    value: "teen_kids",
+    emoji: "🎮",
+    label: "Teenagers at home",
+    desc: "Study space, storage, flexible rooms",
+  },
+  {
+    value: "eco",
+    emoji: "🌱",
+    label: "Eco & sustainability",
+    desc: "Solar, EV, energy-efficient choices",
+  },
+  {
+    value: "security",
+    emoji: "🔒",
+    label: "Home security matters",
+    desc: "Alarms, cameras, smart access, lighting",
+  },
+  {
+    value: "outdoor_life",
+    emoji: "🌿",
+    label: "Outdoor living",
+    desc: "Garden, patio, lighting, fencing",
+  },
+  {
+    value: "minimalist",
+    emoji: "✨",
+    label: "Clutter-free living",
+    desc: "Hidden storage, clean lines, less is more",
+  },
+  {
+    value: "cosy_home",
+    emoji: "🕯️",
+    label: "Cosy, warm home feel",
+    desc: "Soft furnishings, warm lighting, carpets",
+  },
+  {
+    value: "pet_life",
+    emoji: "🐾",
+    label: "Pets are part of the family",
+    desc: "Durable, scratch-resistant, easy-clean",
+  },
+  {
+    value: "accessibility",
+    emoji: "♿",
+    label: "Accessibility needs",
+    desc: "Level access, wider doors, practical layout",
+  },
 ];
 
 function Q6Screen({ answers, setAnswers, onNext, onBack }) {
@@ -981,9 +1049,9 @@ function RewardScreen({ reward, onContinue }) {
 const FLOW = ["start", "q1", "q2", "q3", "q4", "q5", "q6", "q7", "end", "reward"];
 
 export default function Questionnaire() {
-  const [screen, setScreen]           = useState("start");
-  const [answers, setAnswers]         = useState({});
-  const [plot, setPlot]               = useState(null);
+  const [screen, setScreen] = useState("start");
+  const [answers, setAnswers] = useState({});
+  const [plot, setPlot] = useState(null);
   const [plotLoading, setPlotLoading] = useState(true);
   const [reward, setReward] = useState(null);
 
@@ -997,7 +1065,7 @@ export default function Questionnaire() {
       .finally(() => setPlotLoading(false));
   }, []);
 
-  const plotCtx      = derivePlotContext(plot);
+  const plotCtx = derivePlotContext(plot);
   const buyerProfile = buildBuyerProfile(answers, plot);
 
   function next() {
@@ -1037,11 +1105,23 @@ async function handleSubmit() {
 
     console.log('submit response:', data);
 
-    setReward({
-      credit:    data.credit,
-      promoCode: data.promoCode,
-      expiresAt: data.expiresAt,
-    });
+    if (data.alreadyCompleted && data.rewardExpired) {
+      navigate("/buyer/recommendations");
+      return;
+    }
+    
+    const rewardData = {
+      credit: data.credit || 0,
+      promoCode: data.promoCode || null,
+      discount: data.discount ?? 10,
+      maxDiscount: data.maxDiscount ?? 200,
+      expiresAt: data.expiresAt || null,
+    };
+
+    setReward(rewardData);
+
+    localStorage.setItem('questionnaireReward', JSON.stringify(rewardData));
+
     setScreen("reward");
   } catch (err) {
     console.error("Submit error:", err.message);
@@ -1058,18 +1138,79 @@ async function handleSubmit() {
 
   const SCREEN_MAP = {
     start: <StartScreen onStart={next} plot={plot} />,
-    q1:    <Q1Screen    answers={answers} setAnswers={setAnswers} onNext={next} onBack={back} plot={plot} />,
-    q2:    <Q2Screen    answers={answers} setAnswers={setAnswers} onNext={next} onBack={back} />,
-    q3:    <Q3Screen    answers={answers} setAnswers={setAnswers} onNext={next} onBack={back} />,
-    q4:    <Q4Screen    answers={answers} setAnswers={setAnswers} onNext={next} onBack={back} />,
-    q5:    <Q5Screen    answers={answers} setAnswers={setAnswers} onNext={next} onBack={back} />,
-    q6: <Q6Screen answers={answers} setAnswers={setAnswers} onNext={next} onBack={back} />,
-    q7:    <Q7Screen    answers={answers} setAnswers={setAnswers} onNext={next} onBack={back} />,
-    reward: <RewardScreen reward={reward} onContinue={() => {
-      localStorage.setItem('questionnaireAnswers', JSON.stringify(answers));
-      navigate("/buyer/recommendations");
-    }} />,
-    end:   <EndScreen   buyerProfile={buyerProfile} onSubmit={handleSubmit} loading={loading} />,
+    q1: (
+      <Q1Screen
+        answers={answers}
+        setAnswers={setAnswers}
+        onNext={next}
+        onBack={back}
+        plot={plot}
+      />
+    ),
+    q2: (
+      <Q2Screen
+        answers={answers}
+        setAnswers={setAnswers}
+        onNext={next}
+        onBack={back}
+      />
+    ),
+    q3: (
+      <Q3Screen
+        answers={answers}
+        setAnswers={setAnswers}
+        onNext={next}
+        onBack={back}
+      />
+    ),
+    q4: (
+      <Q4Screen
+        answers={answers}
+        setAnswers={setAnswers}
+        onNext={next}
+        onBack={back}
+      />
+    ),
+    q5: (
+      <Q5Screen
+        answers={answers}
+        setAnswers={setAnswers}
+        onNext={next}
+        onBack={back}
+      />
+    ),
+    q6: (
+      <Q6Screen
+        answers={answers}
+        setAnswers={setAnswers}
+        onNext={next}
+        onBack={back}
+      />
+    ),
+    q7: (
+      <Q7Screen
+        answers={answers}
+        setAnswers={setAnswers}
+        onNext={next}
+        onBack={back}
+      />
+    ),
+    reward: (
+      <RewardScreen
+        reward={reward}
+        onContinue={() => {
+          localStorage.setItem("questionnaireAnswers", JSON.stringify(answers));
+          navigate("/buyer/recommendations");
+        }}
+      />
+    ),
+    end: (
+      <EndScreen
+        buyerProfile={buyerProfile}
+        onSubmit={handleSubmit}
+        loading={loading}
+      />
+    ),
   };
 
   return (

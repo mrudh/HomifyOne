@@ -8,14 +8,22 @@ const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 const TABS = ['Overview', 'Specifications', 'Good to know'];
 
 export default function ProductDetailPage() {
-  const { slug }    = useParams();
-  const navigate    = useNavigate();
-  const location    = useLocation();
-  const [product,   setProduct]  = useState(location.state?.product || null);
-  const [tab,       setTab]      = useState('Overview');
-  const [loading,   setLoading]  = useState(!location.state?.product);
+  const { slug } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [product, setProduct] = useState(location.state?.product || null);
+  const [tab, setTab] = useState("Overview");
+  const [loading, setLoading] = useState(!location.state?.product);
 
-  const { addItem, removeItem, isInBasket, subtotal, remaining, overBudget, allowance } = useBasket();
+  const {
+    addItem,
+    removeItem,
+    isInBasket,
+    subtotal,
+    remaining,
+    overBudget,
+    allowance,
+  } = useBasket();
   const inBasket = product ? isInBasket(product.name) : false;
 
   useEffect(() => {
@@ -99,14 +107,14 @@ export default function ProductDetailPage() {
               )}
             </div>
 
-            {product.tags?.length > 0 && (
+            {/* {product.tags?.length > 0 && (
               <div className="hidden sm:flex flex-wrap gap-1.5 mt-4">
                 {product.tags.slice(0, 8).map((tag, i) => (
                   <span key={i} className="bg-white border border-gray-200 text-gray-500
                     text-xs px-2.5 py-1 rounded-full capitalize">{tag}</span>
                 ))}
               </div>
-            )}
+            )} */}
           </div>
 
           <div className="space-y-5">
@@ -228,11 +236,11 @@ export default function ProductDetailPage() {
               ? `Add anyway — £${Math.abs(remaining - Number(product.price)).toLocaleString()} over allowance`
               : `Add to basket — £${Number(product.price).toLocaleString()}`}
         </button>
-        <button onClick={() => navigate(-1)}
+        {/* <button onClick={() => navigate(-1)}
           className="hidden sm:block w-full py-3 rounded-2xl text-sm font-semibold
             text-gray-500 border border-gray-200 hover:bg-gray-50 transition">
           ← Back to recommendations
-        </button>
+        </button> */}
       </div>
     </div>
   );

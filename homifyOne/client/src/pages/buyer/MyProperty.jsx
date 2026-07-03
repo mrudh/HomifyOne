@@ -4,6 +4,7 @@ import api from '../../services/api';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import { useApp } from '../../context/AppContext';
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -212,20 +213,13 @@ function NearbyDistances({ plot, places }) {
 }
 
 export default function MyProperty() {
-  const [plot, setPlot] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [lightbox, setLightbox] = useState(false);
   const [places, setPlaces] = useState([]);
   const [placesLoading, setPlacesLoading] = useState(false);
   const [activeCategories, setActiveCategories] = useState(['home']);
   const navigate = useNavigate();
+  const { selectedPlot: plot, plotLoading: loading } = useApp();
 
-  useEffect(() => {
-    api.get('/plots/my')
-      .then(r => setPlot(r.data.plot))
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
 
   useEffect(() => {
     if (!plot?.coordinates) return;

@@ -129,6 +129,8 @@ function ProductModal({ product, onClose }) {
 function ProductCard({ product }) {
   const navigate = useNavigate();
   const { addItem, removeItem, isInBasket } = useBasket();
+  const { items, subtotal, remaining, overBudget, allowance } = useBasket();
+console.log('BASKET DEBUG →', { items, subtotal, remaining, overBudget, allowance });
   const inBasket = isInBasket(product.name);
 
   function goToDetail() {
@@ -330,7 +332,7 @@ export default function Recommendations() {
       <div className="bg-white border-b border-gray-100 sticky top-0 z-20 px-6 py-4">
         <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
           <div>
-            <h1 className="text-lg font-extrabold text-gray-900">Your Recommendations</h1>
+            <h1 className="text-md font-extrabold text-gray-900">Your Recommendations</h1>
             {selectedPlot && (
               <p className="text-xs text-gray-400 mt-0.5">
                 {selectedPlot.plotNumber} · {selectedPlot.development}

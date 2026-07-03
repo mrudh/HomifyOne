@@ -249,7 +249,7 @@ def recommend(profile: Profile):
         fallbacks = sorted(
             [p for p in products if matches_budget(p, profile.budget_min, profile.budget_max)],
             key=lambda x: float(x.get("price", 0))
-        )[:12]
+        )[:24]
         for p in fallbacks:
             results.append({
                 **p,
@@ -264,7 +264,7 @@ def recommend(profile: Profile):
             })
 
     results.sort(key=lambda x: x.get("match_score", 0), reverse=True)
-    top = results[:12]
+    top = results[:24]
 
     if top:
         print(f"✅ Top: {top[0]['name']} ({top[0]['match_score']}% match)")

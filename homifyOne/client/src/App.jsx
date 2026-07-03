@@ -16,6 +16,8 @@ import Questionnaire from "./pages/buyer/Questionnaire";
 import Recommendations from './pages/buyer/Recommendations';
 import ProductDetailPage from './pages/buyer/ProductDetailPage';
 import MySelections from './pages/buyer/MySelections';
+import OrderStatusPage from './pages/buyer/OrderStatusPage';
+import OrderDetailPage from './pages/buyer/OrderDetailPage';
 
 
 export default function App() {
@@ -54,6 +56,8 @@ export default function App() {
               <Route path="/buyer/recommendations" element={<Recommendations />} />
               <Route path="/buyer/extras/:slug" element={<ProductDetailPage />} />
               <Route path="/buyer/my-selections" element={<MySelections />} />
+              <Route path="/buyer/orders" element={<OrderStatusPage />} />
+              <Route path="/buyer/orders/:id" element={<OrderDetailPage />} />
             </Route>
           </Route>
 

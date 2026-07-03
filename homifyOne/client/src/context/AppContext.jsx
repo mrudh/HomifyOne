@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback } from "react";
+import { createContext, useContext, useState, useCallback, useEffect } from "react";
 import api from "../services/api";
 
 const AppContext = createContext(null);
@@ -51,10 +51,29 @@ const INITIAL_PROFILE = {
 };
 
 export function AppProvider({ children }) {
-  const [profile, setProfile]                 = useState(INITIAL_PROFILE);
+  const [profile, setProfile] = useState(INITIAL_PROFILE);
   const [recommendations, setRecommendations] = useState([]);
-  const [loading, setLoading]                 = useState(false);
-  const [error, setError]                     = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [selectedPlot, setSelectedPlot] = useState(null);
+  const [plotLoading, setPlotLoading] = useState(true);
+
+const fetchPlot = useCallback(async () => {
+  setPlotLoading(true);
+  try {
+    const { data } = await api.get('/plots/my');
+    setSelectedPlot(data.plot || null);
+  } catch (err) {
+    console.error('fetchPlot error:', err);
+    setSelectedPlot(null);
+  } finally {
+    setPlotLoading(false);
+  }
+}, []);
+
+useEffect(() => {
+  fetchPlot();
+}, [fetchPlot]);
 
   const updateProfile = useCallback((patch) => {
     setProfile((prev) => ({ ...prev, ...patch }));
@@ -114,6 +133,9 @@ export function AppProvider({ children }) {
         fetchRecommendations,
         fetchAISummary,
         buildNLPSentence,
+        selectedPlot,
+        plotLoading, 
+        fetchPlot,
       }}
     >
       {children}
