@@ -115,3 +115,54 @@ exports.getOrderById = async (req, res, next) => {
     res.json({ success: true, order });
   } catch (err) { next(err); }
 };
+
+exports.getDeveloperOrders = async (req, res, next) => {
+  try {
+    const plots = await Plot.find({ developer: req.user._id }).select('_id');
+    const plotIds = plots.map(p => p._id);
+    const orders = await Order.find({ plot: { $in: plotIds } })
+      .populate('buyer', 'name email')
+      .populate('plot', 'plotNumber development')
+      .sort({ createdAt: -1 });
+    res.json({ success: true, orders });
+  } catch (err) { next(err); }
+};
+
+exports.approveOrder = async (req, res, next) => {
+  try {
+    const order = await Order.findById(req.params.id).populate('plot');
+    if (!order) return res.status(404).json({ success: false, message: 'Order not found.' });
+    if (String(order.plot.developer) !== String(req.user._id)) {
+      return res.status(403).json({ success: false, message: 'Not authorised for this order.' });
+    }
+
+    order.status = 'approved';
+    await order.save();
+
+    await Plot.findByIdAndUpdate(order.plot._id, { status: 'selections_approved' });
+    res.json({ success: true, order });
+  } catch (err) { next(err); }
+};
+
+exports.rejectOrder = async (req, res, next) => {
+  try {
+    const { reason } = req.body;
+    if (!reason || !reason.trim()) {
+      return res.status(400).json({ success: false, message: 'A rejection reason is required.' });
+    }
+
+    const order = await Order.findById(req.params.id).populate('plot');
+    if (!order) return res.status(404).json({ success: false, message: 'Order not found.' });
+    if (String(order.plot.developer) !== String(req.user._id)) {
+      return res.status(403).json({ success: false, message: 'Not authorised for this order.' });
+    }
+
+    order.status = 'rejected';
+    order.rejectionReason = reason.trim();
+    await order.save();
+
+    await Plot.findByIdAndUpdate(order.plot._id, { status: 'selections_rejected' });
+
+    res.json({ success: true, order });
+  } catch (err) { next(err); }
+};

@@ -4,7 +4,6 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 import Login from './pages/Login';
 import BuyerDashboard from './pages/dashboards/BuyerDashboard';
-import DeveloperDashboard from './pages/dashboards/DeveloperDashboard';
 import SupplierDashboard from './pages/dashboards/SupplierDashboard';
 import AdminDashboard from './pages/dashboards/AdminDashboard';
 import ForgotPassword from './pages/ForgotPassword';
@@ -18,7 +17,8 @@ import ProductDetailPage from './pages/buyer/ProductDetailPage';
 import MySelections from './pages/buyer/MySelections';
 import OrderStatusPage from './pages/buyer/OrderStatusPage';
 import OrderDetailPage from './pages/buyer/OrderDetailPage';
-
+import DeveloperLayout from './layout/DeveloperLayout';
+import DeveloperDashboard from './pages/dashboards/DeveloperDashboard';
 
 export default function App() {
   return (
@@ -28,11 +28,11 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
 
-          <Route path="/dashboard/developer" element={
-            <ProtectedRoute roles={['developer']}>
-              <DeveloperDashboard />
-            </ProtectedRoute>
-          } />
+          <Route element={<ProtectedRoute roles={['developer']} />}>
+            <Route element={<DeveloperLayout />}>
+              <Route path="/developer/dashboard" element={<DeveloperDashboard />} />
+            </Route>
+          </Route>
 
           <Route path="/dashboard/supplier" element={
             <ProtectedRoute roles={['supplier']}>

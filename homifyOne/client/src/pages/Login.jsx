@@ -6,9 +6,9 @@ import loginHouse from '../assets/home.png';
 
 const ROLE_REDIRECTS = {
   buyer: '/buyer/dashboard',
-  developer: '/dashboard/developer',
-  supplier: '/dashboard/supplier',
-  admin: '/dashboard/admin',
+  developer: '/developer/dashboard',
+  supplier: '/supplier/dashboard',
+  admin: '/admin/dashboard',
 };
 
 const ROLES = [

@@ -19,7 +19,7 @@ const plotSchema = new mongoose.Schema({
   extrasAllowance: { type: Number, default: 0 },
   status: {
     type: String,
-    enum: ['available', 'assigned', 'selections_pending', 'selections_submitted', 'selections_approved', 'completed'],
+    enum: ['available', 'assigned', 'selections_pending', 'selections_submitted', 'selections_rejected', 'selections_approved', 'completed'],
     default: 'available'
   }
 }, { timestamps: true });
