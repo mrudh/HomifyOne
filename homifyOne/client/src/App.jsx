@@ -19,6 +19,9 @@ import OrderStatusPage from './pages/buyer/OrderStatusPage';
 import OrderDetailPage from './pages/buyer/OrderDetailPage';
 import DeveloperLayout from './layout/DeveloperLayout';
 import DeveloperDashboard from './pages/dashboards/DeveloperDashboard';
+import PlotsBuyersPage from './pages/developer/PlotsBuyersPage';
+import SelectionsReviewPage from './pages/developer/SelectionsReviewPage';
+import OrderReviewPage from './pages/developer/OrderReviewPage';
 
 export default function App() {
   return (
@@ -31,6 +34,9 @@ export default function App() {
           <Route element={<ProtectedRoute roles={['developer']} />}>
             <Route element={<DeveloperLayout />}>
               <Route path="/developer/dashboard" element={<DeveloperDashboard />} />
+              <Route path="/developer/plots" element={<PlotsBuyersPage />} />
+              <Route path="/developer/orders" element={<SelectionsReviewPage />} />
+              <Route path="/developer/orders/:plotId" element={<OrderReviewPage />} />
             </Route>
           </Route>
 

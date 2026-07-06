@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback, useEffect } from "react";
 import api from "../services/api";
+import { useAuth } from './AuthContext'; 
 
 const AppContext = createContext(null);
 
@@ -57,23 +58,28 @@ export function AppProvider({ children }) {
   const [error, setError] = useState(null);
   const [selectedPlot, setSelectedPlot] = useState(null);
   const [plotLoading, setPlotLoading] = useState(true);
+  const { user } = useAuth();
 
-const fetchPlot = useCallback(async () => {
-  setPlotLoading(true);
-  try {
-    const { data } = await api.get('/plots/my');
-    setSelectedPlot(data.plot || null);
-  } catch (err) {
-    console.error('fetchPlot error:', err);
-    setSelectedPlot(null);
-  } finally {
-    setPlotLoading(false);
-  }
-}, []);
+  const fetchPlot = useCallback(async () => {
+    if (user?.role !== 'buyer') { 
+      setPlotLoading(false); 
+      return; 
+    }
+    setPlotLoading(true);
+    try {
+      const { data } = await api.get('/plots/my');
+      setSelectedPlot(data.plot ?? null);
+    } catch (err) {
+      console.error('fetchPlot error:', err);
+      setSelectedPlot(null);
+    } finally {
+      setPlotLoading(false);
+    }
+  }, [user]);
 
-useEffect(() => {
-  fetchPlot();
-}, [fetchPlot]);
+  useEffect(() => {
+    fetchPlot();
+  }, [fetchPlot]);
 
   const updateProfile = useCallback((patch) => {
     setProfile((prev) => ({ ...prev, ...patch }));

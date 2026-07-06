@@ -3,31 +3,26 @@ import { useNavigate }         from 'react-router-dom';
 import api                     from '../../services/api';
 import { useBasket }           from '../../context/BasketContext';
 
-
 const ROOM_ICONS = {
   Kitchen: '🍳', 'Living Room': '🛋️', Bedroom: '🛏️',
   Bathroom: '🚿', Flooring: '🪵', Wardrobes: '🚪',
   Lighting: '💡', Garden: '🌿',
 };
 
-
 function dismissedKey(plotId) {
   return `promoAutoDismissed_${plotId}`;
 }
-
 
 function PromoCodeBox({ plotId, promo, applyPromo, removePromo, rewardPromo }) {
   const [code, setCode] = useState(promo?.code || '');
   const [checking, setChecking] = useState(false);
   const [error, setError] = useState('');
 
-
   useEffect(() => {
     if (!plotId || promo || !rewardPromo?.promoCode) return;
     const userDismissed = !!localStorage.getItem(dismissedKey(plotId));
     if (!userDismissed) autoApplyPromo();
   }, [plotId, promo, rewardPromo]);
-
 
   async function autoApplyPromo() {
     try {
@@ -44,7 +39,6 @@ function PromoCodeBox({ plotId, promo, applyPromo, removePromo, rewardPromo }) {
     } catch {
     }
   }
-
 
   async function handleApply(e) {
     e.preventDefault();
@@ -69,7 +63,6 @@ function PromoCodeBox({ plotId, promo, applyPromo, removePromo, rewardPromo }) {
     }
   }
 
-
   function handleRemovePromo() {
     const wasAuto = promo?.auto;
     removePromo();
@@ -78,11 +71,9 @@ function PromoCodeBox({ plotId, promo, applyPromo, removePromo, rewardPromo }) {
     if (plotId && wasAuto) localStorage.setItem(dismissedKey(plotId), 'true');
   }
 
-
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
       <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Promo Code</p>
-
 
       {promo ? (
         <div className="flex items-center justify-between bg-[#eef7f5] border border-[#9ccdc4] rounded-xl px-4 py-3">
@@ -119,12 +110,10 @@ function PromoCodeBox({ plotId, promo, applyPromo, removePromo, rewardPromo }) {
         </form>
       )}
 
-
       {error && <p className="text-xs text-red-500 mt-2">{error}</p>}
     </div>
   );
 }
-
 
 export default function BasketPage() {
   const [selections, setSelections] = useState([]);
@@ -135,14 +124,12 @@ export default function BasketPage() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-
   const {
     items, removeItem, clearBasket,
     subtotal, remaining, overBudget, usedPct, allowance, setAllowance,
     credit, reward, redeemReward,
     promo, applyPromo, removePromo, discountAmount, finalTotal, refreshOrderSnapshot,
   } = useBasket();
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -153,10 +140,8 @@ export default function BasketPage() {
         ]);
         setSelections(selRes.data.selections);
 
-
         const fetchedPlot = plotRes.data.plot;
         setPlot(fetchedPlot);
-
 
         if (fetchedPlot?.extrasAllowance) {
           setAllowance(fetchedPlot.extrasAllowance);
@@ -170,6 +155,9 @@ export default function BasketPage() {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    refreshOrderSnapshot();
+  }, []);
 
   const allProducts = selections.flatMap(s =>
     (s.products || []).map(p => ({ ...p, room: s.room, category: s.category }))
@@ -182,9 +170,7 @@ export default function BasketPage() {
     return acc;
   }, {});
 
-
   const isEmpty = items.length === 0 && standardProducts.length === 0;
-
 
   const handleRemoveStandard = async (room, category, productId) => {
     try {
@@ -201,9 +187,7 @@ export default function BasketPage() {
     }
   };
 
-
   const isAlreadySubmitted = plot?.status === 'selections_submitted' || plot?.status === 'selections_approved';
-
 
   const handleSubmit = async () => {
     if (!window.confirm('Submit your selections to the developer for review?')) return;
@@ -220,14 +204,12 @@ export default function BasketPage() {
         }))
       );
 
-
       await api.post('/selections/submit', {
         promoCode: promo?.code || null,
         creditApplied: credit || 0,
         items: [...extraItems, ...standardItems],
         pricing: { subtotal, credit, discountAmount, finalTotal, allowance, promoCode: promo?.code || null },
       });
-
 
       setSubmitted(true);
       setPlot(prev => ({ ...prev, status: 'selections_submitted' }));
@@ -241,13 +223,11 @@ export default function BasketPage() {
     }
   };
 
-
   if (loading) return (
     <div className="min-h-screen bg-[#f8f8f6] flex items-center justify-center">
       <div className="w-10 h-10 border-4 border-[#1a4a45] border-t-transparent rounded-full animate-spin" />
     </div>
   );
-
 
   return (
     <div className="min-h-screen bg-[#f8f8f6] pb-10">
@@ -266,14 +246,12 @@ export default function BasketPage() {
         </div>
       </div>
 
-
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 space-y-6">
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">
             {error}
           </div>
         )}
-
 
         {submitted ? (
           <div className="bg-white rounded-2xl p-8 shadow text-center space-y-3">
@@ -331,7 +309,6 @@ export default function BasketPage() {
                 </p>
               </div>
             )}
-
 
             {isEmpty ? (
               <div className="bg-white rounded-2xl p-10 text-center space-y-3 shadow-sm">
@@ -396,7 +373,6 @@ export default function BasketPage() {
                   </div>
                 )}
 
-
                 {Object.keys(byRoom).length > 0 && (
                   <div>
                     <h2 className="text-sm font-bold text-gray-500 tracking-widest mb-3">
@@ -438,7 +414,6 @@ export default function BasketPage() {
                   </div>
                 )}
 
-
                 <PromoCodeBox
                   plotId={plot?._id}
                   promo={promo}
@@ -446,7 +421,6 @@ export default function BasketPage() {
                   removePromo={removePromo}
                   rewardPromo={reward}
                 />
-
 
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-4">
                   <div className="flex items-center justify-between text-sm">

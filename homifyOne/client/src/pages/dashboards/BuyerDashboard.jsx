@@ -41,20 +41,46 @@ const StatusBadge = ({ status }) => {
 };
 
 export default function BuyerDashboard() {
-  const { user }   = useAuth();
-  const navigate   = useNavigate();
-  const { subtotal, finalTotal,remaining, overBudget, usedPct, items, setAllowance } = useBasket();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { subtotal, finalTotal,remaining, overBudget, usedPct, items, setAllowance, hasSubmittedOrder, orderSnapshot } = useBasket();
 
-  const [plot,      setPlot]      = useState(null);
+  const [plot, setPlot] = useState(null);
   const [selection, setSelection] = useState(null);
-  const [loading,   setLoading]   = useState(true);
+  const [loading, setLoading] = useState(true);
+  const STATUS_MAP = {
+  available: { label: "Not Started", cls: "bg-gray-100 text-gray-500" },
+  assigned: { label: "Not Started", cls: "bg-gray-100 text-gray-500" },
+  selections_pending: {
+    label: "In Progress",
+    cls: "bg-yellow-100 text-yellow-700",
+  },
+  selections_submitted: {
+    label: "Under Review",
+    cls: "bg-blue-100 text-blue-700",
+  },
+  selections_approved: {
+    label: "Approved ✓",
+    cls: "bg-green-100 text-green-700",
+  },
+  selections_rejected: {
+    label: "Changes Needed",
+    cls: "bg-red-100 text-red-700",
+  },
+  completed: { label: "Completed", cls: "bg-green-100 text-green-700" },
+};
+
+const StatusBadge = ({ status }) => {
+  const s = STATUS_MAP[status] || { label: status, cls: 'bg-gray-100 text-gray-500' };
+  return <span className={`text-xs font-semibold px-3 py-1 rounded-full ${s.cls}`}>{s.label}</span>;
+};
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [plotRes, selRes] = await Promise.all([
-          axios.get(`${API}/plots/my`,    { withCredentials: true }),
-          axios.get(`${API}/selections`,  { withCredentials: true }),
+          axios.get(`${API}/plots/my`, { withCredentials: true }),
+          axios.get(`${API}/selections`, { withCredentials: true }),
         ]);
 
         const fetchedPlot = plotRes.data.plot;
@@ -73,10 +99,12 @@ export default function BuyerDashboard() {
     fetchData();
   }, []); 
 
-  const countdown   = getCountdown(plot?.deadline);
-  const selStatus   = selection?.status || 'draft';
-  const extrasAdded = items.length; 
-  const extrasTotal = finalTotal;    
+  const countdown = getCountdown(plot?.deadline); 
+  const selStatus = plot?.status || 'available';
+  const extrasAdded = hasSubmittedOrder
+    ? orderSnapshot.items.filter(i => i.type === 'extra').length
+    : items.length;
+  const extrasTotal = finalTotal;
 
   const greeting = () => {
     const h = new Date().getHours();
@@ -279,6 +307,14 @@ export default function BuyerDashboard() {
           </div>
         )}
 
+        {plot?.status === 'selections_rejected' && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-5 py-4 rounded-2xl mb-6">
+            <p className="font-semibold text-sm">Changes needed to your selections</p>
+            <p className="text-xs mt-1">{plot.rejectionReason}</p>
+            <p className="text-xs mt-2 font-medium">Please update and resubmit your selections before {countdown?.date}.</p>
+          </div>
+        )}
+        
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
             {

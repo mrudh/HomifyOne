@@ -93,6 +93,7 @@ exports.submitSelections = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+
 exports.getMyOrder = async (req, res, next) => {
   try {
     const order = await Order.findOne({ buyer: req.user._id }).sort({ createdAt: -1 });
@@ -100,6 +101,7 @@ exports.getMyOrder = async (req, res, next) => {
     res.json({ success: true, order });
   } catch (err) { next(err); }
 };
+
 
 exports.getMyOrders = async (req, res, next) => {
   try {
@@ -159,9 +161,18 @@ exports.rejectOrder = async (req, res, next) => {
 
     order.status = 'rejected';
     order.rejectionReason = reason.trim();
-    await order.save();
+    await order.save();   
 
-    await Plot.findByIdAndUpdate(order.plot._id, { status: 'selections_rejected' });
+    const newDeadline = new Date();
+    newDeadline.setDate(newDeadline.getDate() + 14);
+
+    await Plot.findByIdAndUpdate(order.plot._id, {
+      status: 'selections_rejected',
+      rejectionReason: reason.trim(),
+      deadline: newDeadline,
+    });
+
+    //await Selection.updateMany({ plot: order.plot._id }, { status: 'pending' });  
 
     res.json({ success: true, order });
   } catch (err) { next(err); }

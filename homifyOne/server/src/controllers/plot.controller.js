@@ -9,7 +9,7 @@ exports.createPlot = async (req, res, next) => {
 
 exports.getMyPlots = async (req, res, next) => {
   try {
-    const plots = await Plot.find({ developer: req.user._id }).populate('buyer', 'name email');
+    const plots = await Plot.find({ developer: req.user._id }).populate('buyer', 'name email phone');
     res.status(200).json({ success: true, plots });
   } catch (err) { next(err); }
 };

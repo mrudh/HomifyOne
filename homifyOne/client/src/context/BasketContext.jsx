@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useApp } from './AppContext';
 import api from '../services/api';
+import { useAuth } from './AuthContext';
 
 const BasketContext = createContext(null);
 
@@ -21,6 +22,7 @@ function promoKey(plotId) {
 }
 
 export function BasketProvider({ children }) {
+  const { user } = useAuth();
   const { selectedPlot } = useApp();
 
   const [items, setItems] = useState(() => {
@@ -30,9 +32,9 @@ export function BasketProvider({ children }) {
 
   const [allowance, setAllowance] = useState(0);
   const [reward, setReward] = useState(() => getReward());
-  const [promo, setPromo]   = useState(null);
+  const [promo, setPromo] = useState(null);
   const [orderSnapshot, setOrderSnapshot] = useState(null);
-  const [orderChecked, setOrderChecked]   = useState(false);
+  const [orderChecked, setOrderChecked] = useState(false);
   const plotId = selectedPlot?._id;
 
   useEffect(() => {
@@ -44,22 +46,47 @@ export function BasketProvider({ children }) {
   }, [items]);
 
   useEffect(() => {
+    if (user?.role !== 'buyer') return;
     if (!plotId) return;
     const stored = localStorage.getItem(promoKey(plotId));
     if (stored) {
       try { setPromo(JSON.parse(stored)); }
       catch { localStorage.removeItem(promoKey(plotId)); }
     }
-  }, [plotId]);
+  }, [plotId, user]);
 
-
-  useEffect(() => {
+  const checkOrderStatus = useCallback(() => {
+    if (user?.role !== 'buyer') return;
+    if (!plotId) return;
     api.get('/selections/order')
-      .then(r => setOrderSnapshot(r.data.order))
+      .then(({ data }) => {
+        const order = data.order;
+        setOrderSnapshot(order);
+
+        if (order?.status === 'rejected') {
+          const restoredKey = `restoredOrder_${order._id}`;
+          if (!localStorage.getItem(restoredKey)) {
+            const extras = order.items
+              .filter(i => i.type === 'extra')
+              .map(i => ({
+                name: i.name,
+                price: i.price,
+                category: i.category,
+                subCategory: i.subCategory,
+                imageUrl: i.imageUrl,
+              }));
+            setItems(extras);
+            localStorage.setItem(restoredKey, 'true');
+          }
+        }
+      })
       .catch(() => setOrderSnapshot(null))
       .finally(() => setOrderChecked(true));
-  }, [plotId]);
+  }, [plotId, user]);
 
+  useEffect(() => {
+    checkOrderStatus();
+  }, [checkOrderStatus]);
 
   const liveSubtotal = items.reduce((sum, i) => sum + Number(i.price), 0);
 
@@ -76,26 +103,17 @@ export function BasketProvider({ children }) {
   }
   const liveFinalTotal = Math.max(afterCredit - liveDiscountAmount, 0);
 
-  const hasSubmittedOrder = !!orderSnapshot;
-  const subtotal = hasSubmittedOrder
-    ? orderSnapshot.pricing.subtotal
-    : liveSubtotal;
-  const discountAmount = hasSubmittedOrder
-    ? orderSnapshot.pricing.discountAmount
-    : liveDiscountAmount;
-  const finalTotal = hasSubmittedOrder
-    ? orderSnapshot.pricing.finalTotal
-    : liveFinalTotal;
-  const effectiveAllowance = hasSubmittedOrder
-    ? orderSnapshot.pricing.allowance
-    : allowance;
+  const hasSubmittedOrder = orderSnapshot?.status === 'submitted' || orderSnapshot?.status === 'approved';
+  const subtotal = hasSubmittedOrder ? orderSnapshot.pricing.subtotal : liveSubtotal;
+  const discountAmount = hasSubmittedOrder ? orderSnapshot.pricing.discountAmount : liveDiscountAmount;
+  const finalTotal = hasSubmittedOrder ? orderSnapshot.pricing.finalTotal : liveFinalTotal;
+  const effectiveAllowance = hasSubmittedOrder ? orderSnapshot.pricing.allowance : allowance;
 
   const remaining = effectiveAllowance - finalTotal;
   const overBudget = remaining < 0;
-  const usedPct =
-    effectiveAllowance > 0
-      ? Math.min((finalTotal / effectiveAllowance) * 100, 100)
-      : 0;
+  const usedPct = effectiveAllowance > 0
+    ? Math.min((finalTotal / effectiveAllowance) * 100, 100)
+    : 0;
 
   const applyPromo = useCallback((promoData) => {
     setPromo(promoData);
@@ -125,12 +143,6 @@ export function BasketProvider({ children }) {
     setItems(prev => prev.filter(p => p.name !== productName));
   }, []);
 
-  const refreshOrderSnapshot = useCallback(() => {
-    api.get('/selections/order')
-      .then(r => setOrderSnapshot(r.data.order))
-      .catch(() => setOrderSnapshot(null));
-  }, []);
-
   const clearBasket = useCallback(() => {
     setItems([]);
     removePromo();
@@ -140,7 +152,6 @@ export function BasketProvider({ children }) {
     items.some(p => p.name === productName), [items]
   );
 
-  console.log('BASKET DEBUG', { subtotal, credit, afterCredit, discountAmount, finalTotal, promo, allowance });
   return (
     <BasketContext.Provider value={{
       items, allowance: effectiveAllowance, setAllowance,
@@ -149,7 +160,9 @@ export function BasketProvider({ children }) {
       promo, applyPromo, removePromo,
       discountAmount, finalTotal, afterCredit,
       addItem, removeItem, clearBasket, isInBasket,
-      hasSubmittedOrder, orderChecked, refreshOrderSnapshot,
+      hasSubmittedOrder, orderChecked,
+      refreshOrderSnapshot: checkOrderStatus,
+      orderSnapshot,
     }}>
       {children}
     </BasketContext.Provider>

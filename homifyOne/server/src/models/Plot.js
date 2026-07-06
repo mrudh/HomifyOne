@@ -21,7 +21,9 @@ const plotSchema = new mongoose.Schema({
     type: String,
     enum: ['available', 'assigned', 'selections_pending', 'selections_submitted', 'selections_rejected', 'selections_approved', 'completed'],
     default: 'available'
-  }
+  },
+  rejectionReason: { type: String, default: null },
+
 }, { timestamps: true });
 
 module.exports = mongoose.model('Plot', plotSchema);

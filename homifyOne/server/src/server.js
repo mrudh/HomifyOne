@@ -35,5 +35,7 @@ app.use('/api/promo', require('./routes/promo.routes'));
 
 app.use(require('./middleware/errorHandler'));
 
+app.use('/api/plots',   require('./routes/plot.routes'));
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
