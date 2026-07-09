@@ -1,6 +1,5 @@
 const User = require('../models/User');
 const PromoCode = require('../models/PromoCode');
-const Selection = require('../models/Selection');
 const Plot = require('../models/Plot');
 const crypto = require('crypto');
 
@@ -23,12 +22,6 @@ exports.submitQuestionnaire = async (req, res, next) => {
     const { answers, buyerProfile } = req.body;
     const userId = req.user._id;
     const user = await User.findById(userId);
-
-    await Selection.findOneAndUpdate(
-      { buyer: userId },
-      { $set: { questionnaireCompleted: true } },
-      { upsert: true, new: true }
-    );
 
     if (user.questionnaireCompleted) {
       const existingPromo = await PromoCode.findById(user.promoCode);
@@ -68,15 +61,6 @@ exports.submitQuestionnaire = async (req, res, next) => {
     user.promoCode = promo._id;
     await user.save();
 
-    const existing = await Selection.findOne({ buyer: userId });
-
-    if (existing) {
-      existing.questionnaireCompleted = true;
-      await existing.save();
-    } else {
-      await Selection.create({ buyer: userId, questionnaireCompleted: true });
-    }
-
     res.json({
       success: true,
       credit: user.credit,
@@ -107,11 +91,10 @@ exports.getReward = async (req, res, next) => {
 
 exports.getRecommendations = async (req, res, next) => {
   try {
-    const selection = await Selection.findOne({ buyer: req.user._id });
+    const user = await User.findById(req.user._id);
     res.json({
       success: true,
-      recommendations: selection?.recommendations || [],
-      questionnaireCompleted: selection?.questionnaireCompleted || false,
+      questionnaireCompleted: user?.questionnaireCompleted || false,
     });
   } catch (err) { next(err); }
 };
