@@ -2,6 +2,8 @@ require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env'
 const cloudinary = require('cloudinary').v2;
 const fs = require('fs');
 const path = require('path');
+const { getSupplierKey } = require('../config/supplierMapping');
+
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 cloudinary.config({
@@ -321,40 +323,6 @@ const toTags = (filename, name, room, subCategory, style) => {
   return [...new Set([...fromFile, ...fromName, room.toLowerCase(), subCategory.toLowerCase(), style, 'extra'])];
 };
 
-const getSupplierKey = (room, subCategory) => {
-  if (room === 'Kitchen') {
-    if (subCategory === 'Lighting & Extraction') return 'supplierLights';
-    return 'supplierKitchen';
-  }
-  if (room === 'Bathroom') {
-    if (subCategory === 'Towel Rail' || subCategory === 'Underfloor Heating') return 'supplierRadiator';
-    return 'supplierBath';
-  }
-  if (room === 'Master Bedroom') {
-    if (subCategory === 'Carpet')              return 'supplierCarpet';
-    if (subCategory === 'Blinds')              return 'supplierBlinds';
-    if (subCategory === 'Wall Colour')         return 'supplierPaint';
-    if (subCategory === 'Lighting')            return 'supplierLights';
-    if (subCategory === 'Sockets & Switches')  return 'supplierLights';
-    if (subCategory === 'Radiator')            return 'supplierRadiator';
-    return 'supplierKitchen';
-  }
-  if (room === 'Living Room') {
-    if (subCategory === 'Carpet & Rugs')       return 'supplierCarpet';
-    if (subCategory === 'Wall Paint & Art')    return 'supplierPaint';
-    if (subCategory === 'Lighting')            return 'supplierLights';
-    if (subCategory === 'Radiator')            return 'supplierRadiator';
-    if (subCategory === 'Smart Home')          return 'supplierLights';
-    if (subCategory === 'Switches')            return 'supplierLights';
-    return 'supplierKitchen';
-  }
-  if (room === 'Garden') {
-    if (subCategory === 'Outdoor Lighting')    return 'supplierLights';
-    return 'supplierGarden';
-  }
-  if (room === 'Smart Home & Security')        return 'supplierLights';
-  return 'supplierKitchen';
-};
 
 const BATCH_SIZE = 15;
 

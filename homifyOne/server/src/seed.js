@@ -5,6 +5,7 @@ const Plot = require('./models/Plot');
 const Product = require('./models/Product');
 const choicesProducts = require('./scripts/choices-products');
 const extrasRaw = require('./scripts/extras-products');
+const { getSupplierKey } = require('./config/supplierMapping');
 require('dotenv').config();
 
 const userData = [{
@@ -33,42 +34,55 @@ const userData = [{
       role: 'supplier'
    }, {
       name: 'Bath Studio',
-      email: 'bathstudio@gmail.com',
+      email: 'bathstudio80@outlook.com',
       password: 'Test1234!',
       role: 'supplier'
-   }, {
+   },
+   {
       name: 'Paint & Walls Co',
-      email: 'paintwalls@gmail.com',
+      email: 'paintwalls80@outlook.com',
       password: 'Test1234!',
       role: 'supplier'
-   }, {
+   },
+   {
       name: 'Blinds & Curtains',
-      email: 'blindscurtains@gmail.com',
+      email: 'blindscurtains80@outlook.com',
       password: 'Test1234!',
       role: 'supplier'
-   }, {
+   },
+   {
       name: 'Carpet Kingdom',
-      email: 'carpetkingdom@gmail.com',
+      email: 'carpetkingdom80@gmail.com',
       password: 'Test1234!',
       role: 'supplier'
-   }, {
+   },
+   {
       name: 'Luminary Lights',
-      email: 'luminarylights@gmail.com',
+      email: 'luminarylights80@gmail.com',
       password: 'Test1234!',
       role: 'supplier'
-   }, {
+   },
+   {
       name: 'Floor & More',
-      email: 'floorandmore@gmail.com',
+      email: 'floorandmore80@gmail.com',
       password: 'Test1234!',
       role: 'supplier'
-   }, {
+   },
+   {
       name: 'Rad & Heat',
-      email: 'radheat@gmail.com',
+      email: 'radheat80@gmail.com',
       password: 'Test1234!',
       role: 'supplier'
-   }, {
+   },
+   {
       name: 'Garden Living',
-      email: 'gardenliving@gmail.com',
+      email: 'gardenliving80@gmail.com',
+      password: 'Test1234!',
+      role: 'supplier'
+   },
+   {
+      name: 'Home Furnishings Co',
+      email: 'homefurnishings80@gmail.com',
       password: 'Test1234!',
       role: 'supplier'
    },
@@ -126,7 +140,8 @@ const seed = async () => {
       const supplierFloor = createdUsers['floorandmore@gmail.com'];
       const supplierRadiator = createdUsers['radheat@gmail.com'];
       const supplierGarden = createdUsers['gardenliving@gmail.com'];
-
+      const supplierFurniture = createdUsers['homefurnishings@gmail.com'];
+      
       console.log('\n Seeding plots...');
       const plots = await Plot.insertMany([{
             developer: developer._id,
@@ -179,44 +194,34 @@ const seed = async () => {
       ]);
       console.log(` ${plots.length} plots created`);
 
-      const getSupplier = (product) => {
-         const room = product.room;
-         const sub = product.subCategory?.toLowerCase() || '';
+      console.log('\n Seeding products...');
 
-         if (room === 'Kitchen') return supplierKitchen._id;
-         if (room === 'Bathroom') return supplierBath._id;
-         if (room === 'Garden') return supplierGarden._id;
-         if (sub.includes('wall')) return supplierPaint._id;
-         if (sub.includes('blind')) return supplierBlinds._id;
-         if (sub.includes('carpet')) return supplierCarpet._id;
-         if (sub.includes('light') || sub.includes('socket') || sub.includes('fixture')) return supplierLights._id;
-         if (sub.includes('floor') || sub.includes('flooring')) return supplierFloor._id;
-         if (sub.includes('radiator')) return supplierRadiator._id;
-         return supplierKitchen._id;
+      const supplierMap = {
+         supplierKitchen, supplierBath, supplierPaint, supplierBlinds,
+         supplierCarpet, supplierLights, supplierFloor, supplierRadiator,
+         supplierGarden, supplierFurniture,
       };
 
-      console.log('\n Seeding products...');
-         
+      const resolveSupplier = (room, subCategory) => {
+         const key = getSupplierKey(room, subCategory);
+         return supplierMap[key]?._id || supplierKitchen._id;
+      };
+      
       const choicesWithSupplier = choicesProducts.map(p => ({
-        ...p,
-        supplier: getSupplier(p),
+      ...p,
+      supplier: resolveSupplier(p.room, p.subCategory),
       }));
       await Product.insertMany(choicesWithSupplier);
       console.log(`✅ ${choicesWithSupplier.length} choice products seeded`);
 
-      const supplierMap = {
-         supplierKitchen, supplierBath, supplierPaint, supplierBlinds,
-         supplierCarpet, supplierLights, supplierFloor, supplierRadiator, supplierGarden,
-      };
-
       const extrasWithSupplier = extrasRaw.map(({ supplierKey, ...p }) => ({
          ...p,
-         supplier: supplierMap[supplierKey]?._id || supplierKitchen._id,
+         supplier: resolveSupplier(p.room, p.subCategory),
       }));
-
       await Product.insertMany(extrasWithSupplier);
       console.log(`✅ ${extrasWithSupplier.length} extras products seeded`);
-      
+
+
       console.log('\n Seed complete!');
       console.log('─────────────────────────────────────');
       console.log(' Credentials (all passwords: Test1234!)');
