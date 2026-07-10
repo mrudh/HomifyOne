@@ -24,7 +24,10 @@ export default function OrderReviewPage() {
     if (!window.confirm('Approve this order? Purchase orders will be generated and grouped by supplier.')) return;
     setProcessing(true);
     try {
-      await api.patch(`/selections/developer/orders/${order._id}/approve`);
+      const { data } = await api.patch(`/selections/developer/orders/${order._id}/approve`);
+      if (data.unmatchedItems?.length > 0) {
+        alert(`Note: ${data.unmatchedItems.length} item(s) couldn't be matched to a supplier and were excluded from purchase orders: ${data.unmatchedItems.join(', ')}`);
+      }
       navigate('/developer/orders');
     } finally {
       setProcessing(false);

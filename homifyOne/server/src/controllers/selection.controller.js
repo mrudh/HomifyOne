@@ -1,8 +1,10 @@
 const Selection = require('../models/Selection');
-const Plot      = require('../models/Plot');
+const Plot = require('../models/Plot');
 const PromoCode = require('../models/PromoCode');
-const User      = require('../models/User');
+const User = require('../models/User');
 const Order = require('../models/Order');
+const Product = require('../models/Product');
+const PurchaseOrder = require('../models/PurchaseOrder');
 
 exports.getMySelections = async (req, res, next) => {
   try {
@@ -140,9 +142,45 @@ exports.approveOrder = async (req, res, next) => {
 
     order.status = 'approved';
     await order.save();
-
     await Plot.findByIdAndUpdate(order.plot._id, { status: 'selections_approved' });
-    res.json({ success: true, order });
+
+    const names = order.items.map(i => i.name);
+    const products = await Product.find({ name: { $in: names } });
+    const productByName = new Map(products.map(p => [p.name, p]));
+
+    const groupedBySupplier = new Map();
+    const unmatchedItems = [];
+
+    for (const item of order.items) {
+      const product = productByName.get(item.name);
+      if (!product) { unmatchedItems.push(item); continue; }
+
+      const supplierId = String(product.supplier);
+      if (!groupedBySupplier.has(supplierId)) groupedBySupplier.set(supplierId, []);
+      groupedBySupplier.get(supplierId).push({
+        product: product._id,
+        name: item.name,
+        price: item.price,
+        room: item.room || '',
+        category: item.category,
+        quantity: 1,
+      });
+    }
+
+    const purchaseOrders = [];
+    for (const [supplierId, items] of groupedBySupplier.entries()) {
+      const totalCost = items.reduce((sum, i) => sum + (i.price || 0), 0);
+      const po = await PurchaseOrder.create({
+        plot: order.plot._id,
+        developer: req.user._id,
+        supplier: supplierId,
+        items,
+        totalCost,
+      });
+      purchaseOrders.push(po);
+    }
+
+    res.json({ success: true, order, purchaseOrders, unmatchedItems: unmatchedItems.map(i => i.name) });
   } catch (err) { next(err); }
 };
 

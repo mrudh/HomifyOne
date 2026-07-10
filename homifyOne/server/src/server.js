@@ -1,10 +1,13 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const connectDB = require('./config/db');
-require('dotenv').config();
+const invoiceRoutes = require('./routes/invoices.routes');
+const path = require('path');
+
 
 const app = express();
 
@@ -33,9 +36,16 @@ app.use('/api/recommendations', require('./routes/recommendation.routes'));
 app.use('/api/extras', require('./routes/extras.routes'));
 app.use('/api/promo', require('./routes/promo.routes'));
 
+app.use('/api/plots',   require('./routes/plot.routes'));
+
+app.use('/api/purchase-orders', require('./routes/purchaseOrders.routes'));
+
+app.use('/api', invoiceRoutes);
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 app.use(require('./middleware/errorHandler'));
 
-app.use('/api/plots',   require('./routes/plot.routes'));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

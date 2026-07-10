@@ -22,6 +22,10 @@ import DeveloperDashboard from './pages/dashboards/DeveloperDashboard';
 import PlotsBuyersPage from './pages/developer/PlotsBuyersPage';
 import SelectionsReviewPage from './pages/developer/SelectionsReviewPage';
 import OrderReviewPage from './pages/developer/OrderReviewPage';
+import SupplierPurchaseOrderDetail from './pages/supplier/SupplierPurchaseOrderDetail';
+import PurchaseOrdersPage from './pages/developer/PurchaseOrdersPage';
+import SupplierLayout from './layout/SupplierLayout';
+import SupplierPurchaseOrders from './pages/supplier/SupplierPurchaseOrders';
 
 export default function App() {
   return (
@@ -37,14 +41,17 @@ export default function App() {
               <Route path="/developer/plots" element={<PlotsBuyersPage />} />
               <Route path="/developer/orders" element={<SelectionsReviewPage />} />
               <Route path="/developer/orders/:plotId" element={<OrderReviewPage />} />
+              <Route path="/developer/purchase-orders" element={<PurchaseOrdersPage />} />
             </Route>
           </Route>
 
-          <Route path="/dashboard/supplier" element={
-            <ProtectedRoute roles={['supplier']}>
-              <SupplierDashboard />
-            </ProtectedRoute>
-          } />
+        <Route element={<ProtectedRoute roles={['supplier']} />}>
+          <Route element={<SupplierLayout />}>
+            <Route path="/supplier/dashboard" element={<SupplierDashboard />} />
+            <Route path="/supplier/purchase-orders" element={<SupplierPurchaseOrders />} />
+            <Route path="/supplier/purchase-orders/:id" element={<SupplierPurchaseOrderDetail />} />
+          </Route>
+        </Route>
 
           <Route path="/dashboard/admin" element={
             <ProtectedRoute roles={['admin']}>

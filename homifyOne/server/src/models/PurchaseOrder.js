@@ -13,7 +13,13 @@ const purchaseOrderSchema = new mongoose.Schema({
     quantity: { type: Number, default: 1 },
   }],
   totalCost: { type: Number, required: true },
-  status: { type: String, enum: ['pending', 'sent', 'fulfilled'], default: 'pending' },
+  status: { 
+    type: String, 
+    enum: ['pending', 'sent', 'acknowledged', 'fulfilled'], 
+    default: 'pending' 
+  },
+  eta: { type: Date, default: null },
+  acknowledgedAt: { type: Date, default: null },
 }, { timestamps: true });
 
 module.exports = mongoose.model('PurchaseOrder', purchaseOrderSchema);
