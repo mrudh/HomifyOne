@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const PurchaseOrder = require('../models/PurchaseOrder');
 const { verifyToken, authorise } = require('../middleware/auth');
+const { syncSupplierEta } = require('../services/calendarSync.service');
 
 router.get('/developer/all', verifyToken, authorise('developer'), async (req, res) => {
   try {
@@ -97,20 +98,22 @@ router.patch('/:id/status', verifyToken, authorise('supplier'), async (req, res)
   }
 });
 
-router.patch('/:id/eta', verifyToken, authorise('supplier'), async (req, res) => {
+router.patch('/:id/eta', verifyToken, authorise('supplier'), async (req, res, next) => {
   try {
     const { eta } = req.body;
     if (!eta) return res.status(400).json({ message: 'ETA date required' });
 
-    const order = await PurchaseOrder.findOne({ _id: req.params.id, supplier: req.user._id });
+    const order = await PurchaseOrder.findOneAndUpdate(
+      { _id: req.params.id, supplier: req.user._id },
+      { eta: new Date(eta) },
+      { new: true }
+    ).populate('plot developer supplier');
+
     if (!order) return res.status(404).json({ message: 'Order not found' });
 
-    order.eta = new Date(eta);
-    await order.save();
+    await syncSupplierEta(order);
     res.json({ order });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
+  } catch (err) { next(err); }
 });
 
 module.exports = router;

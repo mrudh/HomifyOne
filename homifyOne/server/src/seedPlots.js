@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const Plot = require('./models/Plot');
 const User = require('./models/User');
+const { syncPlotDeadline } = require('./services/calendarSync.service');
+
 
 const DEVELOPMENTS = [
   { name: 'Maple Gardens',   street: 'Maple Close',     city: 'Leicester',  postcodeBase: 'LE1 2AB', lat: 52.6369, lng: -1.1398 },
@@ -93,6 +95,8 @@ async function seed() {
       status: 'assigned',
       deadline: new Date(Date.now() + (7 + Math.floor(Math.random() * 30)) * 24 * 60 * 60 * 1000),
     });
+
+    if (plot.deadline) await syncPlotDeadline(plot);
 
     buyer.assignedPlot = plot._id;
     await buyer.save();

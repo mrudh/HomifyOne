@@ -6,6 +6,8 @@ const Product = require('./models/Product');
 const choicesProducts = require('./scripts/choices-products');
 const extrasRaw = require('./scripts/extras-products');
 const { getSupplierKey } = require('./config/supplierMapping');
+const { syncPlotDeadline } = require('./services/calendarSync.service');
+
 require('dotenv').config();
 
 const userData = [{
@@ -193,6 +195,11 @@ const seed = async () => {
          }
       ]);
       console.log(` ${plots.length} plots created`);
+
+      for (const plot of plots) {
+         if (plot.deadline) await syncPlotDeadline(plot);
+      }
+      console.log('Calendar events synced for seeded plots');
 
       console.log('\n Seeding products...');
 
