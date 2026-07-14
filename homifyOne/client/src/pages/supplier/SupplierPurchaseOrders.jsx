@@ -4,6 +4,7 @@ import api from '../../services/api';
 
 const STATUS_STYLES = {
   pending: { label: 'Pending', cls: 'bg-yellow-100 text-yellow-700' },
+  acknowledged: { label: 'Acknowledged', cls: 'bg-blue-100 text-blue-700' },
   sent: { label: 'Sent', cls: 'bg-blue-100 text-blue-700' },
   fulfilled: { label: 'Fulfilled', cls: 'bg-green-100 text-green-700' },
 };
@@ -45,6 +46,7 @@ export default function SupplierPurchaseOrders() {
   const totals = {
     all: orders.length,
     pending: orders.filter((o) => o.status === 'pending').length,
+    acknowledged: orders.filter((o) => o.status === 'acknowledged').length,
     sent: orders.filter((o) => o.status === 'sent').length,
     fulfilled: orders.filter((o) => o.status === 'fulfilled').length,
   };
@@ -78,7 +80,7 @@ export default function SupplierPurchaseOrders() {
               onClick={() => setStatusFilter(s)}
               className={`text-sm font-medium px-4 py-2 rounded-xl border transition ${
                 statusFilter === s
-                  ? 'bg-1a4a45 text-white border-1a4a45'
+                  ? 'bg-1a4a45 text-black border-1a4a45'
                   : 'bg-white text-gray-500 border-gray-200 hover:border-1a4a45'
               }`}
             >

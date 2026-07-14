@@ -26,6 +26,7 @@ import SupplierPurchaseOrderDetail from './pages/supplier/SupplierPurchaseOrderD
 import PurchaseOrdersPage from './pages/developer/PurchaseOrdersPage';
 import SupplierLayout from './layout/SupplierLayout';
 import SupplierPurchaseOrders from './pages/supplier/SupplierPurchaseOrders';
+import CalendarPage from './components/CalendarPage';
 
 export default function App() {
   return (
@@ -42,6 +43,7 @@ export default function App() {
               <Route path="/developer/orders" element={<SelectionsReviewPage />} />
               <Route path="/developer/orders/:plotId" element={<OrderReviewPage />} />
               <Route path="/developer/purchase-orders" element={<PurchaseOrdersPage />} />
+              <Route path="/developer/calendar" element={<CalendarPage />} />
             </Route>
           </Route>
 
@@ -50,6 +52,7 @@ export default function App() {
             <Route path="/supplier/dashboard" element={<SupplierDashboard />} />
             <Route path="/supplier/purchase-orders" element={<SupplierPurchaseOrders />} />
             <Route path="/supplier/purchase-orders/:id" element={<SupplierPurchaseOrderDetail />} />
+            <Route path="/supplier/calendar" element={<CalendarPage />} />
           </Route>
         </Route>
 
@@ -71,6 +74,7 @@ export default function App() {
               <Route path="/buyer/my-selections" element={<MySelections />} />
               <Route path="/buyer/orders" element={<OrderStatusPage />} />
               <Route path="/buyer/orders/:id" element={<OrderDetailPage />} />
+              <Route path="/buyer/calendar" element={<CalendarPage />} />
             </Route>
           </Route>
 
