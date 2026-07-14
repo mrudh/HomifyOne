@@ -36,6 +36,10 @@ const orderSchema = new mongoose.Schema(
       default: "submitted",
     },
     rejectionReason: { type: String, default: "" },
+    summaryPdf: {
+      url: { type: String, default: null },
+      generatedAt: { type: Date, default: null },
+    }
   },
   { timestamps: true },
 );

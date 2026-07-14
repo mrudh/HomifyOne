@@ -54,6 +54,7 @@ export default function OrderStatusPage() {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 space-y-4">
         {orders.map((order) => {
           const s = STATUS_MAP[order.status] || STATUS_MAP.submitted;
+          console.log(s);
           const itemCount = order.items?.length || 0;
           const overBudget = order.pricing.finalTotal > order.pricing.allowance;
 

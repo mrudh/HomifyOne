@@ -13,6 +13,7 @@
     "axios": "^1.18.1",
     "canvas-confetti": "^1.9.4",
     "leaflet": "^1.9.4",
+    "pdfkit": "^0.19.1",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-leaflet": "^5.0.0",

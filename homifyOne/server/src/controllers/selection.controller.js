@@ -5,6 +5,8 @@ const User = require('../models/User');
 const Order = require('../models/Order');
 const Product = require('../models/Product');
 const PurchaseOrder = require('../models/PurchaseOrder');
+const { cancelEvent, syncPlotDeadline } = require('../services/calendarSync.service');
+const { generateSelectionSummaryPdf, getSignedSummaryUrl } = require('../services/pdfSummary.service');
 
 exports.getMySelections = async (req, res, next) => {
   try {
@@ -134,15 +136,24 @@ exports.getDeveloperOrders = async (req, res, next) => {
 
 exports.approveOrder = async (req, res, next) => {
   try {
-    const order = await Order.findById(req.params.id).populate('plot');
+    const order = await Order.findById(req.params.id)
+      .populate('plot').populate('buyer');
     if (!order) return res.status(404).json({ success: false, message: 'Order not found.' });
     if (String(order.plot.developer) !== String(req.user._id)) {
       return res.status(403).json({ success: false, message: 'Not authorised for this order.' });
     }
 
     order.status = 'approved';
+
+    const pdfUrl = await generateSelectionSummaryPdf({
+      ...order.toObject(),
+      developer: { name: req.user.name },
+    });
+    order.summaryPdf = { url: pdfUrl, generatedAt: new Date() };
+
     await order.save();
     await Plot.findByIdAndUpdate(order.plot._id, { status: 'selections_approved' });
+    await cancelEvent('plot_deadline', order.plot._id);
 
     const names = order.items.map(i => i.name);
     const products = await Product.find({ name: { $in: names } });
@@ -184,6 +195,7 @@ exports.approveOrder = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+
 exports.rejectOrder = async (req, res, next) => {
   try {
     const { reason } = req.body;
@@ -199,18 +211,56 @@ exports.rejectOrder = async (req, res, next) => {
 
     order.status = 'rejected';
     order.rejectionReason = reason.trim();
-    await order.save();   
+    await order.save();
 
     const newDeadline = new Date();
     newDeadline.setDate(newDeadline.getDate() + 14);
 
-    await Plot.findByIdAndUpdate(order.plot._id, {
+    const updatedPlot = await Plot.findByIdAndUpdate(order.plot._id, {
       status: 'selections_rejected',
       rejectionReason: reason.trim(),
       deadline: newDeadline,
-    });
+    }, { new: true });
 
-    //await Selection.updateMany({ plot: order.plot._id }, { status: 'pending' });  
+    await syncPlotDeadline(updatedPlot);
+
+    res.json({ success: true, order });
+  } catch (err) { next(err); }
+};
+
+
+exports.getOrderSummaryPdf = async (req, res, next) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ message: 'Order not found.' });
+
+    const isOwner = String(order.buyer) === String(req.user._id);
+    const plot = await Plot.findById(order.plot);
+    const isDeveloper = plot && String(plot.developer) === String(req.user._id);
+    if (!isOwner && !isDeveloper) return res.status(403).json({ message: 'Not authorised.' });
+
+    if (!order.summaryPdf?.generatedAt) return res.status(404).json({ message: 'Summary not generated yet.' });
+
+    const signedUrl = await getSignedSummaryUrl(order._id);
+    res.redirect(signedUrl);
+  } catch (err) { next(err); }
+};
+
+
+exports.regenerateSummaryPdf = async (req, res, next) => {
+  try {
+    const order = await Order.findById(req.params.id).populate('plot').populate('buyer');
+    if (!order) return res.status(404).json({ message: 'Order not found.' });
+    if (String(order.plot.developer) !== String(req.user._id)) {
+      return res.status(403).json({ message: 'Not authorised.' });
+    }
+
+    const pdfUrl = await generateSelectionSummaryPdf({
+      ...order.toObject(),
+      developer: { name: req.user.name },
+    });
+    order.summaryPdf = { url: pdfUrl, generatedAt: new Date() };
+    await order.save();
 
     res.json({ success: true, order });
   } catch (err) { next(err); }

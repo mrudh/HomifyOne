@@ -43,11 +43,12 @@ const StatusBadge = ({ status }) => {
 export default function BuyerDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { subtotal, finalTotal,remaining, overBudget, usedPct, items, setAllowance, hasSubmittedOrder, orderSnapshot } = useBasket();
+  const { subtotal, finalTotal,remaining, overBudget, usedPct, items, setAllowance, hasSubmittedOrder, orderSnapshot, isReady } = useBasket();
 
   const [plot, setPlot] = useState(null);
   const [selection, setSelection] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [order, setOrder] = useState(null);
   const STATUS_MAP = {
   available: { label: "Not Started", cls: "bg-gray-100 text-gray-500" },
   assigned: { label: "Not Started", cls: "bg-gray-100 text-gray-500" },
@@ -76,28 +77,32 @@ const StatusBadge = ({ status }) => {
 };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [plotRes, selRes] = await Promise.all([
-          axios.get(`${API}/plots/my`, { withCredentials: true }),
-          axios.get(`${API}/selections`, { withCredentials: true }),
-        ]);
-
-        const fetchedPlot = plotRes.data.plot;
-        setPlot(fetchedPlot);
-        setSelection(selRes.data.selections);
-
-        if (fetchedPlot?.extrasAllowance) {
-          setAllowance(fetchedPlot.extrasAllowance);
-        }
-      } catch (err) {
-        console.error('Dashboard load error:', err.message);
-      } finally {
-        setLoading(false);
+  const fetchData = async () => {
+    try {
+      const [plotRes, selRes, orderRes] = await Promise.all([
+        axios.get(`${API}/plots/my`, { withCredentials: true }),
+        axios.get(`${API}/selections`, { withCredentials: true }),
+        axios.get(`${API}/selections/order`, { withCredentials: true }).catch(() => ({ data: { order: null } })),
+      ]);
+      const fetchedPlot = plotRes.data.plot;
+      setPlot(fetchedPlot);
+      setSelection(selRes.data.selections);
+      setOrder(orderRes.data.order);
+      if (fetchedPlot?.extrasAllowance) {
+        //setAllowance(fetchedPlot.extrasAllowance);
       }
-    };
-    fetchData();
-  }, []); 
+    } catch (err) {
+      console.error('Dashboard load error:', err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchData();
+}, []);
+
+// useEffect(() => {
+//   console.log('DEBUG order:', order, 'plot status:', plot?.status);
+// }, [order, plot]);
 
   const countdown = getCountdown(plot?.deadline); 
   const selStatus = plot?.status || 'available';
@@ -171,7 +176,7 @@ const StatusBadge = ({ status }) => {
 
         {plot ? (
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
-            <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div className="flex items-center justify-between gap-4 flex-wrap">
               <div className="flex gap-4 items-center">
                 <div className="w-14 h-14 rounded-xl bg-[#e8f4f2] flex items-center justify-center flex-shrink-0">
                   <svg
@@ -207,7 +212,21 @@ const StatusBadge = ({ status }) => {
                   <p className="text-gray-400 text-sm">{plot.address}</p>
                 </div>
               </div>
-              <StatusBadge status={plot.status} />
+              {/* <StatusBadge status={plot.status} /> */}
+              {selStatus === "selections_approved" &&
+                order?.summaryPdf?.url && (
+                  <button
+                    onClick={() =>
+                      window.open(
+                        `${API}/selections/orders/${order._id}/summary-pdf`,
+                        "_blank",
+                      )
+                    }
+                    className="bg-[#1a4a45] text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#153d38] transition"
+                  >
+                    📄 Download Selection Summary
+                  </button>
+                )}
             </div>
           </div>
         ) : (
@@ -246,7 +265,13 @@ const StatusBadge = ({ status }) => {
             },
             {
               label: "Selection Status",
-              value: <StatusBadge status={selStatus} />,
+              value: <><StatusBadge status={selStatus} /> 
+              {selStatus === "selections_approved" && order?.summaryPdf?.url && 
+              ( <div className="relative inline-block group"><button onClick={() => window.open( `${API}/selections/orders/${order._id}/summary-pdf`, "_blank" ) } className="bg-[#1a4a45] text-white ml-2 px-3 py-2 rounded-full text-sm font-semibold hover:bg-[#153d38] transition" > 📄 </button>
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 whitespace-nowrap rounded-md bg-gray-900 px-3 py-1.5 text-xs text-white opacity-0 group-hover:opacity-100 transition pointer-events-none">
+                  Download Selection Summary
+                </div>
+              </div> )}</> ,
               icon: "📋",
               sub: "Current progress",
               accent: "border-l-amber-400",
@@ -268,7 +293,7 @@ const StatusBadge = ({ status }) => {
           ))}
         </div>
 
-        {plot?.extrasAllowance > 0 && (
+        {isReady && plot?.extrasAllowance > 0 && (
           <div
             className={`rounded-2xl p-4 mb-6 border ${
               overBudget
@@ -307,14 +332,19 @@ const StatusBadge = ({ status }) => {
           </div>
         )}
 
-        {plot?.status === 'selections_rejected' && (
+        {plot?.status === "selections_rejected" && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-5 py-4 rounded-2xl mb-6">
-            <p className="font-semibold text-sm">Changes needed to your selections</p>
+            <p className="font-semibold text-sm">
+              Changes needed to your selections
+            </p>
             <p className="text-xs mt-1">{plot.rejectionReason}</p>
-            <p className="text-xs mt-2 font-medium">Please update and resubmit your selections before {countdown?.date}.</p>
+            <p className="text-xs mt-2 font-medium">
+              Please update and resubmit your selections before{" "}
+              {countdown?.date}.
+            </p>
           </div>
         )}
-        
+
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
             {

@@ -35,7 +35,7 @@ const selectionSchema = new mongoose.Schema({
     questionnaireCompleted: {
         type: Boolean,
         default: false 
-    }
+    },
 }, {
     timestamps: true
 });
