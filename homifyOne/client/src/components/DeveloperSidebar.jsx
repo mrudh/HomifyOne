@@ -6,7 +6,6 @@ const navItems = [
   { label: "Plots & Buyers", icon: "🏠", path: "/developer/plots" },
   { label: "Selections Review", icon: "📋", path: "/developer/orders" },
   { label: "Purchase Orders", icon: "📦", path: "/developer/purchase-orders" },
-  { label: "Suppliers", icon: "🏭", path: "/developer/suppliers" },
   { label: "Calendar", icon: "📅", path: "/developer/calendar" },
   { label: "Messages", icon: "✉️", path: "/developer/messages" },
   { label: "Notifications", icon: "🔔", path: "/developer/notifications" },
