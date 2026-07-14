@@ -36,6 +36,7 @@ export function BasketProvider({ children }) {
   const [orderSnapshot, setOrderSnapshot] = useState(null);
   const [orderChecked, setOrderChecked] = useState(false);
   const plotId = selectedPlot?._id;
+  const isReady = !!selectedPlot && orderChecked;
 
   useEffect(() => {
     setAllowance(Number(selectedPlot?.extrasAllowance) || 0);
@@ -162,7 +163,7 @@ export function BasketProvider({ children }) {
       addItem, removeItem, clearBasket, isInBasket,
       hasSubmittedOrder, orderChecked,
       refreshOrderSnapshot: checkOrderStatus,
-      orderSnapshot,
+      orderSnapshot, isReady
     }}>
       {children}
     </BasketContext.Provider>
