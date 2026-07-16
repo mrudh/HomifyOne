@@ -1095,7 +1095,7 @@ export default function Questionnaire() {
 
 async function handleSubmit() {
   try {
-    localStorage.setItem('questionnaireAnswers', JSON.stringify(answers));
+    //localStorage.setItem('questionnaireAnswers', JSON.stringify(answers));
 
     const { data } = await axios.post(
       `${API}/questionnaire/submit`,
@@ -1120,7 +1120,10 @@ async function handleSubmit() {
 
     setReward(rewardData);
 
-    localStorage.setItem('questionnaireReward', JSON.stringify(rewardData));
+    localStorage.setItem(
+      `questionnaireReward_${user._id}`,
+      JSON.stringify({ credit: res.data.credit, promoCode: res.data.promoCode, expiresAt: res.data.expiresAt })
+    );
 
     setScreen("reward");
   } catch (err) {
@@ -1199,7 +1202,7 @@ async function handleSubmit() {
       <RewardScreen
         reward={reward}
         onContinue={() => {
-          localStorage.setItem("questionnaireAnswers", JSON.stringify(answers));
+          // localStorage.setItem("questionnaireAnswers", JSON.stringify(answers));
           navigate("/buyer/recommendations");
         }}
       />

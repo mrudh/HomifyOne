@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { useBasket } from '../../context/BasketContext';
 import api from '../../services/api';
+import { buildProfile } from '../../utils/buildProfile';
+import { useAuth } from '../../context/AuthContext';
 
 function ProductCard({ product }) {
   const navigate = useNavigate();
@@ -73,6 +75,7 @@ function CategoryTabs({ categories, active, onChange }) {
 export default function MySelections() {
   const navigate = useNavigate();
   const { selectedPlot } = useApp();
+  const { user } = useAuth();
   const { items, subtotal, finalTotal, remaining, overBudget, usedPct, allowance } = useBasket();
   const [recommendations, setRecommendations] = useState([]);
   const [summaryMsg, setSummaryMsg] = useState('');
@@ -82,31 +85,29 @@ export default function MySelections() {
   const [sortBy, setSortBy] = useState('match');
 
   useEffect(() => {
-    const cachedRecs = localStorage.getItem('cachedRecommendations');
-    const cachedSummary = localStorage.getItem('cachedSummaryMsg');
-
-    if (cachedRecs) {
-      try {
-        setRecommendations(JSON.parse(cachedRecs));
-        setSummaryMsg(cachedSummary || '');
-        setLoading(false);
-        return;
-      } catch {
-        console.error('Failed to parse cached recommendations');
-      }
-    }
+    setRecommendations([]);
+    setSummaryMsg('');
+    setLoading(true);
+    setError('');
 
     api.get('/questionnaire/recommendations')
-      .then(r => {
-        if (!r.data.questionnaireCompleted) {
-          navigate('/buyer/questionnaire');
-        } else {
+      .then(async (r) => {
+        if (!r.data.questionnaireCompleted || !r.data.answers) {
           setError('no-cache');
+          return;
         }
+        const profile = buildProfile(r.data.answers, selectedPlot); // reuse the same builder from Recommendations.jsx
+        const [recRes, understandRes] = await Promise.all([
+          api.post('/recommendations/recommend', profile),
+          api.post('/recommendations/understand', profile),
+        ]);
+        setRecommendations(recRes.data.recommendations || []);
+        setSummaryMsg(understandRes.data.summary_message || '');
       })
       .catch(() => setError('no-cache'))
       .finally(() => setLoading(false));
-  }, [navigate]);
+  }, [user?._id, selectedPlot]);
+
 
   const categories = [...new Set(recommendations.map(p => p.category))].sort();
   const filtered = recommendations
@@ -135,10 +136,10 @@ export default function MySelections() {
           <p className="text-3xl">📋</p>
           <p className="text-gray-700 font-medium">No saved recommendations yet.</p>
           <button
-            onClick={() => navigate('/buyer/extras')}
+            onClick={() => navigate('/buyer/questionnaire')}
             className="bg-[#1a4a45] text-white px-6 py-3 rounded-xl font-semibold"
           >
-            View recommended extras
+            Take the quiz
           </button>
         </div>
       </div>
@@ -253,9 +254,6 @@ export default function MySelections() {
           <p className="text-xs text-gray-400 mb-2">Not happy with these recommendations?</p>
           <button
             onClick={() => {
-              localStorage.removeItem('questionnaireAnswers');
-              localStorage.removeItem('cachedRecommendations');
-              localStorage.removeItem('cachedSummaryMsg');
               navigate('/buyer/questionnaire');
             }}
             className="text-sm text-[#1a4a45] font-medium hover:underline"

@@ -23,7 +23,11 @@ exports.submitQuestionnaire = async (req, res, next) => {
     const userId = req.user._id;
     const user = await User.findById(userId);
 
+    user.questionnaireAnswers = answers;
+    user.buyerProfile = buyerProfile;
+
     if (user.questionnaireCompleted) {
+      await user.save();
       const existingPromo = await PromoCode.findById(user.promoCode);
       const priorOrder = await Plot.exists({
         buyer: userId,
@@ -42,8 +46,6 @@ exports.submitQuestionnaire = async (req, res, next) => {
     const plot = await Plot.findOne({ buyer: userId });
     const credit = calculateCredit(plot?.extrasAllowance || 0);
 
-    user.questionnaireAnswers = answers;
-    user.buyerProfile = buyerProfile;
     user.questionnaireCompleted = true;
     user.credit = credit;
 
@@ -71,6 +73,7 @@ exports.submitQuestionnaire = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+
 exports.getReward = async (req, res, next) => {
     try {
         const user = await User.findById(req.user._id).populate('promoCode');
@@ -89,12 +92,15 @@ exports.getReward = async (req, res, next) => {
     }
 };
 
+
 exports.getRecommendations = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id);
     res.json({
       success: true,
       questionnaireCompleted: user?.questionnaireCompleted || false,
+      answers: user?.questionnaireAnswers || null,
+      buyerProfile: user?.buyerProfile || '',
     });
   } catch (err) { next(err); }
 };

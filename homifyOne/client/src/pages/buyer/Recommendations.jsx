@@ -1,35 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
+import { useAuth } from '../../context/AuthContext';
 import { useBasket } from '../../context/BasketContext';
+import { buildProfile } from '../../utils/buildProfile';
 import api from '../../services/api';
 
-function buildProfile(answers, plot) {
-  const styleMap = { modern: 'modern', minimal: 'minimal', classic: 'classic', scandi: 'scandi', cosy: 'cosy', bold: 'bold', unsure: '' };
-  const budgetMap = { low: [0, 2000], little: [0, 5000], balanced: [0, 10000], invest: [0, 25000], unsure: [0, 0] };
-  const [budgetMin, budgetMax] = budgetMap[answers?.budget] || [0, 0];
-  const roomAnswers = answers?.roomDetails || {};
-  return {
-    buyer_type: answers?.household || '',
-    household_size: answers?.household || '',
-    build_stage: 'Handover / ready to move in',
-    upgrade_categories: answers?.lifestyleTraits || [],
-    priorities: answers?.priorities || [],
-    preferred_style: styleMap[answers?.style] || '',
-    budget_min: budgetMin,
-    budget_max: budgetMax,
-    home_area: answers?.primaryRoom || '',
-    bedroom_users: answers?.household || '',
-    wardrobe_need: roomAnswers['Storage & wardrobes'] || '',
-    kitchen_usage: roomAnswers['Kitchen'] || '',
-    bathroom_priority: roomAnswers['Bathroom'] || '',
-    flooring_area: roomAnswers['Flooring throughout'] || '',
-    garden_priority: roomAnswers['Garden / outdoor space'] || '',
-    sustainability_interest: (answers?.lifestyleTraits || []).includes('eco') ? 'eco and sustainability' : '',
-    smart_home_need: (answers?.lifestyleTraits || []).includes('smart_home') ? 'smart home' : '',
-    additional_notes: answers?.buyerProfile || '',
-  };
-}
 
 function ProductModal({ product, onClose }) {
   const { addItem, removeItem, isInBasket } = useBasket();
@@ -218,6 +194,7 @@ function CategoryTabs({ categories, active, onChange }) {
 export default function Recommendations() {
   const navigate = useNavigate();
   const { selectedPlot } = useApp();
+  const { user } = useAuth();
   const { items, subtotal, remaining, overBudget, allowance } = useBasket();
   const [answers, setAnswers] = useState(null);
   const [recommendations, setRecommendations] = useState([]);
@@ -230,26 +207,26 @@ export default function Recommendations() {
   const [authChecked, setAuthChecked] = useState(false);
   const hasFetched = useRef(false);
 
-  // 1. Load answers from localStorage once on mount
-  useEffect(() => {
-    const stored = localStorage.getItem('questionnaireAnswers');
-    if (stored) {
-      try { setAnswers(JSON.parse(stored)); }
-      catch { console.error('Failed to parse stored answers'); }
-    }
-  }, []);
 
-  // 2. Confirm questionnaire is complete, redirect if not
   useEffect(() => {
+    setRecommendations([]);
+    setSummaryMsg('');
+    setAnswers(null);
+    hasFetched.current = false;
+
     api.get('/questionnaire/recommendations')
       .then(r => {
-        if (!r.data.questionnaireCompleted) navigate('/buyer/questionnaire');
-        else setAuthChecked(true);
+        if (!r.data.questionnaireCompleted) {
+          navigate('/buyer/questionnaire');
+        } else {
+          setAnswers(r.data.answers);
+          setAuthChecked(true);
+        }
       })
-      .catch(() => setAuthChecked(true)); // fail open
-  }, [navigate]);
+      .catch(() => setAuthChecked(true));
+  }, [user?._id]);
 
-  // 3. Fetch function
+
   const fetchRecommendations = useCallback(async (answersData) => {
     setLoading(true);
     setError('');
@@ -267,8 +244,6 @@ export default function Recommendations() {
       setRecommendations(recRes.data.recommendations || []);
       setSummaryMsg(understandRes.data.summary_message || '');
       
-      localStorage.setItem('cachedRecommendations', JSON.stringify(recRes.data.recommendations || []));
-      localStorage.setItem('cachedSummaryMsg', understandRes.data.summary_message || '');
     } catch (err) {
       if (err.name !== 'CanceledError' && err.code !== 'ERR_CANCELED') {
         console.error('fetchRecommendations error:', err.response?.data || err.message);
@@ -279,7 +254,7 @@ export default function Recommendations() {
     }
   }, [selectedPlot]);
 
-  // 4. Trigger fetch once, guarded against double-fire
+
   useEffect(() => {
     if (!authChecked || !answers) return;
     if (hasFetched.current) return;

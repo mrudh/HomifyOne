@@ -5,9 +5,14 @@ import { useAuth } from './AuthContext';
 
 const BasketContext = createContext(null);
 
-function getReward() {
+function rewardKey(userId) {
+  return `questionnaireReward_${userId}`;
+}
+
+function getReward(userId) {
+  if (!userId) return null;
   try {
-    const stored = localStorage.getItem('questionnaireReward');
+    const stored = localStorage.getItem(rewardKey(userId));
     if (!stored) return null;
     const reward = JSON.parse(stored);
     if (reward.expiresAt && new Date(reward.expiresAt) < new Date()) return null;
@@ -16,6 +21,7 @@ function getReward() {
     return null;
   }
 }
+
 
 function promoKey(plotId) {
   return `promoCode_${plotId}`;
@@ -31,7 +37,7 @@ export function BasketProvider({ children }) {
   });
 
   const [allowance, setAllowance] = useState(0);
-  const [reward, setReward] = useState(() => getReward());
+  const [reward, setReward] = useState(() => getReward(user?._id));
   const [promo, setPromo] = useState(null);
   const [orderSnapshot, setOrderSnapshot] = useState(null);
   const [orderChecked, setOrderChecked] = useState(false);
@@ -41,6 +47,16 @@ export function BasketProvider({ children }) {
   useEffect(() => {
     setAllowance(Number(selectedPlot?.extrasAllowance) || 0);
   }, [selectedPlot]);
+
+  useEffect(() => {
+    if (!user?._id) return;
+    try { setItems(JSON.parse(localStorage.getItem('basket') || '[]')); }
+    catch { setItems([]); }
+    setReward(getReward());
+    setPromo(null);
+    setOrderSnapshot(null);
+    setOrderChecked(false);
+  }, [user?._id]);
 
   useEffect(() => {
     localStorage.setItem('basket', JSON.stringify(items));
@@ -126,13 +142,13 @@ export function BasketProvider({ children }) {
     if (plotId) localStorage.removeItem(promoKey(plotId));
   }, [plotId]);
 
-  const refreshReward = useCallback(() => setReward(getReward()), []);
+  const refreshReward = useCallback(() => setReward(getReward(user?._id)), []);
 
   const redeemReward = useCallback(() => {
     localStorage.removeItem('questionnaireReward');
     setReward(null);
     removePromo();
-  }, [removePromo]);
+  }, [removePromo, user?._id]);
 
   const addItem = useCallback((product) => {
     setItems(prev =>

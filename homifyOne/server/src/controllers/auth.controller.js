@@ -29,7 +29,7 @@ exports.login = async (req, res, next) => {
       maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
-    res.status(200).json({ success: true, token, user: { id: user._id, name: user.name, email: user.email, role: user.role } });
+    res.status(200).json({ success: true, token, user: { _id: user._id, name: user.name, email: user.email, role: user.role } });
   } catch (err) { next(err); }
 };
 

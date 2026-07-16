@@ -19,6 +19,7 @@ const navItems = [
   { label: 'My Recommendations', icon: '📋', path: '/buyer/my-selections' },
   { label: 'Basket & Quote', icon: '🛒', path: '/buyer/basket' },
   { label: 'Orders & Status', icon: '📦', path: '/buyer/orders' },
+  { label: 'Selection Summary', icon: '📄', path: '/buyer/selection-summary' },
   { label: 'Calendar', icon: '📅', path: '/buyer/calendar' },
   { label: 'Messages', icon: '✉️', path: '/buyer/messages' },
   { label: 'Documents', icon: '📄', path: '/buyer/documents' },
