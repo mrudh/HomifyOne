@@ -41,6 +41,7 @@ export function BasketProvider({ children }) {
   const [promo, setPromo] = useState(null);
   const [orderSnapshot, setOrderSnapshot] = useState(null);
   const [orderChecked, setOrderChecked] = useState(false);
+  const [approvedSpend, setApprovedSpend] = useState(0);
   const plotId = selectedPlot?._id;
   const isReady = !!selectedPlot && orderChecked;
 
@@ -72,34 +73,66 @@ export function BasketProvider({ children }) {
     }
   }, [plotId, user]);
 
-  const checkOrderStatus = useCallback(() => {
-    if (user?.role !== 'buyer') return;
-    if (!plotId) return;
-    api.get('/selections/order')
-      .then(({ data }) => {
-        const order = data.order;
-        setOrderSnapshot(order);
+  // const checkOrderStatus = useCallback(() => {
+  //   if (user?.role !== 'buyer') return;
+  //   if (!plotId) return;
+  //   api.get('/selections/order')
+  //     .then(({ data }) => {
+  //       const order = data.order;
+  //       setOrderSnapshot(order);
 
-        if (order?.status === 'rejected') {
-          const restoredKey = `restoredOrder_${order._id}`;
-          if (!localStorage.getItem(restoredKey)) {
-            const extras = order.items
-              .filter(i => i.type === 'extra')
-              .map(i => ({
-                name: i.name,
-                price: i.price,
-                category: i.category,
-                subCategory: i.subCategory,
-                imageUrl: i.imageUrl,
-              }));
-            setItems(extras);
-            localStorage.setItem(restoredKey, 'true');
-          }
+  //       if (order?.status === 'rejected') {
+  //         const restoredKey = `restoredOrder_${order._id}`;
+  //         if (!localStorage.getItem(restoredKey)) {
+  //           const extras = order.items
+  //             .filter(i => i.type === 'extra')
+  //             .map(i => ({
+  //               name: i.name,
+  //               price: i.price,
+  //               category: i.category,
+  //               subCategory: i.subCategory,
+  //               imageUrl: i.imageUrl,
+  //             }));
+  //           setItems(extras);
+  //           localStorage.setItem(restoredKey, 'true');
+  //         }
+  //       }
+  //     })
+  //     .catch(() => setOrderSnapshot(null))
+  //     .finally(() => setOrderChecked(true));
+  // }, [plotId, user]);
+
+  const checkOrderStatus = useCallback(() => {
+  if (user?.role !== 'buyer') return;
+  if (!plotId) return;
+  Promise.all([
+    api.get('/selections/order'),
+    api.get('/selections/approved-spend'),
+  ])
+    .then(([orderRes, spendRes]) => {
+      const order = orderRes.data.order;
+      setOrderSnapshot(order);
+      setApprovedSpend(spendRes.data.approvedSpend || 0);
+      if (order?.status === 'rejected') {
+        const restoredKey = `restoredOrder_${order._id}`;
+        if (!localStorage.getItem(restoredKey)) {
+          const extras = order.items
+            .filter(i => i.type === 'extra')
+            .map(i => ({
+              name: i.name,
+              price: i.price,
+              category: i.category,
+              subCategory: i.subCategory,
+              imageUrl: i.imageUrl,
+            }));
+          setItems(extras);
+          localStorage.setItem(restoredKey, 'true');
         }
-      })
-      .catch(() => setOrderSnapshot(null))
-      .finally(() => setOrderChecked(true));
-  }, [plotId, user]);
+      }
+    })
+    .catch(() => { setOrderSnapshot(null); setApprovedSpend(0); })
+    .finally(() => setOrderChecked(true));
+}, [plotId, user]);
 
   useEffect(() => {
     checkOrderStatus();
@@ -121,9 +154,9 @@ export function BasketProvider({ children }) {
   const liveFinalTotal = Math.max(afterCredit - liveDiscountAmount, 0);
 
   const hasSubmittedOrder = orderSnapshot?.status === 'submitted';
-  const subtotal = hasSubmittedOrder ? orderSnapshot.pricing.subtotal : liveSubtotal;
+  const subtotal = (hasSubmittedOrder ? orderSnapshot.pricing.subtotal : liveSubtotal) + approvedSpend;
   const discountAmount = hasSubmittedOrder ? orderSnapshot.pricing.discountAmount : liveDiscountAmount;
-  const finalTotal = hasSubmittedOrder ? orderSnapshot.pricing.finalTotal : liveFinalTotal;
+  const finalTotal = (hasSubmittedOrder ? orderSnapshot.pricing.finalTotal : liveFinalTotal) + approvedSpend;
   const effectiveAllowance = hasSubmittedOrder ? orderSnapshot.pricing.allowance : allowance;
 
   const remaining = effectiveAllowance - finalTotal;

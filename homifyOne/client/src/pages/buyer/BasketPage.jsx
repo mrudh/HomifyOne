@@ -135,7 +135,7 @@ export default function BasketPage() {
     const fetchData = async () => {
       try {
         const [selRes, plotRes] = await Promise.all([
-          api.get('/selections'),
+          api.get('/selections/pending'),
           api.get('/plots/my'),
         ]);
         setSelections(selRes.data.selections);

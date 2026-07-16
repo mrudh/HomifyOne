@@ -17,6 +17,28 @@ exports.getMySelections = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+exports.getPendingSelections = async (req, res, next) => {
+  try {
+    const plot = await Plot.findOne({ buyer: req.user._id });
+    if (!plot) return res.status(404).json({ success: false, message: 'No plot assigned.' });
+    const selections = await Selection.find({ plot: plot._id, status: { $ne: 'confirmed' } }).populate('products');
+    res.json({ success: true, selections });
+  } catch (err) { 
+    next(err); 
+  }
+};
+
+exports.getApprovedSpend = async (req, res, next) => {
+  try {
+    const plot = await Plot.findOne({ buyer: req.user._id });
+    if (!plot) return res.status(404).json({ success: false, message: 'No plot assigned.' });
+    const approvedOrders = await Order.find({ plot: plot._id, status: 'approved' });
+    const approvedSpend = approvedOrders.reduce((sum, o) => sum + (o.pricing?.finalTotal || 0), 0);
+    res.json({ success: true, approvedSpend });
+  } catch (err) { next(err); }
+};
+
+
 exports.saveSelection = async (req, res, next) => {
   try {
     const { room, category, productId, action } = req.body;

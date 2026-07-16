@@ -7,9 +7,9 @@ const navItems = [
   { label: "Selections Review", icon: "📋", path: "/developer/orders" },
   { label: "Purchase Orders", icon: "📦", path: "/developer/purchase-orders" },
   { label: "Calendar", icon: "📅", path: "/developer/calendar" },
-  { label: "Messages", icon: "✉️", path: "/developer/messages" },
-  { label: "Notifications", icon: "🔔", path: "/developer/notifications" },
-  { label: "Help & Support", icon: "❓", path: "/developer/help" },
+//   { label: "Messages", icon: "✉️", path: "/developer/messages" },
+//   { label: "Notifications", icon: "🔔", path: "/developer/notifications" },
+//   { label: "Help & Support", icon: "❓", path: "/developer/help" },
 ];
 
 export default function DeveloperSidebar({ open, onClose }) {

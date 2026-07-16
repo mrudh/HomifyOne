@@ -16,7 +16,10 @@ export default function SelectionSummaryPage() {
 
   useEffect(() => {
     api.get('/selections/orders')
-      .then(r => setOrders(r.data.orders || []))
+      .then(r => {
+        const withSummary = (r.data.orders || []).filter(o => !!o.summaryPdf?.url);
+        setOrders(withSummary);
+      })
       .catch(() => setError('Failed to load selection summaries.'))
       .finally(() => setLoading(false));
   }, []);

@@ -21,10 +21,9 @@ const navItems = [
   { label: 'Orders & Status', icon: '📦', path: '/buyer/orders' },
   { label: 'Selection Summary', icon: '📄', path: '/buyer/selection-summary' },
   { label: 'Calendar', icon: '📅', path: '/buyer/calendar' },
-  { label: 'Messages', icon: '✉️', path: '/buyer/messages' },
-  { label: 'Documents', icon: '📄', path: '/buyer/documents' },
-  { label: 'Notifications', icon: '🔔', path: '/buyer/notifications' },
-  { label: 'Help & Support', icon: '❓', path: '/buyer/help' },
+  // { label: 'Messages', icon: '✉️', path: '/buyer/messages' },
+  // { label: 'Notifications', icon: '🔔', path: '/buyer/notifications' },
+  // { label: 'Help & Support', icon: '❓', path: '/buyer/help' },
 ];
 
 export default function BuyerSidebar({ open, onClose }) {

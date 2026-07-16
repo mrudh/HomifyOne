@@ -213,7 +213,7 @@ const StatusBadge = ({ status }) => {
                 </div>
               </div>
               {/* <StatusBadge status={plot.status} /> */}
-              {selStatus === "selections_approved" &&
+              {/* {selStatus === "selections_approved" &&
                 order?.summaryPdf?.url && (
                   <button
                     onClick={() =>
@@ -226,7 +226,7 @@ const StatusBadge = ({ status }) => {
                   >
                     📄 Download Selection Summary
                   </button>
-                )}
+                )} */}
             </div>
           </div>
         ) : (
@@ -265,13 +265,7 @@ const StatusBadge = ({ status }) => {
             },
             {
               label: "Selection Status",
-              value: <><StatusBadge status={selStatus} /> 
-              {selStatus === "selections_approved" && order?.summaryPdf?.url && 
-              ( <div className="relative inline-block group"><button onClick={() => window.open( `${API}/selections/orders/${order._id}/summary-pdf`, "_blank" ) } className="bg-[#1a4a45] text-white ml-2 px-3 py-2 rounded-full text-sm font-semibold hover:bg-[#153d38] transition" > 📄 </button>
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 whitespace-nowrap rounded-md bg-gray-900 px-3 py-1.5 text-xs text-white opacity-0 group-hover:opacity-100 transition pointer-events-none">
-                  Download Selection Summary
-                </div>
-              </div> )}</> ,
+              value: <StatusBadge status={selStatus} /> ,
               icon: "📋",
               sub: "Current progress",
               accent: "border-l-amber-400",

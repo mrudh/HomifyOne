@@ -3,7 +3,6 @@ const { getPendingSelections, getOrderDetail, approveOrder, rejectOrder } = requ
 const { verifyToken, authorise } = require('../middleware/auth');
 
 router.use(verifyToken, authorise('developer')); 
-router.get('/selections/pending', getPendingSelections);
 router.get('/selections/:plotId', getOrderDetail);
 router.post('/selections/:plotId/approve', approveOrder);
 router.post('/selections/:plotId/reject', rejectOrder);

@@ -6,9 +6,9 @@ const navItems = [
   { label: 'Purchase Orders', icon: '📋', path: '/supplier/purchase-orders' },
   { label: 'Invoice History', icon: '🧾', path: '/supplier/invoices' },
   { label: 'Calendar', icon: '📅', path: '/supplier/calendar' },
-  { label: 'Messages', icon: '💬', path: '/supplier/messages' },
-  { label: 'Notifications', icon: '🔔', path: '/supplier/notifications' },
-  { label: 'Help & Support', icon: '❓', path: '/supplier/help' },
+  // { label: 'Messages', icon: '💬', path: '/supplier/messages' },
+  // { label: 'Notifications', icon: '🔔', path: '/supplier/notifications' },
+  // { label: 'Help & Support', icon: '❓', path: '/supplier/help' },
 ];
 
 export default function SupplierSidebar({ open, onClose }) {

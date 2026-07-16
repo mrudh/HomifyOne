@@ -27,6 +27,7 @@ import PurchaseOrdersPage from './pages/developer/PurchaseOrdersPage';
 import SupplierLayout from './layout/SupplierLayout';
 import SupplierPurchaseOrders from './pages/supplier/SupplierPurchaseOrders';
 import CalendarPage from './components/CalendarPage';
+import SelectionSummaryPage from './pages/buyer/SelectionSummaryPage';
 
 export default function App() {
   return (
@@ -75,6 +76,7 @@ export default function App() {
               <Route path="/buyer/orders" element={<OrderStatusPage />} />
               <Route path="/buyer/orders/:id" element={<OrderDetailPage />} />
               <Route path="/buyer/calendar" element={<CalendarPage />} />
+              <Route path="/buyer/selection-summary" element={<SelectionSummaryPage />} />
             </Route>
           </Route>
 

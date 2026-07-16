@@ -6,6 +6,8 @@ router.use(verifyToken);
 
 router.get('/', authorise('buyer'), ctrl.getMySelections);
 router.get('/my', authorise('buyer'), ctrl.getMySelections);
+router.get('/pending', authorise('buyer'), ctrl.getPendingSelections);
+router.get('/approved-spend', authorise('buyer'), ctrl.getApprovedSpend);
 router.post('/', authorise('buyer'), ctrl.saveSelection);
 router.post('/submit', authorise('buyer'), ctrl.submitSelections);
 router.get('/order', authorise('buyer'), ctrl.getMyOrder);
