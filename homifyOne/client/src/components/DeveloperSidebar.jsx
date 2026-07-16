@@ -5,6 +5,7 @@ const navItems = [
   { label: "Dashboard", icon: "⊞", path: "/developer/dashboard" },
   { label: "Plots & Buyers", icon: "🏠", path: "/developer/plots" },
   { label: "Selections Review", icon: "📋", path: "/developer/orders" },
+  { label: 'Selection Summary', icon: '📄', path: '/developer/selection-summary' },
   { label: "Purchase Orders", icon: "📦", path: "/developer/purchase-orders" },
   { label: "Calendar", icon: "📅", path: "/developer/calendar" },
 //   { label: "Messages", icon: "✉️", path: "/developer/messages" },

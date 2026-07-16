@@ -16,6 +16,7 @@ router.get('/orders/:id', authorise('buyer'), ctrl.getOrderById);
 router.get('/orders/:id/summary-pdf', ctrl.getOrderSummaryPdf);
 
 router.get('/developer/orders', authorise('developer'), ctrl.getDeveloperOrders);
+router.get('/developer/summaries', authorise('developer'), ctrl.getDeveloperApprovedSummaries);
 router.patch('/developer/orders/:id/approve', authorise('developer'), ctrl.approveOrder);
 router.patch('/developer/orders/:id/reject', authorise('developer'), ctrl.rejectOrder);
 router.post('/developer/orders/:id/regenerate-pdf', authorise('developer'), ctrl.regenerateSummaryPdf);

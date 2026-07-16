@@ -164,6 +164,28 @@ exports.getDeveloperOrders = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+exports.getDeveloperApprovedSummaries = async (req, res, next) => {
+  try {
+    const plots = await Plot.find({ developer: req.user._id }).select('_id plotNumber development');
+    const plotIds = plots.map(p => p._id);
+    const orders = await Order.find({ plot: { $in: plotIds }, status: 'approved' })
+      .populate('buyer', 'name email')
+      .populate('plot', 'plotNumber development')
+      .sort({ createdAt: -1 });
+
+    const byPlot = new Map();
+    for (const order of orders) {
+      const key = String(order.plot._id);
+      if (!byPlot.has(key)) {
+        byPlot.set(key, { plot: order.plot, orders: [] });
+      }
+      byPlot.get(key).orders.push(order);
+    }
+
+    res.json({ success: true, groups: Array.from(byPlot.values()) });
+  } catch (err) { next(err); }
+};
+
 exports.approveOrder = async (req, res, next) => {
   try {
     const order = await Order.findById(req.params.id)

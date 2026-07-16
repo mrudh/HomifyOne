@@ -28,6 +28,7 @@ import SupplierLayout from './layout/SupplierLayout';
 import SupplierPurchaseOrders from './pages/supplier/SupplierPurchaseOrders';
 import CalendarPage from './components/CalendarPage';
 import SelectionSummaryPage from './pages/buyer/SelectionSummaryPage';
+import DeveloperSelectionSummaryPage from './pages/developer/DeveloperSelectionSummaryPage';
 
 export default function App() {
   return (
@@ -45,6 +46,7 @@ export default function App() {
               <Route path="/developer/orders/:plotId" element={<OrderReviewPage />} />
               <Route path="/developer/purchase-orders" element={<PurchaseOrdersPage />} />
               <Route path="/developer/calendar" element={<CalendarPage />} />
+              <Route path="/developer/selection-summary" element={<DeveloperSelectionSummaryPage />} />
             </Route>
           </Route>
 

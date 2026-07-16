@@ -2,19 +2,49 @@ import { useEffect, useState } from 'react';
 import api from '../../services/api';
 
 const PLOT_STATUS_MAP = {
-  available:            { label: 'Available',       cls: 'bg-gray-100 text-gray-500' },
-  assigned:             { label: 'Assigned',         cls: 'bg-gray-100 text-gray-600' },
-  selections_pending:   { label: 'In Progress',      cls: 'bg-yellow-100 text-yellow-700' },
-  selections_submitted: { label: 'Awaiting Review',  cls: 'bg-blue-100 text-blue-700' },
-  selections_rejected:  { label: 'Changes Requested', cls: 'bg-red-100 text-red-700' },
-  selections_approved:  { label: 'Approved ✓',       cls: 'bg-green-100 text-green-700' },
-  completed:            { label: 'Completed',        cls: 'bg-teal-100 text-teal-700' },
+    available: {
+        label: 'Available',
+        cls: 'bg-gray-100 text-gray-500'
+    },
+    assigned: {
+        label: 'Assigned',
+        cls: 'bg-gray-100 text-gray-600'
+    },
+    selections_pending: {
+        label: 'In Progress',
+        cls: 'bg-yellow-100 text-yellow-700'
+    },
+    selections_submitted: {
+        label: 'Awaiting Review',
+        cls: 'bg-blue-100 text-blue-700'
+    },
+    selections_rejected: {
+        label: 'Changes Requested',
+        cls: 'bg-red-100 text-red-700'
+    },
+    selections_approved: {
+        label: 'Approved ✓',
+        cls: 'bg-green-100 text-green-700'
+    },
+    completed: {
+        label: 'Completed',
+        cls: 'bg-teal-100 text-teal-700'
+    },
 };
 
 const ORDER_STATUS_MAP = {
-  submitted: { label: 'Awaiting Review', cls: 'bg-blue-100 text-blue-700' },
-  approved:  { label: 'Approved',        cls: 'bg-green-100 text-green-700' },
-  rejected:  { label: 'Rejected',        cls: 'bg-red-100 text-red-700' },
+    submitted: {
+        label: 'Awaiting Review',
+        cls: 'bg-blue-100 text-blue-700'
+    },
+    approved: {
+        label: 'Approved',
+        cls: 'bg-green-100 text-green-700'
+    },
+    rejected: {
+        label: 'Rejected',
+        cls: 'bg-red-100 text-red-700'
+    },
 };
 
 function DeadlineModal({ plot, onClose, onSaved }) {
@@ -107,12 +137,12 @@ function RejectModal({ order, onClose, onDone }) {
 }
 
 export default function DeveloperDashboard() {
-  const [plots, setPlots]   = useState([]);
+  const [plots, setPlots] = useState([]);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deadlinePlot, setDeadlinePlot] = useState(null);
-  const [rejectOrder, setRejectOrder]   = useState(null);
-  const [approving, setApproving]       = useState(null);
+  const [rejectOrder, setRejectOrder] = useState(null);
+  const [approving, setApproving] = useState(null);
   const [error, setError] = useState('');
 
   const fetchAll = async () => {
@@ -168,10 +198,27 @@ export default function DeveloperDashboard() {
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
-            { label: 'Total Plots',      value: plots.length,        icon: '🏠', accent: 'border-l-[#1a4a45]' },
-            { label: 'Awaiting Review',  value: pendingOrders.length, icon: '📋', accent: 'border-l-blue-400' },
-            { label: 'Approved Orders',  value: approvedCount,       icon: '✅', accent: 'border-l-green-500' },
-            { label: 'Buyers Assigned',  value: plots.filter(p => p.buyer).length, icon: '👥', accent: 'border-l-amber-400' },
+            {
+                label: 'Total Plots',
+                value: plots.length,
+                icon: '🏠',
+                accent: 'border-l-[#1a4a45]'
+            }, {
+                label: 'Awaiting Review',
+                value: pendingOrders.length,
+                icon: '📋',
+                accent: 'border-l-blue-400'
+            }, {
+                label: 'Approved Orders',
+                value: approvedCount,
+                icon: '✅',
+                accent: 'border-l-green-500'
+            }, {
+                label: 'Buyers Assigned',
+                value: plots.filter(p => p.buyer).length,
+                icon: '👥',
+                accent: 'border-l-amber-400'
+            },
           ].map(card => (
             <div key={card.label} className={`bg-white rounded-2xl border border-gray-100 border-l-4 ${card.accent} shadow-sm p-5`}>
               <span className="text-2xl">{card.icon}</span>
