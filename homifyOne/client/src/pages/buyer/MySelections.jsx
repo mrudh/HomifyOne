@@ -76,7 +76,7 @@ export default function MySelections() {
   const navigate = useNavigate();
   const { selectedPlot } = useApp();
   const { user } = useAuth();
-  const { items, subtotal, finalTotal, remaining, overBudget, usedPct, allowance } = useBasket();
+  const { items, subtotal, finalTotal, cumulativeTotal, remaining, overBudget, usedPct, allowance } = useBasket();
   const [recommendations, setRecommendations] = useState([]);
   const [summaryMsg, setSummaryMsg] = useState('');
   const [loading, setLoading] = useState(true);
@@ -167,7 +167,7 @@ export default function MySelections() {
                 overBudget ? 'bg-red-500 text-white' : 'bg-[#1a4a45] text-white hover:bg-[#153d38]'
               }`}
             >
-              🛒 {items.length} · £{finalTotal.toLocaleString()}
+              🛒 {items.length} · £{cumulativeTotal.toLocaleString()}
               {allowance > 0 && (
                 <span className="text-xs font-medium opacity-80">
                   {overBudget ? '⚠️ over' : `· £${remaining.toLocaleString()} left`}

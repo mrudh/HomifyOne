@@ -43,7 +43,7 @@ const StatusBadge = ({ status }) => {
 export default function BuyerDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { subtotal, finalTotal,remaining, overBudget, usedPct, items, setAllowance, hasSubmittedOrder, orderSnapshot, isReady } = useBasket();
+  const { subtotal, finalTotal,remaining, overBudget, usedPct, items, setAllowance, hasSubmittedOrder, orderSnapshot, isReady, cumulativeTotal } = useBasket();
 
   const [plot, setPlot] = useState(null);
   const [selection, setSelection] = useState(null);
@@ -109,7 +109,7 @@ const StatusBadge = ({ status }) => {
   const extrasAdded = hasSubmittedOrder
     ? orderSnapshot.items.filter(i => i.type === 'extra').length
     : items.length;
-  const extrasTotal = finalTotal;
+  const extrasTotal = cumulativeTotal;
 
   const greeting = () => {
     const h = new Date().getHours();
@@ -199,7 +199,7 @@ const StatusBadge = ({ status }) => {
                     />
                   </svg>
                 </div>
-                <div>
+                <div className="text-left">
                   <p className="text-xs font-semibold tracking-widest text-gray-400 mb-0.5">
                     YOUR PLOT
                   </p>
@@ -297,7 +297,7 @@ const StatusBadge = ({ status }) => {
           >
             <div className="flex justify-between text-xs text-gray-500 mb-2">
               <span className="font-medium">
-                £{finalTotal.toLocaleString()} used
+                £{cumulativeTotal.toLocaleString()} used
               </span>
               <span
                 className={`font-bold ${overBudget ? "text-red-500" : "text-gray-400"}`}

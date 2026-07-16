@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useNavigate }         from 'react-router-dom';
-import api                     from '../../services/api';
-import { useBasket }           from '../../context/BasketContext';
+import { useNavigate } from 'react-router-dom';
+import api from '../../services/api';
+import { useBasket } from '../../context/BasketContext';
 
 const ROOM_ICONS = {
   Kitchen: '🍳', 'Living Room': '🛋️', Bedroom: '🛏️',
@@ -83,8 +83,8 @@ function PromoCodeBox({ plotId, promo, applyPromo, removePromo, rewardPromo }) {
             </p>
             <p className="text-xs text-gray-500 mt-0.5">
               {promo.auto
-                ? `🎉 Your questionnaire reward — ${promo.discount}% off extras above your credit (max £${promo.maxDiscount})`
-                : promo.type === 'percent' ? `${promo.discount}% off extras` : `£${promo.discount} off extras`}
+                ? `🎉 Your questionnaire reward — ${promo.discount}% off upgrades/extras above your credit (max £${promo.maxDiscount})`
+                : promo.type === 'percent' ? `${promo.discount}% off upgrades/extras` : `£${promo.discount} off upgrades/extras`}
             </p>
           </div>
           <button onClick={handleRemovePromo} className="text-xs font-semibold text-gray-400 hover:text-red-500 transition">
@@ -128,7 +128,7 @@ export default function BasketPage() {
     items, removeItem, clearBasket,
     subtotal, remaining, overBudget, usedPct, allowance, setAllowance,
     credit, reward, redeemReward,
-    promo, applyPromo, removePromo, discountAmount, finalTotal, refreshOrderSnapshot,
+    promo, applyPromo, removePromo, discountAmount, finalTotal, refreshOrderSnapshot, cumulativeTotal
   } = useBasket();
 
   useEffect(() => {
@@ -269,7 +269,7 @@ export default function BasketPage() {
         ) : isPendingReview ? (
           <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5 text-center space-y-1">
             <p className="text-sm font-semibold text-blue-700">📋 Selections already submitted</p>
-            <p className="text-xs text-blue-500">Your choices are under review by the developer.</p>
+            <p className="text-xs text-blue-500">Your selections are under review by the developer.</p>
             <button onClick={() => navigate('/buyer/orders')}
               className="mt-2 text-sm text-blue-700 font-semibold underline">
               View Order & Status
@@ -280,7 +280,7 @@ export default function BasketPage() {
             {plot?.status === 'selections_approved' && (
               <div className="bg-green-50 border border-green-200 rounded-2xl p-4 text-center">
                 <p className="text-sm font-semibold text-green-700">✓ Your previous selections were approved</p>
-                <p className="text-xs text-green-600 mt-0.5">You can add more extras below and submit them as a new order.</p>
+                <p className="text-xs text-green-600 mt-0.5">You can add more upgrades/extras below and submit them as a new order.</p>
               </div>
             )}
             {allowance > 0 && (
@@ -289,15 +289,15 @@ export default function BasketPage() {
               }`}>
                 <div className="flex items-center justify-between mb-3">
                   <div>
-                    <p className="text-xs text-gray-500 font-medium">Your extras allowance</p>
+                    <p className="text-xs text-gray-500 font-medium">Your upgrades/extras allowance</p>
                     <p className="text-2xl font-extrabold text-[#1a4a45]">
                       £{allowance.toLocaleString()}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs text-gray-500 font-medium">Extras total</p>
+                    <p className="text-xs text-gray-500 font-medium">Upgrades/extras total</p>
                     <p className={`text-2xl font-extrabold ${overBudget ? 'text-red-500' : 'text-gray-900'}`}>
-                      £{finalTotal.toLocaleString()}
+                      £{cumulativeTotal.toLocaleString()}
                     </p>
                   </div>
                 </div>
@@ -321,15 +321,15 @@ export default function BasketPage() {
               <div className="bg-white rounded-2xl p-10 text-center space-y-3 shadow-sm">
                 <p className="text-4xl">🛒</p>
                 <p className="font-semibold text-gray-700">Your basket is empty</p>
-                <p className="text-sm text-gray-400">Go to Standard Choices or Extras to add items.</p>
+                <p className="text-sm text-gray-400">Go to Included Choices or Explore Upgrades to add items.</p>
                 <div className="flex gap-3 justify-center pt-2">
                   <button onClick={() => navigate('/buyer/choices')}
                     className="bg-[#1a4a45] text-white px-5 py-2.5 rounded-xl text-sm font-semibold">
-                    Standard Choices
+                    Included Choices
                   </button>
                   <button onClick={() => navigate('/buyer/recommendations')}
                     className="border border-[#1a4a45] text-[#1a4a45] px-5 py-2.5 rounded-xl text-sm font-semibold">
-                    Browse Extras
+                    Explore Upgrades
                   </button>
                 </div>
               </div>
@@ -383,7 +383,7 @@ export default function BasketPage() {
                 {Object.keys(byRoom).length > 0 && (
                   <div>
                     <h2 className="text-sm font-bold text-gray-500 tracking-widest mb-3">
-                      🏠 Standard Choices ({Object.values(byRoom).flat().length})
+                      🏠 Included Choices ({Object.values(byRoom).flat().length})
                     </h2>
                     <div className="space-y-3">
                       {Object.entries(byRoom).map(([room, products]) => (
@@ -431,7 +431,7 @@ export default function BasketPage() {
 
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-4">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="font-semibold text-gray-700">Extras subtotal</span>
+                    <span className="font-semibold text-gray-700">Subtotal of Upgrades or Extras</span>
                     <span className="font-extrabold text-[#1a4a45]">£{subtotal.toLocaleString()}</span>
                   </div>
                   {credit > 0 && (
@@ -452,7 +452,7 @@ export default function BasketPage() {
                   </div>
                   {overBudget && (
                     <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-xs text-red-600 font-medium">
-                      ⚠️ Your extras exceed your allowance by £{Math.abs(remaining).toLocaleString()}.
+                      ⚠️ Your upgrades/extras exceed your allowance by £{Math.abs(remaining).toLocaleString()}.
                       You can still submit — your developer will review and confirm.
                     </div>
                   )}

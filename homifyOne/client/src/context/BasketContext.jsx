@@ -154,15 +154,16 @@ export function BasketProvider({ children }) {
   const liveFinalTotal = Math.max(afterCredit - liveDiscountAmount, 0);
 
   const hasSubmittedOrder = orderSnapshot?.status === 'submitted';
-  const subtotal = (hasSubmittedOrder ? orderSnapshot.pricing.subtotal : liveSubtotal) + approvedSpend;
+  const subtotal = hasSubmittedOrder ? orderSnapshot.pricing.subtotal : liveSubtotal;
   const discountAmount = hasSubmittedOrder ? orderSnapshot.pricing.discountAmount : liveDiscountAmount;
-  const finalTotal = (hasSubmittedOrder ? orderSnapshot.pricing.finalTotal : liveFinalTotal) + approvedSpend;
+  const finalTotal = hasSubmittedOrder ? orderSnapshot.pricing.finalTotal : liveFinalTotal;
   const effectiveAllowance = hasSubmittedOrder ? orderSnapshot.pricing.allowance : allowance;
 
-  const remaining = effectiveAllowance - finalTotal;
+  const cumulativeTotal = finalTotal + approvedSpend;
+  const remaining = effectiveAllowance - cumulativeTotal;
   const overBudget = remaining < 0;
   const usedPct = effectiveAllowance > 0
-    ? Math.min((finalTotal / effectiveAllowance) * 100, 100)
+    ? Math.min((cumulativeTotal / effectiveAllowance) * 100, 100)
     : 0;
 
   const applyPromo = useCallback((promoData) => {
@@ -212,7 +213,7 @@ export function BasketProvider({ children }) {
       addItem, removeItem, clearBasket, isInBasket,
       hasSubmittedOrder, orderChecked,
       refreshOrderSnapshot: checkOrderStatus,
-      orderSnapshot, isReady
+      orderSnapshot, isReady, cumulativeTotal
     }}>
       {children}
     </BasketContext.Provider>
