@@ -49,6 +49,14 @@ exports.submitSelections = async (req, res, next) => {
     const plot = await Plot.findOne({ buyer: req.user._id });
     if (!plot) return res.status(404).json({ success: false, message: 'No plot assigned.' });
 
+    const pendingOrder = await Order.findOne({ plot: plot._id, status: 'submitted' });
+    if (pendingOrder) {
+      return res.status(409).json({
+        success: false,
+        message: 'You already have selections awaiting developer review. Please wait for a decision before submitting more.',
+      });
+    }
+
     if (promoCode) {
       const promo = await PromoCode.findOne({ code: promoCode.toUpperCase() });
 

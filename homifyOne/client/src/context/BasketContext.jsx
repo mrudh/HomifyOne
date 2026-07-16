@@ -120,7 +120,7 @@ export function BasketProvider({ children }) {
   }
   const liveFinalTotal = Math.max(afterCredit - liveDiscountAmount, 0);
 
-  const hasSubmittedOrder = orderSnapshot?.status === 'submitted' || orderSnapshot?.status === 'approved';
+  const hasSubmittedOrder = orderSnapshot?.status === 'submitted';
   const subtotal = hasSubmittedOrder ? orderSnapshot.pricing.subtotal : liveSubtotal;
   const discountAmount = hasSubmittedOrder ? orderSnapshot.pricing.discountAmount : liveDiscountAmount;
   const finalTotal = hasSubmittedOrder ? orderSnapshot.pricing.finalTotal : liveFinalTotal;

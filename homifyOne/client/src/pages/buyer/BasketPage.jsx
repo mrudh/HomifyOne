@@ -187,7 +187,8 @@ export default function BasketPage() {
     }
   };
 
-  const isAlreadySubmitted = plot?.status === 'selections_submitted' || plot?.status === 'selections_approved';
+  // const isAlreadySubmitted = plot?.status === 'selections_submitted' || plot?.status === 'selections_approved';
+  const isPendingReview = plot?.status === 'selections_submitted';
 
   const handleSubmit = async () => {
     if (!window.confirm('Submit your selections to the developer for review?')) return;
@@ -265,7 +266,7 @@ export default function BasketPage() {
               View Order & Status
             </button>
           </div>
-        ) : isAlreadySubmitted ? (
+        ) : isPendingReview ? (
           <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5 text-center space-y-1">
             <p className="text-sm font-semibold text-blue-700">📋 Selections already submitted</p>
             <p className="text-xs text-blue-500">Your choices are under review by the developer.</p>
@@ -276,6 +277,12 @@ export default function BasketPage() {
           </div>
         ) : (
           <>
+            {plot?.status === 'selections_approved' && (
+              <div className="bg-green-50 border border-green-200 rounded-2xl p-4 text-center">
+                <p className="text-sm font-semibold text-green-700">✓ Your previous selections were approved</p>
+                <p className="text-xs text-green-600 mt-0.5">You can add more extras below and submit them as a new order.</p>
+              </div>
+            )}
             {allowance > 0 && (
               <div className={`rounded-2xl p-4 border ${
                 overBudget ? 'bg-red-50 border-red-200' : 'bg-[#1a4a45]/5 border-[#1a4a45]/20'
