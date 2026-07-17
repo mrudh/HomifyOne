@@ -7,6 +7,7 @@ const Product = require('../models/Product');
 const PurchaseOrder = require('../models/PurchaseOrder');
 const { cancelEvent, syncPlotDeadline } = require('../services/calendarSync.service');
 const { generateSelectionSummaryPdf, getSignedSummaryUrl } = require('../services/pdfSummary.service');
+const { notify } = require('../services/notification.service');
 
 exports.getMySelections = async (req, res, next) => {
   try {
@@ -122,6 +123,16 @@ exports.submitSelections = async (req, res, next) => {
 
     await Selection.updateMany({ plot: plot._id }, { status: 'confirmed' });
     await Plot.findByIdAndUpdate(plot._id, { status: 'selections_submitted' });
+    await Selection.updateMany({ plot: plot._id }, { status: 'confirmed' });
+    await Plot.findByIdAndUpdate(plot._id, { status: 'selections_submitted' });
+
+    notify({
+      recipient: plot.developer,
+      type: 'order_submitted',
+      title: 'New selections submitted',
+      message: `${req.user.name} submitted selections for Plot ${plot.plotNumber} (order ${shortRef(order._id)}).`,
+      link: '/developer/orders',
+    });
 
     res.json({ success: true, message: 'Selections submitted!', orderId: order._id });
   } catch (err) { next(err); }
@@ -242,6 +253,24 @@ exports.approveOrder = async (req, res, next) => {
       });
       purchaseOrders.push(po);
     }
+    
+    notify({
+      recipient: order.buyer._id,
+      type: 'order_approved',
+      title: 'Your selections were approved',
+      message: `Your order ${shortRef(order._id)} for Plot ${order.plot.plotNumber} has been approved.`,
+      link: '/buyer/orders',
+    });
+
+    purchaseOrders.forEach(po => {
+      notify({
+        recipient: po.supplier,
+        type: 'purchase_order_created',
+        title: 'New purchase order received',
+        message: `New purchase order ${shortRef(po._id)} (£${po.totalCost.toLocaleString()}) created for Plot ${order.plot.plotNumber}.`,
+        link: `/supplier/purchase-orders/${po._id}`,
+      });
+    });
 
     res.json({ success: true, order, purchaseOrders, unmatchedItems: unmatchedItems.map(i => i.name) });
   } catch (err) { next(err); }
@@ -275,7 +304,15 @@ exports.rejectOrder = async (req, res, next) => {
     }, { new: true });
 
     await syncPlotDeadline(updatedPlot);
-
+    
+    notify({
+      recipient: order.buyer,
+      type: 'order_rejected',
+      title: 'Changes needed to your selections',
+      message: `Order ${shortRef(order._id)} for Plot ${order.plot.plotNumber}: ${reason.trim()}`,
+      link: '/buyer/basket',
+    });
+    
     res.json({ success: true, order });
   } catch (err) { next(err); }
 };

@@ -1,5 +1,5 @@
 const CalendarEvent = require('../models/CalendarEvent');
-const { createNotification } = require('./notification.service'); 
+const { notify } = require('../services/notification.service'); 
 
 async function upsertEvent({ sourceType, sourceId, ...data }) {
   const existing = await CalendarEvent.findOne({ sourceType, sourceId });
@@ -37,12 +37,12 @@ async function syncMeeting(meeting) {
   });
 
   await Promise.all([
-    createNotification({
+    notify({
       user: meeting.buyer,
       type: 'meeting_scheduled',
       message: `A meeting has been scheduled for ${meeting.scheduledAt.toLocaleDateString('en-GB')}.`,
     }),
-    createNotification({
+    notify({
       user: meeting.developer,
       type: 'meeting_scheduled',
       message: `Meeting with buyer confirmed for ${meeting.scheduledAt.toLocaleDateString('en-GB')}.`,
@@ -88,7 +88,7 @@ async function syncSupplierEta(purchaseOrder) {
     createdBy: purchaseOrder.supplier,
   });
 
-  await createNotification({
+  await notify({
     user: purchaseOrder.developer,
     type: 'eta_updated',
     message: `Supplier set delivery ETA to ${purchaseOrder.eta.toLocaleDateString('en-GB')}.`,

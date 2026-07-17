@@ -7,6 +7,7 @@ const upload = require('../middleware/upload');
 const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 const { DeleteObjectCommand } = require('@aws-sdk/client-s3');
+const { notify } = require('../services/notification.service');
 
 const s3 = new S3Client({
   region: process.env.AWS_REGION,
@@ -24,7 +25,8 @@ router.post(
   upload.single('invoice'),
   async (req, res, next) => {
     try {
-      const order = await PurchaseOrder.findOne({ _id: req.params.id, supplier: req.user._id });
+      const order = await PurchaseOrder.findOne({ _id: req.params.id, supplier: req.user._id })
+        .populate('plot', 'plotNumber');
       if (!order) return res.status(404).json({ success: false, message: 'Purchase order not found.' });
 
       if (!req.file) {
@@ -35,10 +37,18 @@ router.post(
         purchaseOrder: order._id,
         supplier: req.user._id,
         developer: order.developer,
-        fileKey: req.file.key,        
+        fileKey: req.file.key,
         fileName: req.file.originalname,
         amount: Number(req.body.amount) || 0,
         notes: req.body.notes || '',
+      });
+
+      notify({
+        recipient: order.developer,
+        type: 'invoice_submitted',
+        title: 'New invoice submitted',
+        message: `${req.user.name} submitted an invoice (£${invoice.amount.toLocaleString()}) for order ${shortRef(order._id)}, Plot ${order.plot?.plotNumber || ''}.`,
+        link: `/developer/purchase-orders`,
       });
 
       res.status(201).json({ success: true, invoice });
@@ -140,6 +150,14 @@ router.patch(
 
       invoice.status = status;
       await invoice.save();
+
+      notify({
+        recipient: invoice.supplier,
+        type: 'invoice_submitted',
+        title: `Invoice marked as ${status}`,
+        message: `Your invoice (£${invoice.amount.toLocaleString()}) for Plot ${invoice.purchaseOrder?.plot?.plotNumber || ''} has been marked as "${status}".`,
+        link: '/supplier/invoices',
+      });
 
       res.json({ success: true, invoice });
     } catch (err) { next(err); }
