@@ -1,13 +1,16 @@
 require('dotenv').config();
 const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
+const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const connectDB = require('./config/db');
 const invoiceRoutes = require('./routes/invoices.routes');
+const { setIO } = require('./services/notification.service');
 const path = require('path');
-
 
 const app = express();
 
@@ -36,10 +39,34 @@ app.use('/api/purchase-orders', require('./routes/purchaseOrders.routes'));
 app.use('/api', invoiceRoutes);
 app.use('/api/calendar', require('./routes/calendar.routes'));
 app.use('/api/meetings', require('./routes/meetings.routes'));
+app.use('/api/notifications', require('./routes/notification.routes'));
 
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 app.use(require('./middleware/errorHandler'));
 
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: { origin: 'http://localhost:5173', credentials: true },
+});
+
+io.use((socket, next) => {
+  try {
+    const token = socket.handshake.auth?.token;
+    if (!token) return next(new Error('unauthorized'));
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    socket.userId = decoded.userId;
+    next();
+  } catch {
+    next(new Error('unauthorized'));
+  }
+});
+
+io.on('connection', (socket) => {
+  socket.join(String(socket.userId));
+});
+
+setIO(io);
+
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+server.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

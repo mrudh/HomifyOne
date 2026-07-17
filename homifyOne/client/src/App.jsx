@@ -1,7 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
-
 import Login from './pages/Login';
 import BuyerDashboard from './pages/dashboards/BuyerDashboard';
 import SupplierDashboard from './pages/dashboards/SupplierDashboard';
@@ -29,10 +27,10 @@ import SupplierPurchaseOrders from './pages/supplier/SupplierPurchaseOrders';
 import CalendarPage from './components/CalendarPage';
 import SelectionSummaryPage from './pages/buyer/SelectionSummaryPage';
 import DeveloperSelectionSummaryPage from './pages/developer/DeveloperSelectionSummaryPage';
+import NotificationsPage from './pages/NotificationsPage';
 
 export default function App() {
   return (
-    <AuthProvider>
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
@@ -47,6 +45,7 @@ export default function App() {
               <Route path="/developer/purchase-orders" element={<PurchaseOrdersPage />} />
               <Route path="/developer/calendar" element={<CalendarPage />} />
               <Route path="/developer/selection-summary" element={<DeveloperSelectionSummaryPage />} />
+              <Route path="/developer/notifications" element={<NotificationsPage />} />
             </Route>
           </Route>
 
@@ -56,6 +55,7 @@ export default function App() {
             <Route path="/supplier/purchase-orders" element={<SupplierPurchaseOrders />} />
             <Route path="/supplier/purchase-orders/:id" element={<SupplierPurchaseOrderDetail />} />
             <Route path="/supplier/calendar" element={<CalendarPage />} />
+            <Route path="/supplier/notifications" element={<NotificationsPage />} />
           </Route>
         </Route>
 
@@ -79,12 +79,12 @@ export default function App() {
               <Route path="/buyer/orders/:id" element={<OrderDetailPage />} />
               <Route path="/buyer/calendar" element={<CalendarPage />} />
               <Route path="/buyer/selection-summary" element={<SelectionSummaryPage />} />
+              <Route path="/buyer/notifications" element={<NotificationsPage />} />
             </Route>
           </Route>
 
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>
-    </AuthProvider>
   );
 }
