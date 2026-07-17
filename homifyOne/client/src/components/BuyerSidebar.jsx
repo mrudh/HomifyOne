@@ -2,6 +2,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useAuth } from '../context/AuthContext';
+import { useNotifications } from '../context/NotificationContext';
 
 const navItems = [
   { label: 'Dashboard', icon: '⊞', path: '/buyer/dashboard' },
@@ -25,6 +26,7 @@ const navItems = [
   { label: 'Orders & Status', icon: '📦', path: '/buyer/orders' },
   { label: 'Selection Summary', icon: '📄', path: '/buyer/selection-summary' },
   { label: 'Calendar', icon: '📅', path: '/buyer/calendar' },
+  { label: 'Notifications', icon: '🔔', path: '/buyer/notifications' },
 ];
 
 function InfoTooltipIcon({ description }) {
@@ -82,6 +84,7 @@ function InfoTooltipIcon({ description }) {
 
 export default function BuyerSidebar({ open, onClose }) {
   const { user, logout } = useAuth();
+  const { unreadCount } = useNotifications();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -115,6 +118,7 @@ export default function BuyerSidebar({ open, onClose }) {
       <nav className="flex-1 py-4 overflow-y-auto">
         {navItems.map(item => {
           const active = location.pathname === item.path;
+          const isNotifications = item.label === 'Notifications';
           return (
             <div key={item.label}
               className={`w-full flex items-center gap-3 px-5 py-2.5 text-sm transition-all
@@ -122,8 +126,14 @@ export default function BuyerSidebar({ open, onClose }) {
                   ? 'bg-[#2d6b62] text-white font-semibold border-r-4 border-[#a8d5cf]'
                   : 'text-[#a8d5cf] hover:bg-[#2d6b62] hover:text-white'}`}>
               <button onClick={() => handleNav(item.path)} className="flex items-center gap-3 flex-1 text-left">
-                <span className="text-base w-5 text-center">{item.icon}</span>
-                <span>{item.label}</span>
+                <span className="text-base w-5 text-center relative">{item.icon}</span>
+                <span className='flex items-center gap-3'>{item.label}
+                  {isNotifications && unreadCount > 0 && (
+                    <span className="relative left-1.5 bg-red-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
+                </span>
               </button>
               {item.description && <InfoTooltipIcon description={item.description} />}
             </div>

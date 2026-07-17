@@ -1,5 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useNotifications } from '../context/NotificationContext';
+
 
 const navItems = [
   { label: 'Dashboard', icon: '🏠', path: '/supplier/dashboard' },
@@ -7,12 +9,13 @@ const navItems = [
   { label: 'Invoice History', icon: '🧾', path: '/supplier/invoices' },
   { label: 'Calendar', icon: '📅', path: '/supplier/calendar' },
   // { label: 'Messages', icon: '💬', path: '/supplier/messages' },
-  // { label: 'Notifications', icon: '🔔', path: '/supplier/notifications' },
+  { label: 'Notifications', icon: '🔔', path: '/supplier/notifications' },
   // { label: 'Help & Support', icon: '❓', path: '/supplier/help' },
 ];
 
 export default function SupplierSidebar({ open, onClose }) {
   const { user, logout } = useAuth();
+  const { unreadCount } = useNotifications();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -42,6 +45,7 @@ export default function SupplierSidebar({ open, onClose }) {
       <nav className="flex-1 py-4 overflow-y-auto">
         {navItems.map((item) => {
           const active = location.pathname === item.path;
+          const isNotifications = item.label === 'Notifications';
           return (
             <button
               key={item.label}
@@ -50,7 +54,13 @@ export default function SupplierSidebar({ open, onClose }) {
                 active ? 'bg-[#2d6b62] text-white font-semibold border-r-4 border-[#a8d5cf]' : 'text-[#a8d5cf] hover:bg-[#2d6b62] hover:text-white'
               }`}
             >
-              <span className="text-base w-5 text-center">{item.icon}</span>
+              <span className="text-base w-5 text-center">{item.icon}
+                {isNotifications && unreadCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </span>
               <span>{item.label}</span>
             </button>
           );
