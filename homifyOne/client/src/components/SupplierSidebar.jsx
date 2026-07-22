@@ -54,14 +54,14 @@ export default function SupplierSidebar({ open, onClose }) {
                 active ? 'bg-[#2d6b62] text-white font-semibold border-r-4 border-[#a8d5cf]' : 'text-[#a8d5cf] hover:bg-[#2d6b62] hover:text-white'
               }`}
             >
-              <span className="text-base w-5 text-center">{item.icon}
+              <span className="text-base w-5 text-center">{item.icon}</span>
+              <span className='flex items-center gap-3'>{item.label}
                 {isNotifications && unreadCount > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                  <span className="relative left-1.5 bg-red-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                     {unreadCount > 9 ? '9+' : unreadCount}
                   </span>
                 )}
               </span>
-              <span>{item.label}</span>
             </button>
           );
         })}

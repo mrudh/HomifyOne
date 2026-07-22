@@ -8,6 +8,7 @@ const navItems = [
   { label: "Selections Review", icon: "📋", path: "/developer/orders" },
   { label: 'Selection Summary', icon: '📄', path: '/developer/selection-summary' },
   { label: "Purchase Orders", icon: "📦", path: "/developer/purchase-orders" },
+  { label: "Invoices", icon: "📝", path: "/developer/invoices" },
   { label: "Calendar", icon: "📅", path: "/developer/calendar" },
 //   { label: "Messages", icon: "✉️", path: "/developer/messages" },
   { label: "Notifications", icon: "🔔", path: "/developer/notifications" },

@@ -292,6 +292,24 @@ export default function DeveloperPurchaseOrders() {
   const [selectedPlots, setSelectedPlots] = useState([]);
   const [preview, setPreview] = useState({ open: false, url: '', name: '' });
 
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const [ordersRes, invoicesRes] = await Promise.all([
+  //         api.get('/purchase-orders/developer/all'),
+  //         api.get('/developer/invoices/all'),
+  //       ]);
+  //       setOrders(ordersRes.data.orders || []);
+  //       setInvoices(invoicesRes.data.invoices || []);
+  //     } catch (err) {
+  //       setError('Failed to load purchase orders.');
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+  //   fetchData();
+  // }, []);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -300,7 +318,8 @@ export default function DeveloperPurchaseOrders() {
           api.get('/developer/invoices/all'),
         ]);
         setOrders(ordersRes.data.orders || []);
-        setInvoices(invoicesRes.data.invoices || []);
+        const flatInvoices = (invoicesRes.data.groups || []).flatMap(g => g.invoices);
+        setInvoices(flatInvoices);
       } catch (err) {
         setError('Failed to load purchase orders.');
       } finally {

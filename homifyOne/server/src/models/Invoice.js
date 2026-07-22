@@ -10,8 +10,16 @@ const invoiceSchema = new mongoose.Schema({
   notes: { type: String, default: '' },
   status: {
     type: String,
-    enum: ['submitted', 'reviewed', 'paid'],
+    enum: ['submitted', 'pending', 'paid', 'flagged'],
     default: 'submitted',
+  },
+  flagReason: { 
+    type: String,
+    default: '' 
+  },
+  reviewedAt: { 
+    type: Date,
+    default: null
   },
 }, { timestamps: true });
 

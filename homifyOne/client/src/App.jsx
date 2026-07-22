@@ -28,6 +28,8 @@ import CalendarPage from './components/CalendarPage';
 import SelectionSummaryPage from './pages/buyer/SelectionSummaryPage';
 import DeveloperSelectionSummaryPage from './pages/developer/DeveloperSelectionSummaryPage';
 import NotificationsPage from './pages/NotificationsPage';
+import DeveloperInvoices from './pages/developer/DeveloperInvoices';
+import SupplierInvoices from './pages/supplier/SupplierInvoices';
 
 export default function App() {
   return (
@@ -46,6 +48,7 @@ export default function App() {
               <Route path="/developer/calendar" element={<CalendarPage />} />
               <Route path="/developer/selection-summary" element={<DeveloperSelectionSummaryPage />} />
               <Route path="/developer/notifications" element={<NotificationsPage />} />
+              <Route path="/developer/invoices" element={<DeveloperInvoices />} />
             </Route>
           </Route>
 
@@ -56,6 +59,7 @@ export default function App() {
             <Route path="/supplier/purchase-orders/:id" element={<SupplierPurchaseOrderDetail />} />
             <Route path="/supplier/calendar" element={<CalendarPage />} />
             <Route path="/supplier/notifications" element={<NotificationsPage />} />
+            <Route path="/supplier/invoices" element={<SupplierInvoices />} />
           </Route>
         </Route>
 

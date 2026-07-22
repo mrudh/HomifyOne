@@ -11,8 +11,9 @@ const STATUS_STYLES = {
 
 const INVOICE_STATUS_STYLES = {
   submitted: { label: 'Submitted', cls: 'bg-gray-100 text-gray-600' },
-  reviewed: { label: 'Reviewed', cls: 'bg-blue-100 text-blue-700' },
+  pending: { label: 'Pending', cls: 'bg-yellow-100 text-yellow-700' },
   paid: { label: 'Paid', cls: 'bg-green-100 text-green-700' },
+  flagged: { label: 'Flagged', cls: 'bg-red-100 text-red-700' },
 };
 
 const StatusBadge = ({ status }) => {
@@ -79,8 +80,8 @@ export default function SupplierPurchaseOrderDetail() {
   const handleAcknowledge = async () => {
     setSaving(true);
     try {
-      const res = await api.patch(`/purchase-orders/${id}/acknowledge`);
-      setOrder(res.data.order);
+      await api.patch(`/purchase-orders/${id}/acknowledge`);
+      await fetchOrder();
     } catch (err) {
       setError('Failed to acknowledge order.');
     } finally {
@@ -88,11 +89,12 @@ export default function SupplierPurchaseOrderDetail() {
     }
   };
 
+  
   const handleStatusChange = async (status) => {
     setSaving(true);
     try {
-      const res = await api.patch(`/purchase-orders/${id}/status`, { status });
-      setOrder(res.data.order);
+      await api.patch(`/purchase-orders/${id}/status`, { status });
+      await fetchOrder();
     } catch (err) {
       setError('Failed to update status.');
     } finally {
@@ -104,8 +106,8 @@ export default function SupplierPurchaseOrderDetail() {
     if (!etaInput) return;
     setSaving(true);
     try {
-      const res = await api.patch(`/purchase-orders/${id}/eta`, { eta: etaInput });
-      setOrder(res.data.order);
+      await api.patch(`/purchase-orders/${id}/eta`, { eta: etaInput });
+      await fetchOrder();
     } catch (err) {
       setError('Failed to save ETA.');
     } finally {
@@ -435,11 +437,10 @@ export default function SupplierPurchaseOrderDetail() {
               </div>
               <div className="divide-y divide-gray-50">
                 {invoices.map((inv) => (
-                  <div key={inv._id} className="flex items-center gap-4 px-5 py-4">
+                  <div key={inv._id} className="flex items-center gap-4 px-5 py-4 justify-between">
                     <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-lg shrink-0">
                       {fileIcon(inv.fileName)}
                     </div>
-                    <div className="flex-1 min-w-0">
                       <button
                         onClick={() => handleViewInvoice(inv._id)}
                         className="text-sm font-semibold text-[#1a4a45] hover:underline truncate block text-left"
@@ -450,11 +451,11 @@ export default function SupplierPurchaseOrderDetail() {
                         {new Date(inv.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                         {inv.notes && ` · ${inv.notes}`}
                       </p>
-                    </div>
-                    <div className="text-right shrink-0">
+                    
+                    {/* <div className="text-right shrink-0"> */}
                       <p className="text-sm font-bold text-gray-800">£{Number(inv.amount).toLocaleString()}</p>
                       <InvoiceStatusBadge status={inv.status} />
-                    </div>
+                    {/* </div> */}
                     {inv.status === 'submitted' && (
                       <button
                         onClick={() => handleDeleteInvoice(inv._id)}

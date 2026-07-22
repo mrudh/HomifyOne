@@ -108,10 +108,22 @@ router.get(
       if (req.query.status) filter.status = req.query.status;
 
       const invoices = await Invoice.find(filter)
-        .populate('purchaseOrder', 'totalCost status')
+        .populate({
+          path: 'purchaseOrder',
+          select: 'plot totalCost status',
+          populate: { path: 'plot', select: 'plotNumber development' },
+        })
         .sort({ createdAt: -1 });
 
-      res.json({ success: true, invoices });
+      const byPlot = new Map();
+      for (const inv of invoices) {
+        const plot = inv.purchaseOrder?.plot;
+        const key = plot ? String(plot._id) : 'unassigned';
+        if (!byPlot.has(key)) byPlot.set(key, { plot: plot || null, invoices: [] });
+        byPlot.get(key).invoices.push(inv);
+      }
+
+      res.json({ success: true, groups: Array.from(byPlot.values()) });
     } catch (err) { next(err); }
   }
 );
@@ -140,22 +152,39 @@ router.patch(
   authorise('developer'),
   async (req, res, next) => {
     try {
-      const { status } = req.body;
-      if (!['submitted', 'reviewed', 'paid'].includes(status)) {
+      const { status, flagReason } = req.body;
+
+      if (!['submitted', 'pending', 'paid', 'flagged'].includes(status)) {
         return res.status(400).json({ success: false, message: 'Invalid status.' });
       }
 
-      const invoice = await Invoice.findOne({ _id: req.params.invoiceId, developer: req.user._id });
+      if (status === 'flagged' && (!flagReason || !flagReason.trim())) {
+        return res.status(400).json({ success: false, message: 'A reason is required to flag an invoice.' });
+      }
+
+      const invoice = await Invoice.findOne({ _id: req.params.invoiceId, developer: req.user._id })
+        .populate({
+          path: 'purchaseOrder',
+          select: 'plot',
+          populate: { path: 'plot', select: 'plotNumber' },
+        });
+
       if (!invoice) return res.status(404).json({ success: false, message: 'Invoice not found.' });
 
       invoice.status = status;
+      invoice.flagReason = status === 'flagged' ? flagReason.trim() : '';
+      invoice.reviewedAt = new Date();
       await invoice.save();
+
+      const plotNumber = invoice.purchaseOrder?.plot?.plotNumber || '';
 
       notify({
         recipient: invoice.supplier,
-        type: 'invoice_submitted',
+        type: 'invoice_status_changed',
         title: `Invoice marked as ${status}`,
-        message: `Your invoice (£${invoice.amount.toLocaleString()}) for Plot ${invoice.purchaseOrder?.plot?.plotNumber || ''} has been marked as "${status}".`,
+        message: status === 'flagged'
+          ? `Your invoice (£${invoice.amount.toLocaleString()}) for Plot ${plotNumber} was flagged: ${invoice.flagReason}`
+          : `Your invoice (£${invoice.amount.toLocaleString()}) for Plot ${plotNumber} has been marked as "${status}".`,
         link: '/supplier/invoices',
       });
 
@@ -190,18 +219,23 @@ router.delete(
 );
 
 
-router.get(
-  '/developer/invoices/all',
-  verifyToken,
-  authorise('developer'),
-  async (req, res, next) => {
-    try {
-      const invoices = await Invoice.find({ developer: req.user._id })
-        .populate('supplier', 'name email')
-        .sort({ createdAt: -1 });
+router.get('/developer/invoices/all', verifyToken, authorise('developer'), async (req, res, next) => {
+  try {
+    const invoices = await Invoice.find({ developer: req.user._id })
+      .populate('supplier', 'name email')
+      .populate({ path: 'purchaseOrder', select: 'plot totalCost', populate: { path: 'plot', select: 'plotNumber development' } })
+      .sort({ createdAt: -1 });
 
-      res.json({ success: true, invoices });
-    } catch (err) { next(err); }
-  }
-);
+    const byPlot = new Map();
+    for (const inv of invoices) {
+      const plot = inv.purchaseOrder?.plot;
+      const key = plot ? String(plot._id) : 'unassigned';
+      if (!byPlot.has(key)) byPlot.set(key, { plot: plot || null, invoices: [] });
+      byPlot.get(key).invoices.push(inv);
+    }
+
+    res.json({ success: true, groups: Array.from(byPlot.values()) });
+  } catch (err) { next(err); }
+});
+
 module.exports = router;
