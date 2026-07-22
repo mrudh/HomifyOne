@@ -8,6 +8,10 @@ const TYPE_ICON = {
   purchase_order_created: '📦',
   purchase_order_status_changed: '🚚',
   invoice_submitted: '🧾',
+  deadline_reminder: '⏰',
+  selection_overdue: '⚠️',
+  purchase_order_stale: '📦',
+  delivery_update: '🚚',
 };
 
 export default function NotificationsPage() {

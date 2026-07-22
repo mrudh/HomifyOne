@@ -101,6 +101,57 @@ function InvoicePreviewModal({ open, onClose, fileUrl, fileName }) {
   );
 }
 
+function DeliveryUpdateBox({ plotId, onSent }) {
+  const [message, setMessage] = useState('');
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSend = async () => {
+    if (!message.trim()) return;
+    setSending(true);
+    setError('');
+    try {
+      await api.post(`/plots/${plotId}/delivery-update`, { message: message.trim() });
+      setSent(true);
+      setMessage('');
+      onSent?.();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to send update.');
+    } finally {
+      setSending(false);
+    }
+  };
+
+  return (
+    <div className="px-4 sm:px-5 py-4 bg-green-50 border-t border-green-100">
+      <p className="text-xs font-semibold text-green-700 mb-2">
+        All suppliers have submitted invoices for this plot, send the buyer an update
+      </p>
+      <textarea
+        value={message}
+        onChange={(e) => { setMessage(e.target.value); setSent(false); }}
+        placeholder='e.g. "All items have been delivered, installation in progress."'
+        rows={2}
+        className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-1a4a45/20"
+      />
+      <div className="flex items-center justify-between mt-2">
+        <p className="text-xs">
+          {error && <span className="text-red-600">{error}</span>}
+          {sent && !error && <span className="text-green-600">Sent to buyer ✓</span>}
+        </p>
+        <button
+          onClick={handleSend}
+          disabled={sending || !message.trim()}
+          className="bg-1a4a45 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-2d6b62 transition disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {sending ? 'Sending...' : 'Send Update to Buyer'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function InvoiceRow({ invoice, onStatusChange, onPreview, updatingId }) {
   const [flagging, setFlagging] = useState(false);
   const [flagReason, setFlagReason] = useState('');
@@ -153,6 +204,7 @@ function InvoiceRow({ invoice, onStatusChange, onPreview, updatingId }) {
           <InvoiceStatusBadge status={invoice.status} />
         </div>
 
+      {!invoice.status && (
         <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap sm:shrink-0">
           <button
             onClick={() => onStatusChange(invoice._id, 'paid')}
@@ -176,6 +228,7 @@ function InvoiceRow({ invoice, onStatusChange, onPreview, updatingId }) {
             Flag
           </button>
         </div>
+      )}
       </div>
 
       {flagging && (
@@ -338,6 +391,9 @@ export default function DeveloperInvoices() {
                   />
                 ))}
               </div>
+              {group.allInvoicesSubmitted && group.plot && (
+                <DeliveryUpdateBox plotId={group.plot._id} onSent={fetchInvoices} />
+              )}
             </div>
           ))
         )}

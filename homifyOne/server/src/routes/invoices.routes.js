@@ -230,11 +230,24 @@ router.get('/developer/invoices/all', verifyToken, authorise('developer'), async
     for (const inv of invoices) {
       const plot = inv.purchaseOrder?.plot;
       const key = plot ? String(plot._id) : 'unassigned';
-      if (!byPlot.has(key)) byPlot.set(key, { plot: plot || null, invoices: [] });
+      if (!byPlot.has(key)) byPlot.set(key, { plot: plot || null, invoices: [], invoicedPoIds: new Set() });
       byPlot.get(key).invoices.push(inv);
+      if (inv.purchaseOrder?._id) byPlot.get(key).invoicedPoIds.add(String(inv.purchaseOrder._id));
     }
 
-    res.json({ success: true, groups: Array.from(byPlot.values()) });
+    
+    const groups = await Promise.all(
+      Array.from(byPlot.values()).map(async ({ plot, invoices, invoicedPoIds }) => {
+        let allInvoicesSubmitted = false;
+        if (plot) {
+          const totalPOs = await PurchaseOrder.countDocuments({ plot: plot._id, developer: req.user._id });
+          allInvoicesSubmitted = totalPOs > 0 && invoicedPoIds.size >= totalPOs;
+        }
+        return { plot, invoices, allInvoicesSubmitted };
+      })
+    );
+
+    res.json({ success: true, groups });
   } catch (err) { next(err); }
 });
 

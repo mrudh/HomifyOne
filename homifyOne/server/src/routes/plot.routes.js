@@ -9,6 +9,7 @@ router.get('/my', verifyToken, authorise('buyer'), ctrl.getMyPlot);
 router.get('/developer', verifyToken, authorise('developer'), ctrl.getMyPlots);
 router.patch('/:id/assign-buyer', verifyToken, authorise('admin'), ctrl.assignBuyer);
 router.patch('/:id/allowance', verifyToken, authorise('developer'), ctrl.setAllowance);
+router.post('/:id/delivery-update', verifyToken, authorise('developer'), ctrl.sendDeliveryUpdate);
 router.patch('/:id/deadline', verifyToken, authorise('developer'), async (req, res, next) => {
   try {
     const plot = await Plot.findOneAndUpdate(
