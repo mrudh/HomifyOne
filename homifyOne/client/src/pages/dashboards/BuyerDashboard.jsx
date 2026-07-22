@@ -104,8 +104,12 @@ const StatusBadge = ({ status }) => {
 //   console.log('DEBUG order:', order, 'plot status:', plot?.status);
 // }, [order, plot]);
 
-  const countdown = getCountdown(plot?.deadline); 
+  const countdown = getCountdown(plot?.deadline);
   const selStatus = plot?.status || 'available';
+  const selectionsResolved = ['selections_submitted', 'selections_approved', 'completed'].includes(selStatus);
+  const deadlineLabel = plot?.deadline
+    ? new Date(plot.deadline).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+    : '';
   const extrasAdded = hasSubmittedOrder
     ? orderSnapshot.items.filter(i => i.type === 'extra').length
     : items.length;
@@ -128,7 +132,22 @@ const StatusBadge = ({ status }) => {
     <div>
       <div className="bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between sticky top-0 z-10">
         <h1 className="text-xl font-bold text-gray-900">Dashboard</h1>
-        {countdown && (
+        {selectionsResolved ? (
+          <div className="flex items-center gap-3 px-4 py-2.5 rounded-xl border bg-green-50 border-green-200">
+            <span className="text-lg">✅</span>
+            <div>
+              <p className="text-xs text-gray-400 font-medium leading-none mb-0.5">
+                Selection Deadline
+              </p>
+              <p className="font-bold text-sm leading-none text-green-700">
+                {STATUS_MAP[selStatus]?.label || 'Submitted'}
+              </p>
+              <p className="text-xs text-green-500 mt-0.5">
+                {deadlineLabel ? `Submitted by ${deadlineLabel}` : 'Selections submitted'}
+              </p>
+            </div>
+          </div>
+        ) : countdown && (
           <div
             className={`flex items-center gap-3 px-4 py-2.5 rounded-xl border ${
               countdown.expired

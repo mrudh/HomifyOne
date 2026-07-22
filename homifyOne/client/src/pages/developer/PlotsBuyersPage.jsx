@@ -37,7 +37,7 @@ function DeadlineModal({ plot, onClose, onSaved }) {
     setSaving(true);
     try {
       const { data } = await api.patch(`/plots/${plot._id}/deadline`, { deadline: date });
-      onSaved(data.plot);
+      await onSaved();
       onClose();
     } finally {
       setSaving(false);
@@ -128,10 +128,19 @@ export default function PlotsBuyersPage() {
   const [activeDev, setActiveDev] = useState(null);
   const navigate = useNavigate();
   
-  const fetchPlots = () => {
-    api.get('/plots/developer')
-      .then(r => setPlots(r.data.plots || []))
-      .finally(() => setLoading(false));
+  // const fetchPlots = () => {
+  //   api.get('/plots/developer')
+  //     .then(r => setPlots(r.data.plots || []))
+  //     .finally(() => setLoading(false));
+  // };
+
+  const fetchPlots = async () => {
+    try {
+      const r = await api.get('/plots/developer');
+      setPlots(r.data.plots || []);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { fetchPlots(); }, []);
@@ -244,7 +253,8 @@ export default function PlotsBuyersPage() {
         <DeadlineModal
           plot={deadlinePlot}
           onClose={() => setDeadlinePlot(null)}
-          onSaved={(updated) => setPlots(prev => prev.map(p => p._id === updated._id ? updated : p))}
+          onSaved={fetchPlots}
+          // onSaved={(updated) => setPlots(prev => prev.map(p => p._id === updated._id ? updated : p))}
         />
       )}
     </div>
