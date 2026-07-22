@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useApp } from "../../context/AppContext";
+import { useBasket } from "../../context/BasketContext";
+import { useAuth } from "../../context/AuthContext";
 import confetti from "canvas-confetti";
 
 import axios from "axios";
@@ -371,6 +373,7 @@ function buildBuyerProfile(answers, plot) {
   };
 
   const household = hMap[answers.household];
+  const hasPets = answers.hasPets && answers.petPref !== "pet_no";
   const style = sMap[answers.style];
   const budget = bMap[answers.budget];
 
@@ -378,37 +381,56 @@ function buildBuyerProfile(answers, plot) {
     .filter(u => u !== "mixed")
     .map(u => uMap[u])
     .filter(Boolean)
-    .slice(0, 2);
+    .slice(0, 3);
   const usesText = answers.homeUse?.includes("mixed")
     ? "a balanced mix of everyday activities"
-    : uses.length ? uses.join(" and ") : null;
+    : uses.length ? fmt(uses) : null;
 
-  const priorities = (answers.priorities || []).map(p => pMap[p]).filter(Boolean);
-  const topPriorities = priorities.slice(0, 2);
+  const priorities = (answers.priorities || [])
+    .map(p => pMap[p])
+    .filter(Boolean)
+    .slice(0, 2);
 
   const traits = (answers.lifestyleTraits || [])
     .map(t => traitMap[t])
     .filter(Boolean)
     .slice(0, 3);
 
-  const parts = [];
+  const sentences = [];
 
-  if (household) parts.push(`This is ${household}`);
-  if (answers.hasPets && answers.petPref !== "pet_no") parts.push("with pets");
-  if (usesText) parts.push(`who use their home mainly for ${usesText}`);
-  if (style) parts.push(`with a ${style} style preference`);
-  else if (answers.style === "unsure") parts.push("open to any style");
-  if (budget) parts.push(`working with ${budget}`);
-  if (topPriorities.length) parts.push(`who care most about ${topPriorities.join(" and ")}`);
-  if (traits.length) parts.push(`with an interest in ${fmt(traits)}`);
-  if (plot?.bedrooms) parts.push(`in a ${plot.bedrooms}-bed home`);
+  let s1 = "";
+  if (household) s1 = `You're part of ${household}${hasPets ? " with pets" : ""}`;
+  else if (hasPets) s1 = "You have pets at home";
+  if (usesText) s1 += s1 ? `, and your home is mainly for ${usesText}` : `Your home is mainly for ${usesText}`;
+  if (s1) sentences.push(s1 + ".");
 
-  return parts.join(", ").replace(/^./, c => c.toUpperCase()) + ".";
+  const s2Bits = [];
+  if (style) s2Bits.push(`drawn to a ${style} style`);
+  else if (answers.style === "unsure") s2Bits.push("open to any style");
+  if (budget) s2Bits.push(`working with ${budget}`);
+  if (priorities.length) s2Bits.push(`care most about ${fmt(priorities)}`);
+  if (s2Bits.length) sentences.push(`You're ${fmt(s2Bits)}.`);
+
+  if (traits.length && plot?.bedrooms) {
+    sentences.push(`${cap(fmt(traits))} matter${traits.length === 1 ? "s" : ""} to you too, all across your ${plot.bedrooms}-bed home.`);
+  } else if (traits.length) {
+    sentences.push(`${cap(fmt(traits))} matter${traits.length === 1 ? "s" : ""} to you too.`);
+  } else if (plot?.bedrooms) {
+    sentences.push(`It all comes together across your ${plot.bedrooms}-bed home.`);
+  }
+
+  return sentences.join(" ");
+}
+
+function cap(s) {
+  return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
 }
 
 function fmt(arr) {
+  if (arr.length === 0) return "";
   if (arr.length === 1) return arr[0];
-  return arr.slice(0, -1).join(", ") + " and " + arr[arr.length - 1];
+  if (arr.length === 2) return `${arr[0]} and ${arr[1]}`;
+  return `${arr.slice(0, -1).join(", ")}, and ${arr[arr.length - 1]}`;
 }
 
 function OptionCard({ emoji, label, desc, selected, onClick, tag, multi }) {
@@ -531,7 +553,7 @@ function PlotBanner({ plot }) {
 }
 
 
-function StartScreen({ onStart, plot }) {
+function StartScreen({ onStart, plot, showReward }) {
   return (
     <div className="text-center py-4">
       <div className="inline-flex items-center gap-2 bg-teal-100 text-teal-800 text-xs font-semibold
@@ -560,6 +582,12 @@ function StartScreen({ onStart, plot }) {
         <span>·</span>
         <span>No commitment</span>
       </div>
+      {showReward && (
+        <div className="inline-flex items-center gap-2 bg-yellow-50 border border-yellow-200 text-yellow-800
+          text-xs font-medium px-4 py-2 rounded-full mb-4">
+          🎁 Complete this quiz for the first time and unlock a reward
+        </div>
+      )}
       <button onClick={onStart}
         className="bg-teal-700 text-white font-semibold px-10 py-3 rounded-full
           hover:bg-teal-800 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all">
@@ -1054,8 +1082,11 @@ export default function Questionnaire() {
   const [plot, setPlot] = useState(null);
   const [plotLoading, setPlotLoading] = useState(true);
   const [reward, setReward] = useState(null);
+  const [alreadyCompleted, setAlreadyCompleted] = useState(false);
 
   const { updateProfile, fetchRecommendations, loading } = useApp();
+  const { user } = useAuth();
+  const { refreshReward } = useBasket();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -1063,6 +1094,10 @@ export default function Questionnaire() {
       .then((r) => setPlot(r.data.plot))
       .catch(() => setPlot(null))
       .finally(() => setPlotLoading(false));
+    
+    axios.get(`${API}/questionnaire/status`, { withCredentials: true })
+      .then((r) => setAlreadyCompleted(r.data.completed || false))
+      .catch(() => setAlreadyCompleted(false));
   }, []);
 
   const plotCtx = derivePlotContext(plot);
@@ -1122,8 +1157,9 @@ async function handleSubmit() {
 
     localStorage.setItem(
       `questionnaireReward_${user._id}`,
-      JSON.stringify({ credit: res.data.credit, promoCode: res.data.promoCode, expiresAt: res.data.expiresAt })
+      JSON.stringify({ credit: data.credit, promoCode: data.promoCode, expiresAt: data.expiresAt })
     );
+    refreshReward();
 
     setScreen("reward");
   } catch (err) {
@@ -1140,7 +1176,7 @@ async function handleSubmit() {
   }
 
   const SCREEN_MAP = {
-    start: <StartScreen onStart={next} plot={plot} />,
+    start: <StartScreen onStart={next} plot={plot} showReward={!alreadyCompleted} />,
     q1: (
       <Q1Screen
         answers={answers}

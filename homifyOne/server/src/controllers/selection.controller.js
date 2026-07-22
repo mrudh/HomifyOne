@@ -9,6 +9,8 @@ const { cancelEvent, syncPlotDeadline } = require('../services/calendarSync.serv
 const { generateSelectionSummaryPdf, getSignedSummaryUrl } = require('../services/pdfSummary.service');
 const { notify } = require('../services/notification.service');
 
+const shortRef = (id) => `#${String(id).slice(-6).toUpperCase()}`;
+
 exports.getMySelections = async (req, res, next) => {
   try {
     const plot = await Plot.findOne({ buyer: req.user._id });
@@ -98,7 +100,6 @@ exports.submitSelections = async (req, res, next) => {
       if (promo.scope === 'first_order') {
         const priorOrder = await Plot.exists({
           buyer: req.user._id,
-          _id: { $ne: plot._id },
           status: { $in: ['selections_submitted', 'selections_approved', 'completed'] },
         });
         if (priorOrder) {
@@ -110,15 +111,32 @@ exports.submitSelections = async (req, res, next) => {
       await promo.save();
     }
 
+   
+    let effectivePricing = pricing || {};
     if (creditApplied > 0) {
-      await User.findByIdAndUpdate(req.user._id, { credit: 0 });
+      const buyer = await User.findById(req.user._id).select('credit');
+      const actualCredit = buyer?.credit || 0;
+      const validCredit = Math.min(Number(creditApplied) || 0, actualCredit);
+
+      if (validCredit < Number(creditApplied)) {
+        const shortfall = Number(creditApplied) - validCredit;
+        effectivePricing = {
+          ...effectivePricing,
+          credit: validCredit,
+          finalTotal: (effectivePricing.finalTotal || 0) + shortfall,
+        };
+      }
+
+      if (validCredit > 0) {
+        await User.findByIdAndUpdate(req.user._id, { credit: 0 });
+      }
     }
 
     const order = await Order.create({
       plot: plot._id,
       buyer: req.user._id,
       items: items || [],
-      pricing: pricing || {},
+      pricing: effectivePricing,
     });
 
     await Selection.updateMany({ plot: plot._id }, { status: 'confirmed' });

@@ -217,8 +217,8 @@ export default function BasketPage() {
       clearBasket();
       redeemReward();
       refreshOrderSnapshot();
-    } catch {
-      setError('Submission failed. Please try again.');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Submission failed. Please try again.');
     } finally {
       setSubmitting(false);
     }

@@ -49,6 +49,7 @@ export default function BuyerDashboard() {
   const [selection, setSelection] = useState(null);
   const [loading, setLoading] = useState(true);
   const [order, setOrder] = useState(null);
+  const [orders, setOrders] = useState([]);
   const STATUS_MAP = {
   available: { label: "Not Started", cls: "bg-gray-100 text-gray-500" },
   assigned: { label: "Not Started", cls: "bg-gray-100 text-gray-500" },
@@ -79,15 +80,17 @@ const StatusBadge = ({ status }) => {
   useEffect(() => {
   const fetchData = async () => {
     try {
-      const [plotRes, selRes, orderRes] = await Promise.all([
+      const [plotRes, selRes, orderRes, ordersRes] = await Promise.all([
         axios.get(`${API}/plots/my`, { withCredentials: true }),
         axios.get(`${API}/selections`, { withCredentials: true }),
         axios.get(`${API}/selections/order`, { withCredentials: true }).catch(() => ({ data: { order: null } })),
+        axios.get(`${API}/selections/orders`, { withCredentials: true }).catch(() => ({ data: { orders: [] } })),
       ]);
       const fetchedPlot = plotRes.data.plot;
       setPlot(fetchedPlot);
       setSelection(selRes.data.selections);
       setOrder(orderRes.data.order);
+      setOrders(ordersRes.data.orders || []);
       if (fetchedPlot?.extrasAllowance) {
         //setAllowance(fetchedPlot.extrasAllowance);
       }
@@ -110,10 +113,15 @@ const StatusBadge = ({ status }) => {
   const deadlineLabel = plot?.deadline
     ? new Date(plot.deadline).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
     : '';
-  const extrasAdded = hasSubmittedOrder
-    ? orderSnapshot.items.filter(i => i.type === 'extra').length
-    : items.length;
-  const extrasTotal = cumulativeTotal;
+  const placedOrders = orders.filter(o => o.status !== 'rejected');
+  const extrasAdded = placedOrders.reduce(
+    (sum, o) => sum + (o.items || []).filter(i => i.type === 'extra').length,
+    0
+  );
+  const extrasTotal = placedOrders.reduce(
+    (sum, o) => sum + (o.pricing?.finalTotal || 0),
+    0
+  );
 
   const greeting = () => {
     const h = new Date().getHours();
@@ -269,17 +277,17 @@ const StatusBadge = ({ status }) => {
               accent: "border-l-[#1a4a45]",
             },
             {
-              label: "Extras Added",
+              label: "Extras Ordered",
               value: extrasAdded,
               icon: "✨",
-              sub: "In your basket",
+              sub: "Ordered so far",
               accent: "border-l-indigo-400",
             },
             {
               label: "Extras Total",
               value: `£${extrasTotal.toLocaleString()}`,
               icon: "💷",
-              sub: "Estimated cost",
+              sub: "Spent on extras so far",
               accent: "border-l-emerald-500",
             },
             {
@@ -372,7 +380,7 @@ const StatusBadge = ({ status }) => {
               title: "Extras Catalogue",
               desc: "Browse and add optional upgrades",
               icon: "✨",
-              path: "/buyer/extras",
+              path: "/buyer/my-selections",
               disabled: selStatus === "approved",
               accent: "hover:border-indigo-400",
             },
@@ -401,7 +409,7 @@ const StatusBadge = ({ status }) => {
                     : selStatus === "rejected"
                       ? "⚠️"
                       : "📤",
-              path: "/buyer/selections",
+              path: "/buyer/basket",
               disabled: selStatus === "submitted" || selStatus === "approved",
               accent: "hover:border-green-400",
             },

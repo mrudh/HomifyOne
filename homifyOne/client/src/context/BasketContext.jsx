@@ -53,7 +53,7 @@ export function BasketProvider({ children }) {
     if (!user?._id) return;
     try { setItems(JSON.parse(localStorage.getItem('basket') || '[]')); }
     catch { setItems([]); }
-    setReward(getReward());
+    setReward(getReward(user._id));
     setPromo(null);
     setOrderSnapshot(null);
     setOrderChecked(false);
@@ -176,10 +176,10 @@ export function BasketProvider({ children }) {
     if (plotId) localStorage.removeItem(promoKey(plotId));
   }, [plotId]);
 
-  const refreshReward = useCallback(() => setReward(getReward(user?._id)), []);
+  const refreshReward = useCallback(() => setReward(getReward(user?._id)), [user?._id]);
 
   const redeemReward = useCallback(() => {
-    localStorage.removeItem('questionnaireReward');
+    if (user?._id) localStorage.removeItem(rewardKey(user._id));
     setReward(null);
     removePromo();
   }, [removePromo, user?._id]);
