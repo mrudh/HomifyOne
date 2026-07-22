@@ -29,3 +29,20 @@ exports.sendOTP = async (toEmail, name, otp) => {
     `,
   });
 };
+
+exports.sendNotificationEmail = async (toEmail, name, subject, message) => {
+  await transporter.sendMail({
+    from: `"HomifyOne" <${process.env.EMAIL_USER}>`,
+    to: toEmail,
+    subject,
+    html: `
+      <div style="font-family:sans-serif;max-width:480px;margin:auto;padding:32px;border:1px solid #e5e7eb;border-radius:12px">
+        <h2 style="color:#1a4a45;margin-bottom:4px">HomifyOne</h2>
+        <p>Hi <strong>${name}</strong>,</p>
+        <p>${message}</p>
+        <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0"/>
+        <p style="color:#9ca3af;font-size:12px;text-align:center">© 2026 HomifyOne. All rights reserved.</p>
+      </div>
+    `,
+  });
+};

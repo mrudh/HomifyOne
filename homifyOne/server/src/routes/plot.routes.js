@@ -13,7 +13,7 @@ router.patch('/:id/deadline', verifyToken, authorise('developer'), async (req, r
   try {
     const plot = await Plot.findOneAndUpdate(
       { _id: req.params.id, developer: req.user._id },
-      { deadline: req.body.deadline },
+      { deadline: req.body.deadline, deadlineRemindersSent: [], overdueFlagged: false },
       { new: true }
     );
     if (!plot) return res.status(404).json({ success: false, message: 'Plot not found.' });

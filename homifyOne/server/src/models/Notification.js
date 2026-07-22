@@ -7,7 +7,7 @@ const notificationSchema = new mongoose.Schema({
     enum: [
       'order_submitted', 'order_approved', 'order_rejected',
       'purchase_order_created', 'purchase_order_status_changed', 'invoice_submitted',
-      'invoice_status_changed',
+      'invoice_status_changed', 'deadline_reminder', 'selection_overdue', 'purchase_order_stale',
     ],
     required: true,
   },

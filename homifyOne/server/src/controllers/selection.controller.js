@@ -301,6 +301,8 @@ exports.rejectOrder = async (req, res, next) => {
       status: 'selections_rejected',
       rejectionReason: reason.trim(),
       deadline: newDeadline,
+      deadlineRemindersSent: [],
+      overdueFlagged: false,
     }, { new: true });
 
     await syncPlotDeadline(updatedPlot);

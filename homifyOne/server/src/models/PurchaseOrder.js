@@ -20,6 +20,7 @@ const purchaseOrderSchema = new mongoose.Schema({
   },
   eta: { type: Date, default: null },
   acknowledgedAt: { type: Date, default: null },
+  staleAlertSent: { type: Boolean, default: false },
 }, { timestamps: true });
 
 module.exports = mongoose.model('PurchaseOrder', purchaseOrderSchema);

@@ -23,6 +23,8 @@ const plotSchema = new mongoose.Schema({
     default: 'available'
   },
   rejectionReason: { type: String, default: null },
+  deadlineRemindersSent: { type: [Number], default: [] },
+  overdueFlagged: { type: Boolean, default: false },
 
 }, { timestamps: true });
 
