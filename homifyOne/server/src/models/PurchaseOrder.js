@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const purchaseOrderSchema = new mongoose.Schema({
   plot: { type: mongoose.Schema.Types.ObjectId, ref: 'Plot', required: true },
+  order: { type: mongoose.Schema.Types.ObjectId, ref: 'Order', default: null },
   developer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   supplier: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   items: [{

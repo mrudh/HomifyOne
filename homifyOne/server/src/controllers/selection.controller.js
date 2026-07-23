@@ -264,6 +264,7 @@ exports.approveOrder = async (req, res, next) => {
       const totalCost = items.reduce((sum, i) => sum + (i.price || 0), 0);
       const po = await PurchaseOrder.create({
         plot: order.plot._id,
+        order: order._id,
         developer: req.user._id,
         supplier: supplierId,
         items,

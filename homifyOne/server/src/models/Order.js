@@ -39,7 +39,8 @@ const orderSchema = new mongoose.Schema(
     summaryPdf: {
       url: { type: String, default: null },
       generatedAt: { type: Date, default: null },
-    }
+    },
+    deliveredAt: { type: Date, default: null },
   },
   { timestamps: true },
 );

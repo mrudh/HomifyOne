@@ -17,6 +17,50 @@ const getCountdown = (deadline) => {
   };
 };
 
+const ORDER_PROGRESS_STEPS = [
+  { label: 'Selections Submitted', icon: '📝' },
+  { label: 'Developer Approved', icon: '✅' },
+  { label: 'Items Delivered to Site', icon: '🚚' },
+];
+
+const OrderProgressBar = ({ order }) => {
+  if (!order) return null;
+
+  const currentStep = order.deliveredAt ? 2 : order.status === 'approved' ? 1 : 0;
+
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
+      <p className="text-xs font-semibold tracking-widest text-gray-400 mb-5">ORDER PROGRESS</p>
+      <div className="flex items-start">
+        {ORDER_PROGRESS_STEPS.map((step, i) => {
+          const reached = i <= currentStep;
+          return (
+            <div key={step.label} className={`flex items-center ${i < ORDER_PROGRESS_STEPS.length - 1 ? 'flex-1' : ''}`}>
+              <div className="flex flex-col items-center flex-shrink-0">
+                <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold transition-colors
+                  ${reached ? 'bg-[#1a4a45] text-white' : 'bg-gray-100 text-gray-400'}`}>
+                  {reached ? '✓' : step.icon}
+                </div>
+                <p className={`text-[11px] font-medium mt-2 text-center w-24 leading-tight ${reached ? 'text-gray-800' : 'text-gray-400'}`}>
+                  {step.label}
+                </p>
+              </div>
+              {i < ORDER_PROGRESS_STEPS.length - 1 && (
+                <div className={`flex-1 h-0.5 mx-2 mb-6 ${i < currentStep ? 'bg-[#1a4a45]' : 'bg-gray-200'}`} />
+              )}
+            </div>
+          );
+        })}
+      </div>
+      {order.status === 'rejected' && (
+        <p className="text-xs text-red-500 mt-4">
+          Your latest submission needs changes before it can move forward — see below.
+        </p>
+      )}
+    </div>
+  );
+};
+
 const StatusBadge = ({ status }) => {
   const map = {
     draft: { label: "Not Started", cls: "bg-gray-100 text-gray-500" },
@@ -265,6 +309,8 @@ const StatusBadge = ({ status }) => {
             </p>
           </div>
         )}
+
+        <OrderProgressBar order={order} />
 
         {/* Stats grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">

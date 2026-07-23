@@ -1,4 +1,5 @@
 const Plot = require('../models/Plot');
+const Order = require('../models/Order');
 const PurchaseOrder = require('../models/PurchaseOrder');
 const Invoice = require('../models/Invoice');
 const User = require('../models/User');
@@ -77,7 +78,15 @@ exports.sendDeliveryUpdate = async (req, res, next) => {
     if (!plot) return res.status(404).json({ success: false, message: 'Plot not found.' });
     if (!plot.buyer) return res.status(400).json({ success: false, message: 'No buyer assigned to this plot.' });
 
-    const purchaseOrders = await PurchaseOrder.find({ plot: plot._id }, '_id');
+    const currentOrder = await Order.findOne({ plot: plot._id, status: 'approved' }).sort({ createdAt: -1 });
+    if (!currentOrder) {
+      return res.status(409).json({ success: false, message: 'No approved order exists for this plot yet.' });
+    }
+
+    let purchaseOrders = await PurchaseOrder.find({ order: currentOrder._id }, '_id');
+    if (purchaseOrders.length === 0) {
+      purchaseOrders = await PurchaseOrder.find({ plot: plot._id, order: null }, '_id');
+    }
     if (purchaseOrders.length === 0) {
       return res.status(409).json({ success: false, message: 'No purchase orders exist for this plot yet.' });
     }
@@ -95,6 +104,9 @@ exports.sendDeliveryUpdate = async (req, res, next) => {
     }
 
     const trimmed = message.trim();
+
+    currentOrder.deliveredAt = new Date();
+    await currentOrder.save();
 
     await notify({
       recipient: plot.buyer,
