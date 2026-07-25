@@ -10,6 +10,8 @@ const cookieParser = require('cookie-parser');
 const connectDB = require('./config/db');
 const invoiceRoutes = require('./routes/invoices.routes');
 const { setIO } = require('./services/notification.service');
+const { setIO: setChatIO } = require('./services/chat.service');
+const { registerChatHandlers } = require('./socket/chat.socket');
 const path = require('path');
 
 const app = express();
@@ -40,6 +42,7 @@ app.use('/api', invoiceRoutes);
 app.use('/api/calendar', require('./routes/calendar.routes'));
 app.use('/api/meetings', require('./routes/meetings.routes'));
 app.use('/api/notifications', require('./routes/notification.routes'));
+app.use('/api/chat', require('./routes/chat.routes'));
 
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
@@ -64,9 +67,11 @@ io.use((socket, next) => {
 
 io.on('connection', (socket) => {
   socket.join(String(socket.userId));
+  registerChatHandlers(io, socket);
 });
 
 setIO(io);
+setChatIO(io);
 
 require('./jobs/scheduler')();
 
