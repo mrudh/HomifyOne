@@ -30,6 +30,7 @@ import DeveloperSelectionSummaryPage from './pages/developer/DeveloperSelectionS
 import NotificationsPage from './pages/NotificationsPage';
 import DeveloperInvoices from './pages/developer/DeveloperInvoices';
 import SupplierInvoices from './pages/supplier/SupplierInvoices';
+import MessagesPage from './pages/MessagesPage';
 
 export default function App() {
   return (
@@ -49,6 +50,7 @@ export default function App() {
               <Route path="/developer/selection-summary" element={<DeveloperSelectionSummaryPage />} />
               <Route path="/developer/notifications" element={<NotificationsPage />} />
               <Route path="/developer/invoices" element={<DeveloperInvoices />} />
+              <Route path="/developer/messages" element={<MessagesPage />} />
             </Route>
           </Route>
 
@@ -60,6 +62,7 @@ export default function App() {
             <Route path="/supplier/calendar" element={<CalendarPage />} />
             <Route path="/supplier/notifications" element={<NotificationsPage />} />
             <Route path="/supplier/invoices" element={<SupplierInvoices />} />
+            <Route path="/supplier/messages" element={<MessagesPage />} />
           </Route>
         </Route>
 
@@ -84,6 +87,7 @@ export default function App() {
               <Route path="/buyer/calendar" element={<CalendarPage />} />
               <Route path="/buyer/selection-summary" element={<SelectionSummaryPage />} />
               <Route path="/buyer/notifications" element={<NotificationsPage />} />
+              <Route path="/buyer/messages" element={<MessagesPage />} />
             </Route>
           </Route>
 

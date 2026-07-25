@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNotifications } from '../context/NotificationContext';
+import { useChat } from '../context/ChatContext';
 
 const navItems = [
   { label: 'Dashboard', icon: '⊞', path: '/buyer/dashboard' },
@@ -26,6 +27,7 @@ const navItems = [
   { label: 'Orders & Status', icon: '📦', path: '/buyer/orders' },
   { label: 'Selection Summary', icon: '📄', path: '/buyer/selection-summary' },
   { label: 'Calendar', icon: '📅', path: '/buyer/calendar' },
+  { label: 'Messages', icon: '💬', path: '/buyer/messages' },
   { label: 'Notifications', icon: '🔔', path: '/buyer/notifications' },
 ];
 
@@ -85,6 +87,7 @@ function InfoTooltipIcon({ description }) {
 export default function BuyerSidebar({ open, onClose }) {
   const { user, logout } = useAuth();
   const { unreadCount } = useNotifications();
+  const { unreadCount: chatUnreadCount } = useChat();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -119,6 +122,8 @@ export default function BuyerSidebar({ open, onClose }) {
         {navItems.map(item => {
           const active = location.pathname === item.path;
           const isNotifications = item.label === 'Notifications';
+          const isMessages = item.label === 'Messages';
+          const badgeCount = isNotifications ? unreadCount : isMessages ? chatUnreadCount : 0;
           return (
             <div key={item.label}
               className={`w-full flex items-center gap-3 px-5 py-2.5 text-sm transition-all
@@ -128,9 +133,9 @@ export default function BuyerSidebar({ open, onClose }) {
               <button onClick={() => handleNav(item.path)} className="flex items-center gap-3 flex-1 text-left">
                 <span className="text-base w-5 text-center relative">{item.icon}</span>
                 <span className='flex items-center gap-3'>{item.label}
-                  {isNotifications && unreadCount > 0 && (
+                  {badgeCount > 0 && (
                     <span className="relative left-1.5 bg-red-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-                      {unreadCount > 9 ? '9+' : unreadCount}
+                      {badgeCount > 9 ? '9+' : badgeCount}
                     </span>
                   )}
                 </span>

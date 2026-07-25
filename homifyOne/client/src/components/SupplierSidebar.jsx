@@ -1,6 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNotifications } from '../context/NotificationContext';
+import { useChat } from '../context/ChatContext';
 
 
 const navItems = [
@@ -8,14 +9,14 @@ const navItems = [
   { label: 'Purchase Orders', icon: '📋', path: '/supplier/purchase-orders' },
   { label: 'Invoice History', icon: '🧾', path: '/supplier/invoices' },
   { label: 'Calendar', icon: '📅', path: '/supplier/calendar' },
-  // { label: 'Messages', icon: '💬', path: '/supplier/messages' },
-  { label: 'Notifications', icon: '🔔', path: '/supplier/notifications' },
-  // { label: 'Help & Support', icon: '❓', path: '/supplier/help' },
+  { label: 'Messages', icon: '💬', path: '/supplier/messages' },
+  { label: 'Notifications', icon: '🔔', path: '/supplier/notifications' }
 ];
 
 export default function SupplierSidebar({ open, onClose }) {
   const { user, logout } = useAuth();
   const { unreadCount } = useNotifications();
+  const { unreadCount: chatUnreadCount } = useChat();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -46,6 +47,8 @@ export default function SupplierSidebar({ open, onClose }) {
         {navItems.map((item) => {
           const active = location.pathname === item.path;
           const isNotifications = item.label === 'Notifications';
+          const isMessages = item.label === 'Messages';
+          const badgeCount = isNotifications ? unreadCount : isMessages ? chatUnreadCount : 0;
           return (
             <button
               key={item.label}
@@ -56,9 +59,9 @@ export default function SupplierSidebar({ open, onClose }) {
             >
               <span className="text-base w-5 text-center">{item.icon}</span>
               <span className='flex items-center gap-3'>{item.label}
-                {isNotifications && unreadCount > 0 && (
+                {badgeCount > 0 && (
                   <span className="relative left-1.5 bg-red-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-                    {unreadCount > 9 ? '9+' : unreadCount}
+                    {badgeCount > 9 ? '9+' : badgeCount}
                   </span>
                 )}
               </span>

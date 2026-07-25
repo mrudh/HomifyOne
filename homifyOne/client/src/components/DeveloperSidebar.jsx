@@ -1,6 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNotifications } from '../context/NotificationContext';
+import { useChat } from '../context/ChatContext';
 
 const navItems = [
   { label: "Dashboard", icon: "⊞", path: "/developer/dashboard" },
@@ -10,14 +11,14 @@ const navItems = [
   { label: "Purchase Orders", icon: "📦", path: "/developer/purchase-orders" },
   { label: "Invoices", icon: "📝", path: "/developer/invoices" },
   { label: "Calendar", icon: "📅", path: "/developer/calendar" },
-//   { label: "Messages", icon: "✉️", path: "/developer/messages" },
-  { label: "Notifications", icon: "🔔", path: "/developer/notifications" },
-//   { label: "Help & Support", icon: "❓", path: "/developer/help" },
+  { label: "Messages", icon: "✉️", path: "/developer/messages" },
+  { label: "Notifications", icon: "🔔", path: "/developer/notifications" }
 ];
 
 export default function DeveloperSidebar({ open, onClose }) {
     const { user, logout } = useAuth();
     const { unreadCount } = useNotifications();
+    const { unreadCount: chatUnreadCount } = useChat();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -53,6 +54,8 @@ export default function DeveloperSidebar({ open, onClose }) {
             {navItems.map(item => {
                 const active = location.pathname === item.path;
                 const isNotifications = item.label === 'Notifications';
+                const isMessages = item.label === 'Messages';
+                const badgeCount = isNotifications ? unreadCount : isMessages ? chatUnreadCount : 0;
                 return (
                     <button key={item.label} onClick={() => handleNav(item.path)}
                     className={`w-full flex items-center gap-3 px-5 py-2.5 text-sm transition-all
@@ -61,9 +64,9 @@ export default function DeveloperSidebar({ open, onClose }) {
                         : 'text-[#a8d5cf] hover:bg-[#2d6b62] hover:text-white'}`}>
                     <span className="text-base w-5 text-center">{item.icon}</span>
                     <span className='flex items-center gap-3'>{item.label}
-                        {isNotifications && unreadCount > 0 && (
+                        {badgeCount > 0 && (
                             <span className="relative left-1.5 bg-red-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-                                {unreadCount > 9 ? '9+' : unreadCount}
+                                {badgeCount > 9 ? '9+' : badgeCount}
                             </span>
                         )}
                     </span>
