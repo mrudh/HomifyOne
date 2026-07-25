@@ -16,7 +16,31 @@ exports.createPlot = async (req, res, next) => {
 exports.getMyPlots = async (req, res, next) => {
   try {
     const plots = await Plot.find({ developer: req.user._id }).populate('buyer', 'name email phone');
-    res.status(200).json({ success: true, plots });
+    const plotIds = plots.map((p) => p._id);
+    const orders = await Order.find({ plot: { $in: plotIds }, status: { $ne: 'rejected' } })
+      .select('plot status deliveredAt createdAt')
+      .sort({ createdAt: -1 });
+
+    const ordersByPlot = new Map();
+    orders.forEach((o) => {
+      const key = String(o.plot);
+      if (!ordersByPlot.has(key)) ordersByPlot.set(key, []);
+      ordersByPlot.get(key).push(o);
+    });
+
+    const plotsWithOrders = plots.map((plot) => {
+      const plotOrders = ordersByPlot.get(String(plot._id)) || [];
+      const latestOrder = plotOrders[0] || null; 
+      const orderStatus = !latestOrder ? 'none' : latestOrder.deliveredAt ? 'delivered' : 'in_progress';
+
+      return {
+        ...plot.toObject(),
+        ordersCount: plotOrders.length,
+        orderStatus,
+      };
+    });
+
+    res.status(200).json({ success: true, plots: plotsWithOrders });
   } catch (err) { next(err); }
 };
 

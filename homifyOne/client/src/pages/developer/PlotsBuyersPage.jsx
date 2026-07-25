@@ -14,18 +14,41 @@ const pinIcon = new L.Icon({
 });
 
 const PLOT_STATUS_MAP = {
-  available:            { label: 'Available',        cls: 'bg-gray-100 text-gray-500' },
-  assigned:             { label: 'Assigned',          cls: 'bg-gray-100 text-gray-600' },
-  selections_pending:   { label: 'In Progress',       cls: 'bg-yellow-100 text-yellow-700' },
-  selections_submitted: { label: 'Awaiting Review',   cls: 'bg-blue-100 text-blue-700' },
-  selections_rejected:  { label: 'Changes Requested', cls: 'bg-red-100 text-red-700' },
-  selections_approved:  { label: 'Approved ✓',        cls: 'bg-green-100 text-green-700' },
-  completed:            { label: 'Completed',         cls: 'bg-teal-100 text-teal-700' },
+  available: { label: "Available", cls: "bg-gray-100 text-gray-500" },
+  assigned: { label: "Assigned", cls: "bg-gray-100 text-gray-600" },
+  selections_pending: {
+    label: "In Progress",
+    cls: "bg-yellow-100 text-yellow-700",
+  },
+  selections_submitted: {
+    label: "Awaiting Review",
+    cls: "bg-blue-100 text-blue-700",
+  },
+  selections_rejected: {
+    label: "Changes Requested",
+    cls: "bg-red-100 text-red-700",
+  },
+  selections_approved: {
+    label: "Approved",
+    cls: "bg-green-100 text-green-700",
+  },
+  completed: { label: "Completed", cls: "bg-teal-100 text-teal-700" },
 };
 
 function StatusBadge({ status }) {
   const s = PLOT_STATUS_MAP[status] || PLOT_STATUS_MAP.available;
-  return <span className={`text-xs font-semibold px-3 py-1.5 rounded-full ${s.cls}`}>{s.label}</span>;
+  return <span className={`text-xs font-semibold px-3 py-1.5 rounded-full whitespace-nowrap ${s.cls}`}>{s.label}</span>;
+}
+
+const ORDER_STATUS_MAP = {
+  none: { label: "None", cls: "bg-gray-100 text-gray-500" },
+  in_progress: { label: "In Progress", cls: "bg-amber-100 text-amber-700" },
+  delivered: { label: "Delivered ✓", cls: "bg-teal-100 text-teal-700" },
+};
+
+function OrderStatusBadge({ status }) {
+  const s = ORDER_STATUS_MAP[status] || ORDER_STATUS_MAP.none;
+  return <span className={`text-xs font-semibold px-3 py-1.5 rounded-full whitespace-nowrap ${s.cls}`}>{s.label}</span>;
 }
 
 function DeadlineModal({ plot, onClose, onSaved }) {
@@ -102,6 +125,14 @@ function DrillDownPanel({ development, plots, onClose, onEditDeadline }) {
                     {plot.buyer.email}
                     {/* {plot.buyer.phone && ` · ${plot.buyer.phone}`} */}
                 </p>
+            )}
+            {plot.buyer && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-400">
+                  {plot.ordersCount ?? 0} order{(plot.ordersCount ?? 0) !== 1 ? 's' : ''}
+                </span>
+                <OrderStatusBadge status={plot.orderStatus || 'none'} />
+              </div>
             )}
             {plot.deadline && (
               <p className="text-xs text-gray-400">
@@ -199,43 +230,72 @@ export default function PlotsBuyersPage() {
           <h2 className="text-sm font-bold text-gray-500 tracking-widest mb-3">
             🏠 All Plots ({plots.length})
           </h2>
-          <div className="space-y-3">
-            {plots.map(plot => (
-              <div key={plot._id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex items-center justify-between gap-4 flex-wrap">
-                <div className="text-left">
-                  <p className="font-bold text-gray-900 text-sm">Plot {plot.plotNumber} · {plot.development}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">
-                    {plot.buyer ? plot.buyer.name : 'No buyer assigned'}
-                    {plot.deadline && ` · Deadline: ${new Date(plot.deadline).toLocaleDateString('en-GB')}`}
-                  </p>
-                  {plot.buyer && (
-                    <p className="text-xs text-gray-400 mt-0.5">
-                        {plot.buyer.email}
-                        {/* {plot.buyer.phone && ` | ${plot.buyer.phone}`} */}
-                    </p>
-                )}
-                </div>
-                <div className="flex items-center gap-3">
-                  {plot.status === 'selections_submitted' ? (
-                        <button
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[880px] text-sm">
+                <thead>
+                  <tr className="border-b border-gray-100 bg-gray-50/60">
+                    <th className="text-left font-semibold text-gray-500 text-xs uppercase tracking-wide px-5 py-3 whitespace-nowrap">Plot</th>
+                    <th className="text-left font-semibold text-gray-500 text-xs uppercase tracking-wide px-5 py-3 whitespace-nowrap">Buyer</th>
+                    <th className="text-left font-semibold text-gray-500 text-xs uppercase tracking-wide px-5 py-3 whitespace-nowrap">Deadline</th>
+                    <th className="text-left font-semibold text-gray-500 text-xs uppercase tracking-wide px-5 py-3 whitespace-nowrap">Orders</th>
+                    <th className="text-left font-semibold text-gray-500 text-xs uppercase tracking-wide px-5 py-3 whitespace-nowrap">Order Status</th>
+                    <th className="text-left font-semibold text-gray-500 text-xs uppercase tracking-wide px-5 py-3 whitespace-nowrap">Selection Status</th>
+                    <th className="text-left font-semibold text-gray-500 text-xs uppercase tracking-wide px-5 py-3 whitespace-nowrap">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {plots.map(plot => (
+                    <tr key={plot._id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition">
+                      <td className="px-5 py-4 align-top whitespace-nowrap">
+                        <p className="font-bold text-gray-900">Plot {plot.plotNumber}</p>
+                        <p className="text-xs text-gray-400 mt-0.5">{plot.development}</p>
+                      </td>
+                      <td className="px-5 py-4 align-top">
+                        {plot.buyer ? (
+                          <>
+                            <p className="text-gray-700 font-medium whitespace-nowrap">{plot.buyer.name}</p>
+                            <p className="text-xs text-gray-400 mt-0.5 whitespace-nowrap">{plot.buyer.email}</p>
+                          </>
+                        ) : (
+                          <span className="text-gray-400 text-xs whitespace-nowrap">No buyer assigned</span>
+                        )}
+                      </td>
+                      <td className="px-5 py-4 align-top text-gray-500 text-xs whitespace-nowrap">
+                        {plot.deadline ? new Date(plot.deadline).toLocaleDateString('en-GB') : '—'}
+                      </td>
+                      <td className="px-5 py-4 align-top text-gray-700 font-semibold whitespace-nowrap">
+                        {plot.ordersCount ?? 0}
+                      </td>
+                      <td className="px-5 py-4 align-top whitespace-nowrap">
+                        <OrderStatusBadge status={plot.orderStatus || 'none'} />
+                      </td>
+                      <td className="px-5 py-4 align-top whitespace-nowrap">
+                        {plot.status === 'selections_submitted' ? (
+                          <button
                             type="button"
                             onClick={() => navigate(`/developer/orders/${plot._id}`)}
                             className="cursor-pointer"
-                        >
+                          >
                             <StatusBadge status={plot.status} />
-                        </button>
+                          </button>
                         ) : (
-                        <StatusBadge status={plot.status} />
-                    )}
-                  {plot.buyer && (
-                    <button onClick={() => setDeadlinePlot(plot)}
-                      className="border border-gray-200 px-3 py-2 rounded-xl text-xs font-semibold text-gray-600 hover:bg-gray-50">
-                      {plot.deadline ? 'Edit Deadline' : 'Set Deadline'}
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
+                          <StatusBadge status={plot.status} />
+                        )}
+                      </td>
+                      <td className="px-5 py-4 align-top whitespace-nowrap">
+                        {plot.buyer && (
+                          <button onClick={() => setDeadlinePlot(plot)}
+                            className="border border-gray-200 px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-600 hover:bg-gray-50 whitespace-nowrap">
+                            {plot.deadline ? 'Edit Deadline' : 'Set Deadline'}
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
