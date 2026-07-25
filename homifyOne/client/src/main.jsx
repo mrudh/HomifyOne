@@ -6,6 +6,7 @@ import { AuthProvider } from './context/AuthContext';
 import { AppProvider } from "./context/AppContext";
 import { BasketProvider } from './context/BasketContext';
 import { NotificationProvider } from './context/NotificationContext';
+import { ChatProvider } from './context/ChatContext';
 
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -13,9 +14,11 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <AuthProvider>
       <AppProvider>
         <NotificationProvider>
-          <BasketProvider>
-            <App />
-          </BasketProvider>
+          <ChatProvider>
+            <BasketProvider>
+              <App />
+            </BasketProvider>
+          </ChatProvider>
         </NotificationProvider>
       </AppProvider>
     </AuthProvider>
