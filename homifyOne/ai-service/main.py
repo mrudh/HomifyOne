@@ -174,6 +174,13 @@ def matches_style(p: dict, style: str) -> bool:
     return product_style == preferred
 
 
+SIMILARITY_WEIGHT = 0.6
+CATEGORY_WEIGHT = 0.4
+MAX_CATEGORY_BOOST = 40  
+DISPLAY_MIN = 60
+DISPLAY_MAX = 98
+
+
 def category_boost(p: dict, profile: Profile) -> int:
     boost = 0
     category = norm(p.get("category", ""))
@@ -241,6 +248,21 @@ def fmt_list(items: list) -> str:
     return ", ".join(clean[:-1]) + f" and {clean[-1]}"
 
 
+def rescale_match_scores(items: list, target_min: int = DISPLAY_MIN, target_max: int = DISPLAY_MAX) -> list:
+    if not items:
+        return items
+    scores = [i["match_score"] for i in items]
+    lo, hi = min(scores), max(scores)
+    for i in items:
+        i["raw_match_score"] = i["match_score"]
+        if hi == lo:
+            i["match_score"] = target_max
+        else:
+            pct = (i["match_score"] - lo) / (hi - lo)
+            i["match_score"] = round(target_min + pct * (target_max - target_min))
+    return items
+
+
 # /recommend
 @app.post("/recommend")
 def recommend(profile: Profile):
@@ -260,8 +282,10 @@ def recommend(profile: Profile):
             return None
         base = round(raw * 100)
         boost = category_boost(product, profile)
+        boost_normalised = min(100, (boost / MAX_CATEGORY_BOOST) * 100)
+        blended = (SIMILARITY_WEIGHT * base) + (CATEGORY_WEIGHT * boost_normalised)
         cap = 98 if allow_style else 88
-        match = min(cap, max(20, base + boost))
+        match = min(cap, max(20, round(blended)))
         return {
             **product,
             "match_score": match,
@@ -314,9 +338,10 @@ def recommend(profile: Profile):
 
     results.sort(key=lambda x: x.get("match_score", 0), reverse=True)
     top = results[:24]
+    top = rescale_match_scores(top)
 
     if top:
-        print(f"✅ Top: {top[0]['name']} ({top[0]['match_score']}% match)")
+        print(f"✅ Top: {top[0]['name']} ({top[0]['match_score']}% match, raw {top[0]['raw_match_score']})")
     else:
         print("⚠️  No recommendations found")
 
