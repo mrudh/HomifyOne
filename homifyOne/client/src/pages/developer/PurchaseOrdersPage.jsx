@@ -224,7 +224,11 @@ function OrderRow({ order, invoices, onViewInvoice }) {
       {expanded && (
         <div className="bg-gray-50 px-4 sm:px-5 py-4 space-y-4">
           <div>
-            <p className="text-xs font-semibold tracking-widest text-gray-400 mb-2">ORDER ITEMS</p>
+            <p className="text-xs font-semibold tracking-widest text-gray-400 mb-2 flex justify-between text-center">ORDER ITEMS
+                <span className="ml-2 font-normal normal-case tracking-normal text-gray-400">
+                   PO #{order._id.toString().slice(-6).toUpperCase()}
+                </span>
+            </p>
             <div className="space-y-2">
               {order.items.map((item, idx) => (
                 <div key={idx} className="flex items-center justify-between text-sm bg-white rounded-lg px-3 py-2">

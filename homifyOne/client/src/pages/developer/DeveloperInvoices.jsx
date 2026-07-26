@@ -204,7 +204,7 @@ function InvoiceRow({ invoice, onStatusChange, onPreview, updatingId }) {
           <InvoiceStatusBadge status={invoice.status} />
         </div>
 
-      {!invoice.status && (
+      {!isPaid && (
         <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap sm:shrink-0">
           <button
             onClick={() => onStatusChange(invoice._id, 'paid')}

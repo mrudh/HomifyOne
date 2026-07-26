@@ -326,29 +326,36 @@ const Q7_OPTIONS = [{
 
 function buildBuyerProfile(answers, plot) {
   const hMap = {
-    solo:     "a single occupant",
-    couple:   "a couple",
+    solo: "a single occupant",
+    couple: "a couple",
     family_y: "a family with young children",
     family_t: "a family with teenagers",
-    shared:   "a shared household",
+    shared: "a shared household",
   };
   const uMap = {
-    relax:     "relaxing and family time",
-    work:      "working from home",
-    cooking:   "cooking and dining",
-    hosting:   "hosting guests",
+    relax: "relaxing and family time",
+    work: "working from home",
+    cooking: "cooking and dining",
+    hosting: "hosting guests",
     organised: "keeping things organised",
-    mixed:     "a balanced mix of everyday activities",
+    mixed: "a balanced mix of everyday activities",
   };
   const sMap = {
-    modern:  "modern", minimal: "minimal", classic: "classic",
-    scandi:  "Scandinavian", cosy: "cosy and warm", bold: "bold and statement",
+    modern: "modern",
+    minimal: "minimal",
+    classic: "classic",
+    scandi: "Scandinavian",
+    cosy: "cosy and warm",
+    bold: "bold and statement",
   };
   const pMap = {
-    budget:   "good value for money",   durable:  "long-lasting materials",
-    maintain: "easy-to-clean surfaces", premium:  "a premium finish",
-    value_up: "strong resale appeal",   comfort:  "comfort and liveability",
-    safety:   "safety and security",
+    budget: "good value for money",
+    durable: "long-lasting materials",
+    maintain: "easy-to-clean surfaces",
+    premium: "a premium finish",
+    value_up: "strong resale appeal",
+    comfort: "comfort and liveability",
+    safety: "safety and security",
   };
   const bMap = {
     low: "a tight budget",
@@ -732,7 +739,7 @@ function Q4Screen({ answers, setAnswers, onNext, onBack }) {
       <ProgressBar step={4} total={7} />
       <h2 className="text-xl font-bold text-stone-800 mb-1">What matters most when choosing upgrades?</h2>
       <p className="text-sm text-stone-500 mb-5">
-        Select all that apply — this determines how we rank your recommendations.
+        Select all that apply, this determines how we rank your recommendations.
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {Q4_OPTIONS.map((o) => (
@@ -753,7 +760,7 @@ function Q5Screen({ answers, setAnswers, onNext, onBack }) {
       <ProgressBar step={5} total={7} />
       <h2 className="text-xl font-bold text-stone-800 mb-1">What is your upgrade budget preference?</h2>
       <p className="text-sm text-stone-500 mb-5">
-        No commitment — this just helps us show the right tier of options.
+        No commitment, this just helps us show the right tier of options.
       </p>
       <div className="grid grid-cols-1 gap-3">
         {Q5_OPTIONS.map((o) => (
@@ -859,7 +866,7 @@ function Q6Screen({ answers, setAnswers, onNext, onBack }) {
       <ProgressBar step={6} total={7} />
       <h2 className="text-xl font-bold text-stone-800 mb-1">Which of these describe your home life?</h2>
       <p className="text-sm text-stone-500 mb-5">
-        Select all that apply — this helps us fine-tune your recommendations.
+        Select all that apply, this helps us fine-tune your recommendations.
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {Q6_OPTIONS.map((o) => (
@@ -996,7 +1003,7 @@ function RewardScreen({ reward, onContinue }) {
       </div>
 
       <h2 className="text-2xl font-bold text-stone-800 mb-2">
-        Nice work — your home profile is ready!
+        Nice work! Your home profile is ready!
       </h2>
       <p className="text-stone-500 text-sm mx-auto mb-8">
         We've personalised your recommendations and unlocked two rewards below.

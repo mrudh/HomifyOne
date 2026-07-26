@@ -79,7 +79,7 @@ async function syncSupplierEta(purchaseOrder) {
     sourceId: purchaseOrder._id,
     type: 'supplier_eta',
     title: `Delivery ETA — Plot ${purchaseOrder.plot?.plotNumber || ''}`,
-    description: `Expected delivery for PO #${purchaseOrder._id.toString().slice(-6)}`,
+    description: `Expected delivery for PO #${purchaseOrder._id.toString().slice(-6)} · Supplier: ${purchaseOrder.supplier?.name || 'Unknown'}`,
     startTime: purchaseOrder.eta,
     allDay: true,
     participants: [purchaseOrder.developer, purchaseOrder.supplier].filter(Boolean),

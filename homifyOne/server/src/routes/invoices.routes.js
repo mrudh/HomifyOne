@@ -9,6 +9,8 @@ const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 const { DeleteObjectCommand } = require('@aws-sdk/client-s3');
 const { notify } = require('../services/notification.service');
 
+const shortRef = (id) => `#${String(id).slice(-6).toUpperCase()}`;
+
 const s3 = new S3Client({
   region: process.env.AWS_REGION,
   credentials: {
