@@ -31,6 +31,7 @@ import NotificationsPage from './pages/NotificationsPage';
 import DeveloperInvoices from './pages/developer/DeveloperInvoices';
 import SupplierInvoices from './pages/supplier/SupplierInvoices';
 import MessagesPage from './pages/MessagesPage';
+import AssistantPage from './pages/buyer/AssistantPage';
 
 export default function App() {
   return (
@@ -88,6 +89,7 @@ export default function App() {
               <Route path="/buyer/selection-summary" element={<SelectionSummaryPage />} />
               <Route path="/buyer/notifications" element={<NotificationsPage />} />
               <Route path="/buyer/messages" element={<MessagesPage />} />
+              <Route path="/buyer/assistant" element={<AssistantPage />} />
             </Route>
           </Route>
 

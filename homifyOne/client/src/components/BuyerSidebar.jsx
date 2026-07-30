@@ -28,6 +28,7 @@ const navItems = [
   { label: 'Selection Summary', icon: '📄', path: '/buyer/selection-summary' },
   { label: 'Calendar', icon: '📅', path: '/buyer/calendar' },
   { label: 'Messages', icon: '💬', path: '/buyer/messages' },
+  { label: 'Ask HomifyOne', icon: '✨', path: '/buyer/assistant' },
   { label: 'Notifications', icon: '🔔', path: '/buyer/notifications' },
 ];
 
