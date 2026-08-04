@@ -1,0 +1,25 @@
+const multer = require('multer');
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: async () => ({
+    folder: 'homifyOne/floorplans',
+    allowed_formats: ['jpg', 'jpeg', 'png'],
+    resource_type: 'image',
+  }),
+});
+
+const floorPlanUpload = multer({
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 }, 
+});
+
+module.exports = floorPlanUpload;

@@ -4,9 +4,10 @@ const productSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true },
   description: { type: String, trim: true },
   supplier: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  category: { type: String, required: true }, 
-  subCategory: { type: String, default: '' }, 
-  room: { type: String },                
+  category: { type: String, required: true },
+  subCategory: { type: String, default: '' },
+  room: { type: String },
+  style: { type: String, default: '', trim: true },
   type: {
     type: String,
     enum: ['choice', 'extra'],
