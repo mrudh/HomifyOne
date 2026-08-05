@@ -32,6 +32,10 @@ import DeveloperInvoices from './pages/developer/DeveloperInvoices';
 import SupplierInvoices from './pages/supplier/SupplierInvoices';
 import MessagesPage from './pages/MessagesPage';
 import AssistantPage from './pages/buyer/AssistantPage';
+import AdminLayout from './layout/AdminLayout';
+import ManageUsersPage from './pages/admin/ManageUsersPage';
+import ManageProductsPage from './pages/admin/ManageProductsPage';
+import BuyerPropertiesPage from './pages/admin/BuyerPropertiesPage';
 
 export default function App() {
   return (
@@ -67,11 +71,14 @@ export default function App() {
           </Route>
         </Route>
 
-          <Route path="/dashboard/admin" element={
-            <ProtectedRoute roles={['admin']}>
-              <AdminDashboard />
-            </ProtectedRoute>
-          } />
+          <Route element={<ProtectedRoute roles={['admin']} />}>
+            <Route element={<AdminLayout />}>
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/admin/users" element={<ManageUsersPage />} />
+              <Route path="/admin/products" element={<ManageProductsPage />} />
+              <Route path="/admin/properties" element={<BuyerPropertiesPage />} />
+            </Route>
+          </Route>
 
           <Route element={<ProtectedRoute roles={['buyer']} />}>
             <Route element={<BuyerLayout />}>
