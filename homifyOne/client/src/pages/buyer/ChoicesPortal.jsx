@@ -4,6 +4,8 @@ import ProductCard from "./ProductCard";
 import ProductModal from "./ProductModal";
 import CompareDrawer from "./CompareDrawer";
 import { useLocation } from "react-router-dom";
+import { useApp } from "../../context/AppContext";
+import SelectionsLockedNotice from "../../components/SelectionsLockedNotice";
 
 const ROOM_ICONS = {
   Kitchen: "🍳",
@@ -18,6 +20,7 @@ const ROOM_ICONS = {
 
 export default function ChoicesPortal() {
   const location = useLocation();
+  const { selectedPlot, plotLoading } = useApp();
   const [grouped, setGrouped] = useState({});
   const [selections, setSelections] = useState({});
   const [activeRoom, setActiveRoom] = useState("");
@@ -163,6 +166,9 @@ export default function ChoicesPortal() {
       return map;
     }, {});
 
+  if (!plotLoading && selectedPlot?.selectionsLocked) {
+    return <SelectionsLockedNotice />;
+  }
 
   return (
     <div className="flex flex-col min-h-screen lg:h-full lg:overflow-hidden bg-gray-50">

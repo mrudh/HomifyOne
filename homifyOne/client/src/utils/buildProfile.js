@@ -1,6 +1,6 @@
 export function buildProfile(answers, plot) {
   const styleMap = { modern: 'modern', minimal: 'minimal', classic: 'classic', scandi: 'scandi', cosy: 'cosy', bold: 'bold', unsure: '' };
-  const budgetMap = { low: [0, 2000], little: [0, 5000], balanced: [0, 10000], invest: [0, 25000], unsure: [0, 0] };
+  const budgetMap = { low: [0, 1000], little: [0, 3000], balanced: [0, 5000], invest: [0, 7500], unsure: [0, 0] };
   const [budgetMin, budgetMax] = budgetMap[answers?.budget] || [0, 0];
   const roomAnswers = answers?.roomDetails || {};
   return {

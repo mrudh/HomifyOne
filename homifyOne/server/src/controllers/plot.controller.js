@@ -2,6 +2,7 @@ const Plot = require('../models/Plot');
 const Order = require('../models/Order');
 const PurchaseOrder = require('../models/PurchaseOrder');
 const Invoice = require('../models/Invoice');
+const Selection = require('../models/Selection');
 const User = require('../models/User');
 const { notify } = require('../services/notification.service');
 const { sendNotificationEmail } = require('../utils/emailService');
@@ -49,7 +50,16 @@ exports.getMyPlot = async (req, res, next) => {
     const plot = await Plot.findOne({ buyer: req.user._id })
       .populate('developer', 'name email phone');
     if (!plot) return res.status(404).json({ success: false, message: 'No plot assigned.' });
-    res.json({ success: true, plot });
+
+    const [orderCount, hasSelectedProducts] = await Promise.all([
+      Order.countDocuments({ plot: plot._id }),
+      Selection.exists({ plot: plot._id, products: { $exists: true, $ne: [] } }),
+    ]);
+    const hasSelectionActivity = orderCount > 0 || !!hasSelectedProducts;
+    const deadlinePassed = !!plot.deadline && new Date(plot.deadline) < new Date();
+    const selectionsLocked = deadlinePassed && !hasSelectionActivity;
+
+    res.json({ success: true, plot: { ...plot.toObject(), selectionsLocked } });
   } catch (err) { next(err); }
 };
 

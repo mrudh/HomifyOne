@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useBasket } from '../../context/BasketContext';
 import { buildProfile } from '../../utils/buildProfile';
 import api from '../../services/api';
+import SelectionsLockedNotice from '../../components/SelectionsLockedNotice';
 
 
 function ProductModal({ product, onClose }) {
@@ -193,7 +194,7 @@ function CategoryTabs({ categories, active, onChange }) {
 
 export default function Recommendations() {
   const navigate = useNavigate();
-  const { selectedPlot } = useApp();
+  const { selectedPlot, plotLoading } = useApp();
   const { user } = useAuth();
   const { items, subtotal, remaining, overBudget, allowance } = useBasket();
   const [answers, setAnswers] = useState(null);
@@ -209,6 +210,9 @@ export default function Recommendations() {
 
 
   useEffect(() => {
+    if (plotLoading) return;
+    if (selectedPlot?.selectionsLocked) return;
+
     setRecommendations([]);
     setSummaryMsg('');
     setAnswers(null);
@@ -224,7 +228,7 @@ export default function Recommendations() {
         }
       })
       .catch(() => setAuthChecked(true));
-  }, [user?._id]);
+  }, [user?._id, plotLoading, selectedPlot?.selectionsLocked]);
 
 
   const fetchRecommendations = useCallback(async (answersData) => {
@@ -275,6 +279,10 @@ export default function Recommendations() {
       if (sortBy === 'price_desc') return b.price - a.price;
       return b.match_score - a.match_score;
     });
+
+  if (!plotLoading && selectedPlot?.selectionsLocked) {
+    return <SelectionsLockedNotice />;
+  }
 
   if (loading) {
     return (

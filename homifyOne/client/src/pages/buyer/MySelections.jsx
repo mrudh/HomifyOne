@@ -5,6 +5,7 @@ import { useBasket } from '../../context/BasketContext';
 import api from '../../services/api';
 import { buildProfile } from '../../utils/buildProfile';
 import { useAuth } from '../../context/AuthContext';
+import SelectionsLockedNotice from '../../components/SelectionsLockedNotice';
 
 function ProductCard({ product }) {
   const navigate = useNavigate();
@@ -74,7 +75,7 @@ function CategoryTabs({ categories, active, onChange }) {
 
 export default function MySelections() {
   const navigate = useNavigate();
-  const { selectedPlot } = useApp();
+  const { selectedPlot, plotLoading } = useApp();
   const { user } = useAuth();
   const { items, subtotal, finalTotal, cumulativeTotal, remaining, overBudget, usedPct, allowance } = useBasket();
   const [recommendations, setRecommendations] = useState([]);
@@ -85,6 +86,9 @@ export default function MySelections() {
   const [sortBy, setSortBy] = useState('match');
 
   useEffect(() => {
+    if (plotLoading) return;
+    if (selectedPlot?.selectionsLocked) { setLoading(false); return; }
+
     setRecommendations([]);
     setSummaryMsg('');
     setLoading(true);
@@ -96,7 +100,7 @@ export default function MySelections() {
           setError('no-cache');
           return;
         }
-        const profile = buildProfile(r.data.answers, selectedPlot); // reuse the same builder from Recommendations.jsx
+        const profile = buildProfile(r.data.answers, selectedPlot); 
         const [recRes, understandRes] = await Promise.all([
           api.post('/recommendations/recommend', profile),
           api.post('/recommendations/understand', profile),
@@ -106,7 +110,7 @@ export default function MySelections() {
       })
       .catch(() => setError('no-cache'))
       .finally(() => setLoading(false));
-  }, [user?._id, selectedPlot]);
+  }, [user?._id, selectedPlot, plotLoading]);
 
 
   const categories = [...new Set(recommendations.map(p => p.category))].sort();
@@ -117,6 +121,10 @@ export default function MySelections() {
       if (sortBy === 'price_desc') return b.price - a.price;
       return b.match_score - a.match_score;
     });
+
+  if (!plotLoading && selectedPlot?.selectionsLocked) {
+    return <SelectionsLockedNotice />;
+  }
 
   if (loading) {
     return (

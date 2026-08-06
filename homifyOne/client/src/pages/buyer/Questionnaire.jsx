@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useApp } from "../../context/AppContext";
 import { useBasket } from "../../context/BasketContext";
 import { useAuth } from "../../context/AuthContext";
+import SelectionsLockedNotice from "../../components/SelectionsLockedNotice";
 import confetti from "canvas-confetti";
 
 import axios from "axios";
@@ -1180,6 +1181,10 @@ async function handleSubmit() {
         <div className="w-8 h-8 border-4 border-teal-600 border-t-transparent rounded-full animate-spin" />
       </div>
     );
+  }
+
+  if (plot?.selectionsLocked) {
+    return <SelectionsLockedNotice />;
   }
 
   const SCREEN_MAP = {
