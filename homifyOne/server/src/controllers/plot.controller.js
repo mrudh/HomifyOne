@@ -29,15 +29,28 @@ exports.getMyPlots = async (req, res, next) => {
       ordersByPlot.get(key).push(o);
     });
 
+    const [anyOrders, selectedDocs] = await Promise.all([
+      Order.find({ plot: { $in: plotIds } }).select('plot'),
+      Selection.find({ plot: { $in: plotIds }, products: { $exists: true, $ne: [] } }).select('plot'),
+    ]);
+    const plotsWithActivity = new Set([
+      ...anyOrders.map((o) => String(o.plot)),
+      ...selectedDocs.map((s) => String(s.plot)),
+    ]);
+
     const plotsWithOrders = plots.map((plot) => {
       const plotOrders = ordersByPlot.get(String(plot._id)) || [];
-      const latestOrder = plotOrders[0] || null; 
+      const latestOrder = plotOrders[0] || null;
       const orderStatus = !latestOrder ? 'none' : latestOrder.deliveredAt ? 'delivered' : 'in_progress';
+
+      const deadlinePassed = !!plot.deadline && new Date(plot.deadline) < new Date();
+      const selectionsLocked = deadlinePassed && !plotsWithActivity.has(String(plot._id));
 
       return {
         ...plot.toObject(),
         ordersCount: plotOrders.length,
         orderStatus,
+        selectionsLocked,
       };
     });
 

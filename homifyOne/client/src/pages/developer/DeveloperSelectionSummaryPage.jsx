@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import api from '../../services/api';
+import PlotFilterDropdown from '../../components/PlotFilterDropdown';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -7,6 +8,7 @@ export default function DeveloperSelectionSummaryPage() {
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [plotFilter, setPlotFilter] = useState([]);
 
   useEffect(() => {
     api.get('/selections/developer/summaries')
@@ -14,6 +16,14 @@ export default function DeveloperSelectionSummaryPage() {
       .catch(() => setError('Failed to load selection summaries.'))
       .finally(() => setLoading(false));
   }, []);
+
+  const sortedGroups = [...groups].sort((a, b) =>
+    a.plot.plotNumber.localeCompare(b.plot.plotNumber, undefined, { numeric: true })
+  );
+  const filteredGroups = plotFilter.length === 0
+    ? sortedGroups
+    : sortedGroups.filter(g => plotFilter.includes(g.plot._id));
+  const filterPlots = sortedGroups.map(g => g.plot);
 
   const handleDownload = (orderId) => {
     window.open(`${API}/selections/orders/${orderId}/summary-pdf`, '_blank');
@@ -43,13 +53,22 @@ export default function DeveloperSelectionSummaryPage() {
         <div className="max-w-4xl mx-auto">
           <h1 className="text-md font-extrabold text-gray-900">Selection Summaries</h1>
           <p className="text-xs text-gray-400 mt-0.5">
-            {groups.length} plot{groups.length !== 1 ? 's' : ''} with approved selections
+            {filteredGroups.length} plot{filteredGroups.length !== 1 ? 's' : ''} with approved selections
+            {filteredGroups.length !== groups.length ? ` (of ${groups.length})` : ''}
           </p>
         </div>
       </div>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 space-y-6">
-        {groups.map(({ plot, orders }) => (
+        <PlotFilterDropdown plots={filterPlots} selected={plotFilter} onChange={setPlotFilter} />
+
+        {filteredGroups.length === 0 && (
+          <div className="bg-white rounded-2xl border border-dashed border-gray-300 p-8 text-center text-gray-400 text-sm">
+            No approved selections for this plot.
+          </div>
+        )}
+
+        {filteredGroups.map(({ plot, orders }) => (
           <div key={plot._id} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
             <div className="px-5 py-4 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
               <div>
@@ -67,7 +86,7 @@ export default function DeveloperSelectionSummaryPage() {
                 const hasSummary = !!order.summaryPdf?.url;
                 return (
                   <div key={order._id} className="flex items-center justify-between gap-4 px-5 py-4">
-                    <div>
+                    <div className='text-left'>
                       <p className="text-sm font-semibold text-gray-800">
                         Order #{orders.length - idx} · {order.buyer?.name}
                       </p>

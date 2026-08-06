@@ -25,7 +25,7 @@ export default function SelectionsReviewPage() {
         <h1 className="text-xl font-bold text-gray-900">Selections Review</h1>
       </div>
 
-      <div className="px-6 py-6 max-w-4xl space-y-3">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 space-y-6">
         {orders.length === 0 && (
           <p className="text-sm text-gray-400">No selections awaiting review.</p>
         )}
@@ -34,7 +34,7 @@ export default function SelectionsReviewPage() {
         const total = order.pricing?.finalTotal ?? items.reduce((sum, i) => sum + (i.price || 0), 0);
         return (
             <div key={order._id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex items-center justify-between gap-4 flex-wrap">
-            <div>
+            <div className='text-left'>
                 <p className="font-bold text-gray-900 text-sm">{order.buyer?.name}</p>
                 <p className="text-xs text-gray-400 mt-0.5">
                 Plot {order.plot?.plotNumber} · {order.plot?.development} · {items.length} items

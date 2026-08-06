@@ -14,7 +14,11 @@ router.get('/developer/all', verifyToken, authorise('developer'), async (req, re
     if (req.query.status) filter.status = req.query.status;
 
     const orders = await PurchaseOrder.find(filter)
-      .populate('plot', 'plotNumber development address')
+      .populate({
+        path: 'plot',
+        select: 'plotNumber development address buyer',
+        populate: { path: 'buyer', select: 'name' },
+      })
       .populate('supplier', 'name email')
       .sort({ createdAt: -1 });
 

@@ -72,7 +72,7 @@ function PlotFilterDropdown({ plots, selected, onChange }) {
       </button>
 
       {open && (
-        <div className="absolute z-20 mt-2 w-64 max-h-72 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-lg py-2 left-0 sm:left-auto sm:right-0">
+        <div className="absolute z-20 mt-2 w-90 max-h-72 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-lg py-2 left-0 sm:left-auto sm:right-0">
           <button
             onClick={() => onChange([])}
             className="w-full text-left px-4 py-2 text-sm font-medium text-[#1a4a45] hover:bg-gray-50 border-b border-gray-100 mb-1"
@@ -348,7 +348,10 @@ export default function DeveloperPurchaseOrders() {
     new Map(
       orders.map((o) => [
         o.plot?._id,
-        { id: o.plot?._id, label: `Plot ${o.plot?.plotNumber} — ${o.plot?.development}` },
+        {
+          id: o.plot?._id,
+          label: `Plot ${o.plot?.plotNumber} - ${o.plot?.development}${o.plot?.buyer?.name ? ` (${o.plot.buyer.name})` : ''}`,
+        },
       ])
     ).values()
   ).filter((p) => p.id);

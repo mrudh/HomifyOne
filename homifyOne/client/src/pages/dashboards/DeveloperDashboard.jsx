@@ -240,7 +240,7 @@ export default function DeveloperDashboard() {
             <div className="space-y-3">
               {pendingOrders.map(order => (
                 <div key={order._id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex items-center justify-between gap-4 flex-wrap">
-                  <div>
+                  <div className='text-left'>
                     <p className="font-bold text-gray-900 text-sm">{order.buyer?.name}</p>
                     <p className="text-xs text-gray-400 mt-0.5">
                       Plot {order.plot?.plotNumber} · {order.plot?.development} · {order.items.length} item{order.items.length !== 1 ? 's' : ''}
@@ -272,10 +272,12 @@ export default function DeveloperDashboard() {
           </h2>
           <div className="space-y-3">
             {plots.map(plot => {
-              const s = PLOT_STATUS_MAP[plot.status] || PLOT_STATUS_MAP.available;
+              const s = plot.selectionsLocked
+                ? { label: 'Selections Pending', cls: 'bg-amber-100 text-amber-700' }
+                : (PLOT_STATUS_MAP[plot.status] || PLOT_STATUS_MAP.available);
               return (
                 <div key={plot._id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex items-center justify-between gap-4 flex-wrap">
-                  <div>
+                  <div className='text-left'>
                     <p className="font-bold text-gray-900 text-sm">Plot {plot.plotNumber} · {plot.development}</p>
                     <p className="text-xs text-gray-400 mt-0.5">
                       {plot.buyer ? plot.buyer.name : 'No buyer assigned'}
