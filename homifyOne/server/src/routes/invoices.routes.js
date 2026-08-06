@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const axios = require('axios');
 const Invoice = require('../models/Invoice');
 const PurchaseOrder = require('../models/PurchaseOrder');
 const { verifyToken, authorise } = require('../middleware/auth');
@@ -10,6 +11,7 @@ const { DeleteObjectCommand } = require('@aws-sdk/client-s3');
 const { notify } = require('../services/notification.service');
 
 const shortRef = (id) => `#${String(id).slice(-6).toUpperCase()}`;
+const PYTHON_API = process.env.PYTHON_API_URL || 'http://localhost:8000';
 
 const s3 = new S3Client({
   region: process.env.AWS_REGION,
@@ -78,8 +80,73 @@ router.get(
         Key: invoice.fileKey,
       });
 
-      const url = await getSignedUrl(s3, command, { expiresIn: 300 }); // valid 5 minutes
+      const url = await getSignedUrl(s3, command, { expiresIn: 300 }); 
       res.json({ success: true, url });
+    } catch (err) { next(err); }
+  }
+);
+
+
+router.post(
+  '/invoices/:invoiceId/summarise',
+  verifyToken,
+  authorise('developer'),
+  async (req, res, next) => {
+    try {
+      const invoice = await Invoice.findOne({ _id: req.params.invoiceId, developer: req.user._id });
+      if (!invoice) return res.status(404).json({ success: false, message: 'Invoice not found.' });
+
+      const command = new GetObjectCommand({
+        Bucket: process.env.AWS_S3_BUCKET,
+        Key: invoice.fileKey,
+      });
+      const fileUrl = await getSignedUrl(s3, command, { expiresIn: 120 });
+
+      let data;
+      try {
+        const response = await axios.post(`${PYTHON_API}/invoice/summarise`, {
+          file_url: fileUrl,
+          file_name: invoice.fileName,
+        });
+        data = response.data;
+      } catch (err) {
+        const message = err.response?.data?.detail || 'The AI summariser is unavailable right now.';
+        return res.status(502).json({ success: false, message });
+      }
+
+      if (!data.success) {
+        invoice.aiSummary = {
+          ...invoice.aiSummary,
+          raw: data.raw || '',
+          summarisedAt: new Date(),
+        };
+        await invoice.save();
+        return res.status(422).json({
+          success: false,
+          message: data.message || "Couldn't reliably extract structured data from this invoice.",
+          invoice,
+        });
+      }
+
+      const extractedAmount = typeof data.extractedAmount === 'number' ? data.extractedAmount : null;
+      const tolerance = Math.max(0.5, invoice.amount * 0.01);
+      const amountMismatch = extractedAmount !== null && Math.abs(extractedAmount - invoice.amount) > tolerance;
+
+      invoice.aiSummary = {
+        summary: data.summary || '',
+        invoiceNumber: data.invoiceNumber || '',
+        vendorName: data.vendorName || '',
+        invoiceDate: data.invoiceDate || '',
+        dueDate: data.dueDate || '',
+        extractedAmount,
+        lineItems: Array.isArray(data.lineItems) ? data.lineItems : [],
+        amountMismatch,
+        raw: '',
+        summarisedAt: new Date(),
+      };
+      await invoice.save();
+
+      res.json({ success: true, invoice });
     } catch (err) { next(err); }
   }
 );

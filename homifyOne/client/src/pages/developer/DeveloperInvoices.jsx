@@ -24,7 +24,132 @@ const fileIcon = (name) => {
   return '📎';
 };
 
-function InvoicePreviewModal({ open, onClose, fileUrl, fileName }) {
+function money(n) {
+  return typeof n === 'number' ? `£${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '—';
+}
+
+function AiSummaryPanel({ invoiceId, invoiceAmount, summary, onSummarised }) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [showDetails, setShowDetails] = useState(false);
+
+  const handleSummarise = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const { data } = await api.post(`/invoices/${invoiceId}/summarise`);
+      onSummarised(data.invoice.aiSummary);
+    } catch (err) {
+      setError(err.response?.data?.message || "Couldn't summarise this invoice.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const hasResult = summary?.summarisedAt && (summary.summary || summary.invoiceNumber || summary.vendorName || summary.extractedAmount != null || summary.lineItems?.length > 0);
+
+  return (
+    <div className="border-t border-gray-100 px-5 py-4 shrink-0 max-h-[40vh] overflow-y-auto">
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-xs font-semibold tracking-widest text-gray-400">AI SUMMARY</p>
+        <button
+          onClick={handleSummarise}
+          disabled={loading}
+          className="text-xs font-semibold text-1a4a45 border border-1a4a45 rounded-lg px-3 py-1.5 hover:bg-e8f4f2 transition disabled:opacity-50"
+        >
+          {loading ? 'Summarising…' : hasResult ? 'Re-summarise' : 'Summarise with AI'}
+        </button>
+      </div>
+
+      {error && <p className="text-xs text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-2">{error}</p>}
+
+      {!hasResult && !error && !loading && (
+        <p className="text-xs text-gray-400">Extract the invoice number, vendor, dates, and line items with AI.</p>
+      )}
+
+      {hasResult && (
+        <div className="space-y-3">
+          {summary.summary && (
+            <p className="text-sm text-gray-700 leading-relaxed bg-gray-50 border border-gray-100 rounded-xl px-3 py-3">
+              {summary.summary}
+            </p>
+          )}
+
+          {summary.amountMismatch && (
+            <p className="text-xs font-medium text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-2">
+              The AI-extracted total ({money(summary.extractedAmount)}) doesn't match the amount entered ({money(invoiceAmount)}) — worth double-checking.
+            </p>
+          )}
+
+          <button
+            onClick={() => setShowDetails((v) => !v)}
+            className="text-xs font-semibold text-1a4a45 hover:underline"
+          >
+            {showDetails ? 'Hide details' : 'View extracted details'}
+          </button>
+
+          {showDetails && (
+            <>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <p className="text-xs text-gray-400">Invoice number</p>
+                  <p className="text-gray-800 font-medium">{summary.invoiceNumber || '—'}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400">Vendor</p>
+                  <p className="text-gray-800 font-medium">{summary.vendorName || '—'}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400">Invoice date</p>
+                  <p className="text-gray-800 font-medium">{summary.invoiceDate || '—'}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400">Due date</p>
+                  <p className="text-gray-800 font-medium">{summary.dueDate || '—'}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400">Extracted total</p>
+                  <p className="text-gray-800 font-medium">{money(summary.extractedAmount)}</p>
+                </div>
+              </div>
+
+              {summary.lineItems?.length > 0 && (
+                <div className="border border-gray-100 rounded-xl overflow-hidden">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="bg-gray-50 text-gray-500">
+                        <th className="text-left font-semibold px-3 py-2">Description</th>
+                        <th className="text-left font-semibold px-3 py-2">Qty</th>
+                        <th className="text-left font-semibold px-3 py-2">Unit Price</th>
+                        <th className="text-left font-semibold px-3 py-2">Line Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {summary.lineItems.map((li, i) => (
+                        <tr key={i} className="border-t border-gray-50">
+                          <td className="text-left px-3 py-2 text-gray-700">{li.description || '—'}</td>
+                          <td className="text-left px-3 py-2 text-gray-500">{li.quantity ?? '—'}</td>
+                          <td className="text-left px-3 py-2 text-gray-500">{money(li.unitPrice)}</td>
+                          <td className="text-left px-3 py-2 text-gray-500">{money(li.lineTotal)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
+
+      {!hasResult && summary?.raw && (
+        <p className="text-xs text-gray-400 mt-2">The AI couldn't structure this invoice reliably — try re-summarising, or check the file quality.</p>
+      )}
+    </div>
+  );
+}
+
+function InvoicePreviewModal({ open, onClose, fileUrl, fileName, invoiceId, invoiceAmount, aiSummary, onSummarised }) {
   useEffect(() => {
     const handleKey = (e) => { if (e.key === 'Escape') onClose(); };
     if (open) document.addEventListener('keydown', handleKey);
@@ -96,6 +221,15 @@ function InvoicePreviewModal({ open, onClose, fileUrl, fileName }) {
             </div>
           )}
         </div>
+
+        {invoiceId && (
+          <AiSummaryPanel
+            invoiceId={invoiceId}
+            invoiceAmount={invoiceAmount}
+            summary={aiSummary}
+            onSummarised={onSummarised}
+          />
+        )}
       </div>
     </div>
   );
@@ -170,7 +304,7 @@ function InvoiceRow({ invoice, onStatusChange, onPreview, updatingId }) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <button
-            onClick={() => onPreview(invoice._id, invoice.fileName)}
+            onClick={() => onPreview(invoice)}
             className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-lg shrink-0 hover:bg-gray-200 transition"
             title="Preview invoice"
           >
@@ -179,7 +313,7 @@ function InvoiceRow({ invoice, onStatusChange, onPreview, updatingId }) {
 
           {/* <div className="flex-1 min-w-0"> */}
             <button
-              onClick={() => onPreview(invoice._id, invoice.fileName)}
+              onClick={() => onPreview(invoice)}
               className="text-sm font-semibold text-1a4a45 hover:underline truncate block text-left"
             >
               {invoice.fileName}
@@ -268,7 +402,7 @@ export default function DeveloperInvoices() {
   const [error, setError] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [updatingId, setUpdatingId] = useState(null);
-  const [preview, setPreview] = useState({ open: false, url: '', name: '' });
+  const [preview, setPreview] = useState({ open: false, url: '', name: '', invoiceId: '', amount: 0, aiSummary: null });
 
   const fetchInvoices = async () => {
     try {
@@ -295,16 +429,31 @@ export default function DeveloperInvoices() {
     }
   };
 
-  const handlePreview = async (invoiceId, fileName) => {
+  const handlePreview = async (invoice) => {
     try {
-      const res = await api.get(`/invoices/${invoiceId}/download`);
-      setPreview({ open: true, url: res.data.url, name: fileName });
+      const res = await api.get(`/invoices/${invoice._id}/download`);
+      setPreview({
+        open: true,
+        url: res.data.url,
+        name: invoice.fileName,
+        invoiceId: invoice._id,
+        amount: invoice.amount,
+        aiSummary: invoice.aiSummary || null,
+      });
     } catch (err) {
       console.error('Failed to get invoice link', err);
     }
   };
 
-  const closePreview = () => setPreview({ open: false, url: '', name: '' });
+  const closePreview = () => setPreview({ open: false, url: '', name: '', invoiceId: '', amount: 0, aiSummary: null });
+
+  const handleSummarised = (aiSummary) => {
+    setPreview((p) => ({ ...p, aiSummary }));
+    setGroups((prev) => prev.map((g) => ({
+      ...g,
+      invoices: g.invoices.map((inv) => (inv._id === preview.invoiceId ? { ...inv, aiSummary } : inv)),
+    })));
+  };
 
   const filteredGroups = groups
     .map(g => ({
@@ -404,6 +553,10 @@ export default function DeveloperInvoices() {
         onClose={closePreview}
         fileUrl={preview.url}
         fileName={preview.name}
+        invoiceId={preview.invoiceId}
+        invoiceAmount={preview.amount}
+        aiSummary={preview.aiSummary}
+        onSummarised={handleSummarised}
       />
     </div>
   );

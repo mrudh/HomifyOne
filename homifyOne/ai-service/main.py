@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
-import json, os, re, numpy as np
+import json, os, re, requests, numpy as np
 from sentence_transformers import SentenceTransformer
 import faiss
 from dotenv import load_dotenv
@@ -641,6 +641,103 @@ def assistant_chat(req: AssistantRequest):
         reply = "I couldn't reach the assistant service just now, please try again in a moment."
 
     return {"reply": reply, "blocked": False, "products": matched_products}
+
+
+class InvoiceSummariseRequest(BaseModel):
+    file_url: str
+    file_name: str
+
+
+INVOICE_EXTRACTION_PROMPT = """You are an invoice data-extraction assistant for HomifyOne, a homebuilding platform. You will be given a supplier invoice file (PDF or image). Extract the following fields and respond with STRICT JSON ONLY — no markdown code fences, no commentary, no text before or after the JSON object:
+
+{
+  "summary": string,
+  "invoice_number": string or null,
+  "vendor_name": string or null,
+  "invoice_date": string or null,
+  "due_date": string or null,
+  "total_amount": number or null,
+  "line_items": [
+    { "description": string, "quantity": number or null, "unit_price": number or null, "line_total": number or null }
+  ]
+}
+
+Rules:
+- "summary" must be 2-4 plain-English sentences, written for a busy developer who has not opened the file. Say who the invoice is from, its number and date if present, the total amount, and briefly what it's for based on the line items. Plain prose only — no bullet points, no jargon, no field names.
+- "total_amount" and all line item numbers must be plain numbers with no currency symbol or thousands separators.
+- Use null for any field that isn't present on the document. Use an empty array for line_items if none can be identified.
+- Only report values that are genuinely printed on the invoice — do not guess, estimate, or fabricate anything.
+- Dates should be written exactly as they appear on the invoice (e.g. "12 Jan 2026")."""
+
+
+def extract_json_block(text: str):
+    cleaned = re.sub(r"^```(json)?", "", text.strip(), flags=re.IGNORECASE).strip()
+    cleaned = re.sub(r"```$", "", cleaned).strip()
+    start, end = cleaned.find("{"), cleaned.rfind("}")
+    if start == -1 or end == -1 or end < start:
+        return None
+    try:
+        return json.loads(cleaned[start:end + 1])
+    except Exception:
+        return None
+
+
+MIME_TYPES = {"pdf": "application/pdf", "jpg": "image/jpeg", "jpeg": "image/jpeg", "png": "image/png"}
+
+
+@app.post("/invoice/summarise")
+def summarise_invoice(req: InvoiceSummariseRequest):
+    if not gemini_model:
+        raise HTTPException(status_code=503, detail="The AI summariser isn't configured yet.")
+
+    ext = req.file_name.rsplit(".", 1)[-1].lower() if "." in req.file_name else ""
+    mime_type = MIME_TYPES.get(ext)
+    if not mime_type:
+        raise HTTPException(status_code=400, detail="Unsupported file type for summarisation.")
+
+    try:
+        resp = requests.get(req.file_url, timeout=20)
+        resp.raise_for_status()
+        file_bytes = resp.content
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Couldn't download the invoice file: {e}")
+
+    try:
+        result = gemini_model.generate_content([
+            INVOICE_EXTRACTION_PROMPT,
+            {"mime_type": mime_type, "data": file_bytes},
+        ])
+        raw_text = getattr(result, "text", "") or ""
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"AI extraction failed: {e}")
+
+    parsed = extract_json_block(raw_text)
+    if parsed is None:
+        return {"success": False, "message": "Couldn't reliably extract structured data from this invoice.", "raw": raw_text[:1000]}
+
+    line_items_raw = parsed.get("line_items")
+    line_items = []
+    if isinstance(line_items_raw, list):
+        for li in line_items_raw:
+            if not isinstance(li, dict):
+                continue
+            line_items.append({
+                "description": li.get("description") or "",
+                "quantity": li.get("quantity"),
+                "unitPrice": li.get("unit_price"),
+                "lineTotal": li.get("line_total"),
+            })
+
+    return {
+        "success": True,
+        "summary": parsed.get("summary") or "",
+        "invoiceNumber": parsed.get("invoice_number") or "",
+        "vendorName": parsed.get("vendor_name") or "",
+        "invoiceDate": parsed.get("invoice_date") or "",
+        "dueDate": parsed.get("due_date") or "",
+        "extractedAmount": parsed.get("total_amount"),
+        "lineItems": line_items,
+    }
 
 
 # /health
