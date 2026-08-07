@@ -44,6 +44,7 @@ app.use('/api/meetings', require('./routes/meetings.routes'));
 app.use('/api/notifications', require('./routes/notification.routes'));
 app.use('/api/chat', require('./routes/chat.routes'));
 app.use('/api/assistant', require('./routes/assistant.routes'));
+app.use('/api/analytics', require('./routes/analytics.routes'));
 
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
