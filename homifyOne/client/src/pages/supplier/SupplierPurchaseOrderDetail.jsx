@@ -324,6 +324,9 @@ export default function SupplierPurchaseOrderDetail() {
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-gray-800 truncate">{item.name}</p>
                   <p className="text-xs text-gray-400 truncate">{item.room} · {item.category}</p>
+                  {item.product?._id && (
+                    <p className="text-[11px] text-gray-400 font-mono truncate mt-0.5">ID: {item.product._id}</p>
+                  )}
                 </div>
                 <div className="text-right shrink-0">
                   <p className="text-sm font-bold text-gray-800">£{item.price.toLocaleString()}</p>
