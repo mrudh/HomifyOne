@@ -36,6 +36,7 @@ import AdminLayout from './layout/AdminLayout';
 import ManageUsersPage from './pages/admin/ManageUsersPage';
 import ManageProductsPage from './pages/admin/ManageProductsPage';
 import BuyerPropertiesPage from './pages/admin/BuyerPropertiesPage';
+import AdminAnalyticsPage from './pages/admin/AdminAnalyticsPage';
 
 export default function App() {
   return (
@@ -77,6 +78,7 @@ export default function App() {
               <Route path="/admin/users" element={<ManageUsersPage />} />
               <Route path="/admin/products" element={<ManageProductsPage />} />
               <Route path="/admin/properties" element={<BuyerPropertiesPage />} />
+              <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />
             </Route>
           </Route>
 

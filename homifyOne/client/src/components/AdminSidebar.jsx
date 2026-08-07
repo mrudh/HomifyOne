@@ -6,6 +6,7 @@ const navItems = [
   { label: 'Manage Users', icon: '👤', path: '/admin/users' },
   { label: 'Manage Products', icon: '📦', path: '/admin/products' },
   { label: 'Buyer Properties', icon: '🏡', path: '/admin/properties' },
+  { label: 'Analytics', icon: '📊', path: '/admin/analytics' },
 ];
 
 export default function AdminSidebar({ open, onClose }) {

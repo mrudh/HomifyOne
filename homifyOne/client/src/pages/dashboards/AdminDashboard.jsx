@@ -8,11 +8,11 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-[#f8f7f4]">
       <div className="bg-white border-b border-gray-100 px-6 py-6">
-        <h1 className="text-2xl font-bold text-gray-900">Welcome, {user?.name || 'Admin'}</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Welcome, Admin</h1>
         <p className="text-sm text-gray-400 mt-1">Manage accounts and the product catalogue.</p>
       </div>
 
-      <div className="px-6 py-6 max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="px-6 py-6 max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <button
           onClick={() => navigate('/admin/users')}
           className="text-left bg-white rounded-2xl border border-gray-100 shadow-sm p-6 hover:border-[#1a4a45] transition"
@@ -38,6 +38,15 @@ const AdminDashboard = () => {
           <p className="text-2xl mb-2">🏡</p>
           <h2 className="font-bold text-gray-900">Buyer Properties</h2>
           <p className="text-sm text-gray-400 mt-1">See every buyer's plot, developer, and floor plan at a glance.</p>
+        </button>
+
+        <button
+          onClick={() => navigate('/admin/analytics')}
+          className="text-left bg-white rounded-2xl border border-gray-100 shadow-sm p-6 hover:border-[#1a4a45] transition"
+        >
+          <p className="text-2xl mb-2">📊</p>
+          <h2 className="font-bold text-gray-900">Analytics</h2>
+          <p className="text-sm text-gray-400 mt-1">Platform-wide visibility into buyer progress, product trends, and supplier performance.</p>
         </button>
       </div>
     </div>
