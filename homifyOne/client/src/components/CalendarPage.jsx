@@ -149,9 +149,9 @@ export default function CalendarPage() {
 
   return (
     <div className="min-h-screen bg-[#f8f7f4]">
-      <div className="bg-white border-b border-gray-100 px-6 py-4 sticky top-0 z-10">
-        <div>
-          <h1 className="text-md sm:text-2md font-bold text-gray-900">Calendar</h1>
+      <div className="bg-white border-b border-gray-100 px-4 sm:px-6 py-5 flex flex-wrap items-center justify-between gap-3 sticky top-0 z-10">
+        <div className="text-left">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Calendar</h1>
           <p className="text-xs text-gray-400 mt-0.5">Meetings, deadlines and delivery ETAs</p>
         </div>
         {isDeveloper && (

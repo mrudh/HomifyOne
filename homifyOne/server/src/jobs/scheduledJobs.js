@@ -1,7 +1,6 @@
 const Plot = require('../models/Plot');
 const PurchaseOrder = require('../models/PurchaseOrder');
 const { notify } = require('../services/notification.service');
-const { sendNotificationEmail } = require('../utils/emailService');
 
 const DEADLINE_THRESHOLDS = [7, 3, 1];
 const STALE_PO_HOURS = 48;
@@ -45,14 +44,6 @@ exports.sendDeadlineReminders = async () => {
       message,
       link: '/buyer/dashboard',
     });
-
-    if (plot.buyer.email) {
-      try {
-        await sendNotificationEmail(plot.buyer.email, plot.buyer.name, title, message);
-      } catch (err) {
-        console.error(`sendDeadlineReminders: email failed for ${plot.buyer.email}:`, err.message);
-      }
-    }
 
     plot.deadlineRemindersSent = [...(plot.deadlineRemindersSent || []), diff];
     await plot.save();

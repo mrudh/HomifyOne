@@ -38,14 +38,18 @@ async function syncMeeting(meeting) {
 
   await Promise.all([
     notify({
-      user: meeting.buyer,
+      recipient: meeting.buyer,
       type: 'meeting_scheduled',
+      title: 'Meeting scheduled',
       message: `A meeting has been scheduled for ${meeting.scheduledAt.toLocaleDateString('en-GB')}.`,
+      link: '/buyer/calendar',
     }),
     notify({
-      user: meeting.developer,
+      recipient: meeting.developer,
       type: 'meeting_scheduled',
+      title: 'Meeting confirmed',
       message: `Meeting with buyer confirmed for ${meeting.scheduledAt.toLocaleDateString('en-GB')}.`,
+      link: '/developer/calendar',
     }),
   ]);
 
@@ -88,11 +92,6 @@ async function syncSupplierEta(purchaseOrder) {
     createdBy: purchaseOrder.supplier,
   });
 
-  await notify({
-    user: purchaseOrder.developer,
-    type: 'eta_updated',
-    message: `Supplier set delivery ETA to ${purchaseOrder.eta.toLocaleDateString('en-GB')}.`,
-  });
 
   return event;
 }

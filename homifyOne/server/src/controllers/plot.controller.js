@@ -3,9 +3,7 @@ const Order = require('../models/Order');
 const PurchaseOrder = require('../models/PurchaseOrder');
 const Invoice = require('../models/Invoice');
 const Selection = require('../models/Selection');
-const User = require('../models/User');
 const { notify } = require('../services/notification.service');
-const { sendNotificationEmail } = require('../utils/emailService');
 
 exports.createPlot = async (req, res, next) => {
   try {
@@ -162,15 +160,6 @@ exports.sendDeliveryUpdate = async (req, res, next) => {
       message: trimmed,
       link: '/buyer/dashboard',
     });
-
-    const buyer = await User.findById(plot.buyer).select('name email');
-    if (buyer?.email) {
-      try {
-        await sendNotificationEmail(buyer.email, buyer.name, 'Update from your developer', trimmed);
-      } catch (err) {
-        console.error('sendDeliveryUpdate: email failed for', buyer.email, err.message);
-      }
-    }
 
     res.json({ success: true, message: 'Update sent to buyer.' });
   } catch (err) { next(err); }
