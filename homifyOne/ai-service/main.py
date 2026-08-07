@@ -540,8 +540,8 @@ def format_buyer_context(buyer_context: dict) -> str:
     if not buyer_context:
         return "No buyer/order data was provided."
     lines = []
-    for key in ["plotNumber", "development", "extrasAllowance", "orderStatus", "orderTotal",
-                "credit", "promoCode", "basketItemCount", "basketSubtotal"]:
+    for key in ["plotNumber", "development", "extrasAllowance", "usedAmount", "remainingAmount",
+                "orderStatus", "orderTotal", "credit", "promoCode", "basketItemCount", "basketSubtotal"]:
         if key in buyer_context and buyer_context[key] not in (None, ""):
             lines.append(f"- {key}: {buyer_context[key]}")
     return "\n".join(lines) if lines else "No buyer/order data was provided."
@@ -574,6 +574,18 @@ construction background.
 price, and style in your text — the app already shows those products as clickable cards right \
 below your reply. Just refer to them briefly and naturally (e.g. "here are a few options that would \
 suit a family kitchen") and let the cards show the details.
+8. Respond with STRICT JSON ONLY — no markdown code fences, no commentary before or after — in \
+exactly this shape: {{"answer": "<your reply, following every rule above>", "suggestions": \
+["<question 1>", "<question 2>", "<question 3>"]}}. "suggestions" must contain 2-4 short, natural \
+follow-up questions a buyer might reasonably ask next, based on your answer and the conversation so \
+far. Ground every suggestion strictly in BUYER CONTEXT and RETRIEVED CONTEXT — never suggest a \
+question about a product, feature, or topic that isn't actually covered there. If you are refusing \
+per rule 2, return "suggestions" as an empty array.
+9. If asked how much of the extras allowance has been used or how much remains, use the \
+"usedAmount" and "remainingAmount" fields from BUYER CONTEXT directly — these already account for \
+approved and submitted orders. Do not calculate or infer this from "orderTotal", which is only the \
+buyer's single most recent order regardless of its status, and is unrelated to allowance usage. If \
+"usedAmount" isn't present in BUYER CONTEXT, say you don't have that information rather than guessing.
 """.format(refusal=REFUSAL_MESSAGE)
 
 
@@ -621,26 +633,36 @@ def assistant_chat(req: AssistantRequest):
         message = message[:MAX_MESSAGE_LENGTH]
 
     if detect_injection_attempt(message):
-        return {"reply": REFUSAL_MESSAGE, "blocked": True}
+        return {"reply": REFUSAL_MESSAGE, "blocked": True, "products": [], "suggestions": []}
 
     if not gemini_model:
         return {
             "reply": "The assistant isn't configured yet",
             "blocked": False,
             "products": [],
+            "suggestions": [],
         }
 
     retrieved_text, matched_products = retrieve_assistant_context(message)
     prompt = build_assistant_prompt(message, req.history or [], req.buyer_context or {}, retrieved_text)
 
+    suggestions = []
     try:
         result = gemini_model.generate_content(prompt)
-        reply = validate_output(getattr(result, "text", "") or "")
+        raw_text = getattr(result, "text", "") or ""
+        parsed = extract_json_block(raw_text)
+        if parsed and isinstance(parsed, dict) and "answer" in parsed:
+            reply = validate_output(str(parsed.get("answer") or ""))
+            raw_suggestions = parsed.get("suggestions") or []
+            if isinstance(raw_suggestions, list):
+                suggestions = [str(s).strip() for s in raw_suggestions if str(s).strip()][:4]
+        else:
+            reply = validate_output(raw_text)
     except Exception as e:
         print(f"⚠️  Gemini call failed: {e}")
         reply = "I couldn't reach the assistant service just now, please try again in a moment."
 
-    return {"reply": reply, "blocked": False, "products": matched_products}
+    return {"reply": reply, "blocked": False, "products": matched_products, "suggestions": suggestions}
 
 
 class InvoiceSummariseRequest(BaseModel):
@@ -663,7 +685,7 @@ INVOICE_EXTRACTION_PROMPT = """You are an invoice data-extraction assistant for 
 }
 
 Rules:
-- "summary" must be 2-4 plain-English sentences, written for a busy developer who has not opened the file. Say who the invoice is from, its number and date if present, the total amount, and briefly what it's for based on the line items. Plain prose only — no bullet points, no jargon, no field names.
+- "summary" must be 2-4 plain English sentences, written for a busy developer who has not opened the file. Say who the invoice is from, its number and date if present, the total amount, and briefly what it's for based on the line items. Plain prose only — no bullet points, no jargon, no field names.
 - "total_amount" and all line item numbers must be plain numbers with no currency symbol or thousands separators.
 - Use null for any field that isn't present on the document. Use an empty array for line_items if none can be identified.
 - Only report values that are genuinely printed on the invoice — do not guess, estimate, or fabricate anything.

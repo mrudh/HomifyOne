@@ -36,7 +36,7 @@ function MessageBubble({ role, content, products, onProductClick }) {
   return (
     <div className={`flex flex-col ${mine ? 'items-end' : 'items-start'} gap-2`}>
       <div
-        className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap ${
+        className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap text-left ${
           mine
             ? 'bg-[#1a4a45] text-white rounded-br-sm'
             : 'bg-gray-100 text-gray-800 rounded-bl-sm'
@@ -92,7 +92,7 @@ export default function AssistantPage() {
       });
       setMessages((prev) => [
         ...prev,
-        { role: 'assistant', content: data.reply, products: data.products || [] },
+        { role: 'assistant', content: data.reply, products: data.products || [], suggestions: data.suggestions || [] },
       ]);
     } catch (err) {
       setError(err.response?.data?.message || 'The assistant is unavailable right now.');
@@ -110,6 +110,12 @@ export default function AssistantPage() {
     const slug = product.name.toLowerCase().replace(/\s+/g, '-');
     navigate(`/buyer/extras/${slug}`, { state: { product } });
   };
+
+  // Follow-up
+  const lastAssistantMessage = [...messages].reverse().find((m) => m.role === 'assistant');
+  const activePrompts = lastAssistantMessage?.suggestions?.length
+    ? lastAssistantMessage.suggestions
+    : QUICK_PROMPTS;
 
   return (
     <div className="min-h-screen bg-[#f8f7f4] flex flex-col">
@@ -143,7 +149,7 @@ export default function AssistantPage() {
           </div>
 
           <div className="flex gap-2 flex-wrap px-4 sm:px-5 pb-4 sm:pb-5 pt-2 border-t border-gray-100">
-            {QUICK_PROMPTS.map((p) => (
+            {activePrompts.map((p) => (
               <button
                 key={p}
                 onClick={() => send(p)}

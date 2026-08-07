@@ -29,6 +29,14 @@ async function buildBuyerContext(user, basket) {
     context.orderTotal = latestOrder.pricing?.finalTotal;
   }
 
+  if (plot && typeof plot.extrasAllowance === 'number') {
+    const approvedOrders = await Order.find({ plot: plot._id, status: 'approved' });
+    const approvedSpend = approvedOrders.reduce((sum, o) => sum + (o.pricing?.finalTotal || 0), 0);
+    const submittedExtra = latestOrder?.status === 'submitted' ? (latestOrder.pricing?.finalTotal || 0) : 0;
+    context.usedAmount = approvedSpend + submittedExtra;
+    context.remainingAmount = plot.extrasAllowance - context.usedAmount;
+  }
+
   if (user.credit > 0) context.credit = user.credit;
 
   if (user.promoCode) {
@@ -68,7 +76,13 @@ router.post('/chat', verifyToken, authorise('buyer'), async (req, res) => {
       buyer_context: buyerContext,
     });
 
-    res.json({ success: true, reply: data.reply, blocked: !!data.blocked, products: data.products || [] });
+    res.json({
+      success: true,
+      reply: data.reply,
+      blocked: !!data.blocked,
+      products: data.products || [],
+      suggestions: data.suggestions || [],
+    });
   } catch (err) {
     console.error('Assistant chat error:', err.message);
     res.status(500).json({ success: false, message: 'Assistant is unavailable right now.' });
