@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
+import PlotFilterDropdown from '../../components/PlotFilterDropdown';
 
 const STATUS_STYLES = {
   pending: { label: 'Pending', cls: 'bg-yellow-100 text-yellow-700' },
@@ -22,6 +23,7 @@ export default function SupplierPurchaseOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('all');
+  const [plotFilter, setPlotFilter] = useState([]);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -39,9 +41,15 @@ export default function SupplierPurchaseOrders() {
     fetchOrders();
   }, []);
 
-  const filtered = statusFilter === 'all'
-    ? orders
-    : orders.filter((o) => o.status === statusFilter);
+  const plotOptions = Array.from(
+    new Map(orders.filter((o) => o.plot).map((o) => [o.plot._id, o.plot])).values()
+  );
+
+  const filtered = orders.filter((o) => {
+    if (statusFilter !== 'all' && o.status !== statusFilter) return false;
+    if (plotFilter.length > 0 && !plotFilter.includes(o.plot?._id)) return false;
+    return true;
+  });
 
   const totals = {
     all: orders.length,
@@ -62,7 +70,7 @@ export default function SupplierPurchaseOrders() {
   return (
     <div className="min-h-screen bg-f8f7f4">
       <div className="bg-white border-b border-gray-100 px-6 py-4 sticky top-0 z-10">
-        <h1 className="text-xl font-bold text-gray-900">Purchase Orders</h1>
+        <h1 className="text-md font-bold text-gray-900">Purchase Orders</h1>
         <p className="text-xs text-gray-400 mt-0.5">Orders assigned to you from developers</p>
       </div>
 
@@ -73,12 +81,16 @@ export default function SupplierPurchaseOrders() {
           </div>
         )}
 
-        <div className="flex gap-2 mb-6">
+        <div className="mb-4">
+          <PlotFilterDropdown plots={plotOptions} selected={plotFilter} onChange={setPlotFilter} />
+        </div>
+
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap sm:overflow-visible">
           {['all', 'pending', 'sent', 'fulfilled'].map((s) => (
             <button
               key={s}
               onClick={() => setStatusFilter(s)}
-              className={`text-sm font-medium px-4 py-2 rounded-xl border transition ${
+              className={`text-sm font-medium px-4 py-2 rounded-xl border transition shrink-0 whitespace-nowrap ${
                 statusFilter === s
                   ? 'bg-1a4a45 text-black border-1a4a45'
                   : 'bg-white text-gray-500 border-gray-200 hover:border-1a4a45'
@@ -96,46 +108,48 @@ export default function SupplierPurchaseOrders() {
           </div>
         ) : (
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b border-gray-100">
-                <tr>
-                  <th className="text-left px-5 py-3 font-semibold text-gray-500">Plot</th>
-                  <th className="text-left px-5 py-3 font-semibold text-gray-500">Developer</th>
-                  <th className="text-left px-5 py-3 font-semibold text-gray-500">Items</th>
-                  <th className="text-left px-5 py-3 font-semibold text-gray-500">Total</th>
-                  <th className="text-left px-5 py-3 font-semibold text-gray-500">Status</th>
-                  <th className="text-left px-5 py-3 font-semibold text-gray-500">Date</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {filtered.map((order) => (
-                  <tr key={order._id} className="hover:bg-gray-50 transition">
-                    <td className="px-5 py-4">
-                      <div className="font-semibold text-gray-800">{order.plot?.plotNumber}</div>
-                      <div className="text-xs text-gray-400">{order.plot?.development}</div>
-                    </td>
-                    <td className="px-5 py-4 text-gray-600">{order.developer?.name}</td>
-                    <td className="px-5 py-4 text-gray-600">{order.items.length} items</td>
-                    <td className="px-5 py-4 font-semibold text-gray-800">
-                      £{order.totalCost.toLocaleString()}
-                    </td>
-                    <td className="px-5 py-4"><StatusBadge status={order.status} /></td>
-                    <td className="px-5 py-4 text-gray-400 text-xs">
-                      {new Date(order.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-                    </td>
-                    <td className="px-5 py-4 text-right">
-                      <button
-                        onClick={() => navigate(`/supplier/purchase-orders/${order._id}`)}
-                        className="text-1a4a45 text-sm font-medium hover:underline"
-                      >
-                        View
-                      </button>
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[760px] text-sm">
+                <thead className="bg-gray-50 border-b border-gray-100">
+                  <tr>
+                    <th className="text-left px-5 py-3 font-semibold text-gray-500 whitespace-nowrap">Plot</th>
+                    <th className="text-left px-5 py-3 font-semibold text-gray-500 whitespace-nowrap">Developer</th>
+                    <th className="text-left px-5 py-3 font-semibold text-gray-500 whitespace-nowrap">Items</th>
+                    <th className="text-left px-5 py-3 font-semibold text-gray-500 whitespace-nowrap">Total</th>
+                    <th className="text-left px-5 py-3 font-semibold text-gray-500 whitespace-nowrap">Status</th>
+                    <th className="text-left px-5 py-3 font-semibold text-gray-500 whitespace-nowrap">Date</th>
+                    <th></th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {filtered.map((order) => (
+                    <tr key={order._id} className="hover:bg-gray-50 transition">
+                      <td className="text-left px-5 py-4 whitespace-nowrap">
+                        <div className="font-semibold text-gray-800">{order.plot?.plotNumber}</div>
+                        <div className="text-xs text-gray-400">{order.plot?.development}</div>
+                      </td>
+                      <td className="text-left px-5 py-4 text-gray-600 whitespace-nowrap">{order.developer?.name}</td>
+                      <td className="text-left px-5 py-4 text-gray-600 whitespace-nowrap">{order.items.length} items</td>
+                      <td className="text-left px-5 py-4 font-semibold text-gray-800 whitespace-nowrap">
+                        £{order.totalCost.toLocaleString()}
+                      </td>
+                      <td className="text-left px-5 py-4 whitespace-nowrap"><StatusBadge status={order.status} /></td>
+                      <td className="text-left px-5 py-4 text-gray-400 text-xs whitespace-nowrap">
+                        {new Date(order.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </td>
+                      <td className="px-5 py-4 text-right whitespace-nowrap">
+                        <button
+                          onClick={() => navigate(`/supplier/purchase-orders/${order._id}`)}
+                          className="text-1a4a45 text-sm font-medium hover:underline"
+                        >
+                          View
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>

@@ -26,7 +26,7 @@ export default function NotificationsPage() {
   return (
     <div className="min-h-screen bg-[#f8f8f6] pb-10">
       <div className="bg-white border-b border-gray-100 sticky top-0 z-10 px-4 sm:px-6 py-4">
-        <div className="max-w-3xl mx-auto flex items-center justify-between">
+        <div className="bg-white border-b border-gray-100 px-6 py-4 sticky top-0 z-10">
           <div>
             <h1 className="text-md font-extrabold text-gray-900">Notifications</h1>
             <p className="text-xs text-gray-400 mt-0.5">
@@ -35,7 +35,7 @@ export default function NotificationsPage() {
           </div>
           {unreadCount > 0 && (
             <button onClick={markAllRead}
-              className="text-sm text-[#1a4a45] font-semibold hover:underline">
+              className="text-sm text-[#1a4a45] font-semibold hover:underline whitespace-nowrap shrink-0">
               Mark all as read
             </button>
           )}

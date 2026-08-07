@@ -222,9 +222,9 @@ export default function SupplierPurchaseOrderDetail() {
   return (
     <div className="min-h-screen bg-[#f8f7f4]">
       <div className="bg-white border-b border-gray-100 px-6 py-4 sticky top-0 z-10 flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-gray-900">Purchase Order Detail</h1>
-          <p className="text-xs text-gray-400 mt-0.5">Plot {order.plot?.plotNumber} — {order.plot?.development}</p>
+        <div className='text-left'>
+          <h1 className="text-md font-bold text-gray-900">Purchase Order Detail</h1>
+          <p className="text-xs text-gray-400 mt-0.5">Plot {order.plot?.plotNumber} - {order.plot?.development}</p>
         </div>
         <button onClick={() => navigate('/supplier/purchase-orders')} className="text-sm text-[#1a4a45] font-medium hover:underline">
           Back to Orders
@@ -369,7 +369,7 @@ export default function SupplierPurchaseOrderDetail() {
                   <p className="text-sm font-medium text-gray-700">
                     <span className="text-[#1a4a45] font-semibold">Click to upload</span> or drag and drop
                   </p>
-                  <p className="text-xs text-gray-400">PDF, JPG or PNG — up to 10MB</p>
+                  <p className="text-xs text-gray-400">PDF, JPG or PNG - up to 10MB</p>
                   <input
                     ref={fileInputRef}
                     type="file"

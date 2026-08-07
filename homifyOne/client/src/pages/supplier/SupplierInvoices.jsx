@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import api from '../../services/api';
+import InvoicePreviewModal from '../../components/InvoicePreviewModal';
+import PlotFilterDropdown from '../../components/PlotFilterDropdown';
 
 const STATUS_STYLES = {
   submitted: { label: "Submitted", cls: "bg-green-100 text-gray-600" },
@@ -29,6 +31,8 @@ export default function SupplierInvoices() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [plotFilter, setPlotFilter] = useState([]);
+  const [preview, setPreview] = useState({ open: false, url: '', name: '' });
 
   useEffect(() => {
     api.get('/invoices/my')
@@ -37,16 +41,23 @@ export default function SupplierInvoices() {
       .finally(() => setLoading(false));
   }, []);
 
-  const handleView = async (invoiceId) => {
+  const handleView = async (invoice) => {
     try {
-      const res = await api.get(`/invoices/${invoiceId}/download`);
-      window.open(res.data.url, '_blank');
+      const res = await api.get(`/invoices/${invoice._id}/download`);
+      setPreview({ open: true, url: res.data.url, name: invoice.fileName });
     } catch (err) {
       console.error('Failed to get invoice link', err);
     }
   };
 
+  const closePreview = () => setPreview({ open: false, url: '', name: '' });
+
+  const plotOptions = Array.from(
+    new Map(groups.filter(g => g.plot).map(g => [g.plot._id, g.plot])).values()
+  );
+
   const filteredGroups = groups
+    .filter(g => plotFilter.length === 0 || plotFilter.includes(g.plot?._id))
     .map(g => ({
       ...g,
       invoices: statusFilter === 'all'
@@ -74,7 +85,7 @@ export default function SupplierInvoices() {
   return (
     <div className="min-h-screen bg-f8f7f4">
       <div className="bg-white border-b border-gray-100 px-6 py-4 sticky top-0 z-10">
-        <h1 className="text-xl font-bold text-gray-900">Invoice History</h1>
+        <h1 className="text-md font-bold text-gray-900">Invoice History</h1>
         <p className="text-xs text-gray-400 mt-0.5">Your submitted invoices, grouped by plot</p>
       </div>
 
@@ -84,6 +95,10 @@ export default function SupplierInvoices() {
             {error}
           </div>
         )}
+
+        <div className="mb-2">
+          <PlotFilterDropdown plots={plotOptions} selected={plotFilter} onChange={setPlotFilter} />
+        </div>
 
         <div className="flex gap-2 mb-2 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap sm:overflow-visible">
           {['all', 'submitted', 'pending', 'paid', 'flagged'].map(s => (
@@ -125,12 +140,16 @@ export default function SupplierInvoices() {
               <div className="divide-y divide-gray-50">
                 {group.invoices.map((inv) => (
                   <div key={inv._id} className="flex items-center gap-4 px-5 py-4 justify-between">
-                    <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-lg shrink-0">
+                    <button
+                      onClick={() => handleView(inv)}
+                      className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-lg shrink-0 hover:bg-gray-200 transition cursor-pointer"
+                      aria-label="Preview invoice"
+                    >
                       {fileIcon(inv.fileName)}
-                    </div>
-                    
+                    </button>
+
                       <button
-                        onClick={() => handleView(inv._id)}
+                        onClick={() => handleView(inv)}
                         className="text-sm font-semibold text-1a4a45 hover:underline truncate block text-left"
                       >
                         {inv.fileName}
@@ -156,6 +175,13 @@ export default function SupplierInvoices() {
           ))
         )}
       </div>
+
+      <InvoicePreviewModal
+        open={preview.open}
+        onClose={closePreview}
+        fileUrl={preview.url}
+        fileName={preview.name}
+      />
     </div>
   );
 }

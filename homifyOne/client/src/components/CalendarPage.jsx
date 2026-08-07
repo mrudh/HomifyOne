@@ -149,15 +149,15 @@ export default function CalendarPage() {
 
   return (
     <div className="min-h-screen bg-[#f8f7f4]">
-      <div className="bg-white border-b border-gray-100 px-4 sm:px-6 py-5 flex flex-wrap items-center justify-between gap-3 sticky top-0 z-10">
+      <div className="bg-white border-b border-gray-100 px-6 py-4 sticky top-0 z-10">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Calendar</h1>
+          <h1 className="text-md sm:text-2md font-bold text-gray-900">Calendar</h1>
           <p className="text-xs text-gray-400 mt-0.5">Meetings, deadlines and delivery ETAs</p>
         </div>
         {isDeveloper && (
           <button
             onClick={openModal}
-            className="bg-[#1a4a45] text-white px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#2d6b62] transition"
+            className="bg-[#1a4a45] text-white px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#2d6b62] transition whitespace-nowrap shrink-0"
           >
             + Add Meeting
           </button>
@@ -233,7 +233,7 @@ export default function CalendarPage() {
 
           {/* Day detail panel */}
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 h-fit">
-            <p className="text-xs font-semibold tracking-widest text-gray-400 mb-3">
+            <p className="text-xs font-semibold tracking-widest text-gray-400 mb-3 text-left">
               {selectedDate.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).toUpperCase()}
             </p>
 
@@ -279,7 +279,7 @@ export default function CalendarPage() {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl w-full max-w-md p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-gray-900">Schedule Meeting</h3>
+              <h3 className="text-lg font-bold text-gray-900 text-left">Schedule Meeting</h3>
               <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600 text-xl leading-none">✕</button>
             </div>
 
