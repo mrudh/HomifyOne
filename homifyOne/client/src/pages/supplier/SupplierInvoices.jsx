@@ -76,14 +76,14 @@ export default function SupplierInvoices() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-f8f7f4 flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-1a4a45 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-[#f8f7f4] flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-[#1a4a45] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-f8f7f4">
+    <div className="min-h-screen bg-[#f8f7f4]">
       <div className="bg-white border-b border-gray-100 px-6 py-4 sticky top-0 z-10">
         <h1 className="text-md font-bold text-gray-900">Invoice History</h1>
         <p className="text-xs text-gray-400 mt-0.5">Your submitted invoices, grouped by plot</p>
@@ -107,8 +107,8 @@ export default function SupplierInvoices() {
               onClick={() => setStatusFilter(s)}
               className={`text-sm font-medium px-4 py-2 rounded-xl border transition shrink-0 whitespace-nowrap ${
                 statusFilter === s
-                  ? 'bg-1a4a45 text-gray-500 border-1a4a45'
-                  : 'bg-white text-gray-500 border-gray-200 hover:border-1a4a45'
+                  ? 'bg-[#1a4a45] text-white border-[#1a4a45]'
+                  : 'bg-white text-gray-500 border-gray-200 hover:border-[#1a4a45]'
               }`}
             >
               {s === 'all' ? 'All' : s.charAt(0).toUpperCase() + s.slice(1)} ({totals[s] || (s === 'all' ? totals.all : 0)})
@@ -150,7 +150,7 @@ export default function SupplierInvoices() {
 
                       <button
                         onClick={() => handleView(inv)}
-                        className="text-sm font-semibold text-1a4a45 hover:underline truncate block text-left"
+                        className="text-sm font-semibold text-[#1a4a45] hover:underline truncate block text-left"
                       >
                         {inv.fileName}
                       </button>

@@ -55,7 +55,7 @@ function AiSummaryPanel({ invoiceId, invoiceAmount, summary, onSummarised }) {
         <button
           onClick={handleSummarise}
           disabled={loading}
-          className="text-xs font-semibold text-1a4a45 border border-1a4a45 rounded-lg px-3 py-1.5 hover:bg-e8f4f2 transition disabled:opacity-50"
+          className="text-xs font-semibold text-[#1a4a45] border border-[#1a4a45] rounded-lg px-3 py-1.5 hover:bg-[#e8f4f2] transition disabled:opacity-50"
         >
           {loading ? 'Summarising…' : hasResult ? 'Re-summarise' : 'Summarise with AI'}
         </button>
@@ -83,7 +83,7 @@ function AiSummaryPanel({ invoiceId, invoiceAmount, summary, onSummarised }) {
 
           <button
             onClick={() => setShowDetails((v) => !v)}
-            className="text-xs font-semibold text-1a4a45 hover:underline"
+            className="text-xs font-semibold text-[#1a4a45] hover:underline"
           >
             {showDetails ? 'Hide details' : 'View extracted details'}
           </button>
@@ -190,7 +190,7 @@ function InvoicePreviewModal({ open, onClose, fileUrl, fileName, invoiceId, invo
           <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={handleDownload}
-              className="text-xs font-semibold text-1a4a45 border border-1a4a45 rounded-lg px-3 py-1.5 hover:bg-e8f4f2 transition"
+              className="text-xs font-semibold text-[#1a4a45] border border-[#1a4a45] rounded-lg px-3 py-1.5 hover:bg-[#e8f4f2] transition"
             >
               Download
             </button>
@@ -215,7 +215,7 @@ function InvoicePreviewModal({ open, onClose, fileUrl, fileName, invoiceId, invo
             <div className="text-center py-16">
               <p className="text-4xl mb-3">📎</p>
               <p className="text-gray-500 text-sm">Preview not available for this file type.</p>
-              <button onClick={handleDownload} className="mt-4 text-sm font-semibold text-1a4a45 hover:underline">
+              <button onClick={handleDownload} className="mt-4 text-sm font-semibold text-[#1a4a45] hover:underline">
                 Download instead
               </button>
             </div>
@@ -267,7 +267,7 @@ function DeliveryUpdateBox({ plotId, onSent }) {
         onChange={(e) => { setMessage(e.target.value); setSent(false); }}
         placeholder='e.g. "All items have been delivered, installation in progress."'
         rows={2}
-        className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-1a4a45/20"
+        className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#1a4a45]/20"
       />
       <div className="flex items-center justify-between mt-2">
         <p className="text-xs">
@@ -277,7 +277,7 @@ function DeliveryUpdateBox({ plotId, onSent }) {
         <button
           onClick={handleSend}
           disabled={sending || !message.trim()}
-          className="bg-1a4a45 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-2d6b62 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-[#1a4a45] text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-[#2d6b62] transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {sending ? 'Sending...' : 'Send Update to Buyer'}
         </button>
@@ -314,7 +314,7 @@ function InvoiceRow({ invoice, onStatusChange, onPreview, updatingId }) {
           {/* <div className="flex-1 min-w-0"> */}
             <button
               onClick={() => onPreview(invoice)}
-              className="text-sm font-semibold text-1a4a45 hover:underline truncate block text-left"
+              className="text-sm font-semibold text-[#1a4a45] hover:underline truncate block text-left"
             >
               {invoice.fileName}
             </button>
@@ -379,7 +379,7 @@ function InvoiceRow({ invoice, onStatusChange, onPreview, updatingId }) {
             <button
               onClick={handleFlagSubmit}
               disabled={!flagReason.trim()}
-              className="flex-1 sm:flex-none bg-1a4a45 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-2d6b62 transition disabled:opacity-50"
+              className="flex-1 sm:flex-none bg-[#1a4a45] text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-[#2d6b62] transition disabled:opacity-50"
             >
               Submit
             </button>
@@ -474,14 +474,14 @@ export default function DeveloperInvoices() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-f8f7f4 flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-1a4a45 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-[#f8f7f4] flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-[#1a4a45] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-f8f7f4">
+    <div className="min-h-screen bg-[#f8f7f4]">
       <div className="bg-white border-b border-gray-100 px-4 sm:px-6 py-4 sticky top-0 z-10">
         <h1 className="text-lg sm:text-xl font-bold text-gray-900">Invoices</h1>
         <p className="text-xs text-gray-400 mt-0.5">Supplier invoices across all your plots</p>
@@ -501,8 +501,8 @@ export default function DeveloperInvoices() {
               onClick={() => setStatusFilter(s)}
               className={`text-sm font-medium px-4 py-2 rounded-xl border transition shrink-0 whitespace-nowrap ${
                 statusFilter === s
-                  ? 'bg-1a4a45 text-gray border-1a4a45'
-                  : 'bg-white text-gray-500 border-gray-200 hover:border-1a4a45'
+                  ? 'bg-[#1a4a45] text-white border-[#1a4a45]'
+                  : 'bg-white text-gray-500 border-gray-200 hover:border-[#1a4a45]'
               }`}
             >
               {s === 'all' ? 'All' : s.charAt(0).toUpperCase() + s.slice(1)} ({totals[s] || (s === 'all' ? totals.all : 0)})
