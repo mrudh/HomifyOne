@@ -325,7 +325,7 @@ const Q7_OPTIONS = [{
     },
 ];
 
-function buildBuyerProfile(answers, plot) {
+export function buildBuyerProfile(answers, plot) {
   const hMap = {
     solo: "a single occupant",
     couple: "a couple",

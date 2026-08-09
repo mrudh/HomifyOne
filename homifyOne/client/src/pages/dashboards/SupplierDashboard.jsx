@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 
-const daysAgo = (date) => Math.floor((Date.now() - new Date(date).getTime()) / (1000 * 60 * 60 * 24));
-const daysUntil = (date) => Math.ceil((new Date(date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+export const daysAgo = (date) => Math.floor((Date.now() - new Date(date).getTime()) / (1000 * 60 * 60 * 24));
+export const daysUntil = (date) => Math.ceil((new Date(date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
 
 function StatCard({ label, value, icon, accent }) {
   return (
