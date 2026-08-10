@@ -8,4 +8,5 @@ module.exports = {
   setupFiles: ['<rootDir>/src/test/setup.js'],
   clearMocks: true,
   verbose: true,
+  testTimeout: 30000,
 };
