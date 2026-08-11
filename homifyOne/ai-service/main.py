@@ -39,12 +39,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load model
-print("⏳ Loading sentence-transformer model...")
-model = SentenceTransformer("all-MiniLM-L6-v2")
-print("✅ Model loaded")
-
-# Load products
+# Load products 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PRODUCTS_PATH = os.path.join(BASE_DIR, "products.json")
 
@@ -56,36 +51,49 @@ with open(PRODUCTS_PATH, "r", encoding="utf-8") as f:
 
 print(f"✅ Loaded {len(products)} products")
 
-# Build FAISS index
-product_texts = [build_product_text(p) for p in products]
-product_embeddings = model.encode(
-    product_texts, convert_to_numpy=True, show_progress_bar=True
-)
-faiss.normalize_L2(product_embeddings)
+SKIP_MODEL_LOAD = os.getenv("AI_SERVICE_SKIP_MODEL_LOAD") == "1"
 
-dimension = product_embeddings.shape[1]
-index = faiss.IndexFlatIP(dimension)
-index.add(product_embeddings.astype(np.float32))
-
-print(f"✅ FAISS index built — {index.ntotal} vectors, dim={dimension}")
-
-# FAQ index
-faq_texts = [f"{f['topic']}. {f['text']}" for f in FAQ_ENTRIES]
-faq_embeddings = model.encode(faq_texts, convert_to_numpy=True)
-faiss.normalize_L2(faq_embeddings)
-faq_index = faiss.IndexFlatIP(faq_embeddings.shape[1])
-faq_index.add(faq_embeddings.astype(np.float32))
-print(f"✅ FAQ index built — {faq_index.ntotal} vectors")
-
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
-GEMINI_MODEL_NAME = "gemini-2.5-flash"
-gemini_model = None
-if GOOGLE_API_KEY:
-    genai.configure(api_key=GOOGLE_API_KEY)
-    gemini_model = genai.GenerativeModel(GEMINI_MODEL_NAME)
-    print("✅ Gemini assistant configured")
+if SKIP_MODEL_LOAD:
+    print("⚠️  AI_SERVICE_SKIP_MODEL_LOAD=1 — skipping real model/FAISS load (test mode)")
+    model = None
+    dimension = 0
+    index = None
+    faq_index = None
+    gemini_model = None
 else:
-    print("⚠️  GOOGLE_API_KEY not set — /assistant/chat will return a fallback message")
+    print("⏳ Loading sentence-transformer model...")
+    model = SentenceTransformer("all-MiniLM-L6-v2")
+    print("✅ Model loaded")
+
+    # Build FAISS index
+    product_texts = [build_product_text(p) for p in products]
+    product_embeddings = model.encode(
+        product_texts, convert_to_numpy=True, show_progress_bar=True
+    )
+    faiss.normalize_L2(product_embeddings)
+
+    dimension = product_embeddings.shape[1]
+    index = faiss.IndexFlatIP(dimension)
+    index.add(product_embeddings.astype(np.float32))
+
+    print(f"✅ FAISS index built — {index.ntotal} vectors, dim={dimension}")
+
+    # FAQ index
+    faq_texts = [f"{f['topic']}. {f['text']}" for f in FAQ_ENTRIES]
+    faq_embeddings = model.encode(faq_texts, convert_to_numpy=True)
+    faiss.normalize_L2(faq_embeddings)
+    faq_index = faiss.IndexFlatIP(faq_embeddings.shape[1])
+    faq_index.add(faq_embeddings.astype(np.float32))
+    print(f"✅ FAQ index built — {faq_index.ntotal} vectors")
+
+    GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
+    GEMINI_MODEL_NAME = "gemini-2.5-flash"
+    if GOOGLE_API_KEY:
+        genai.configure(api_key=GOOGLE_API_KEY)
+        gemini_model = genai.GenerativeModel(GEMINI_MODEL_NAME)
+        print("✅ Gemini assistant configured")
+    else:
+        print("⚠️  GOOGLE_API_KEY not set — /assistant/chat will return a fallback message")
 
 
 class ChatRequest(BaseModel):
