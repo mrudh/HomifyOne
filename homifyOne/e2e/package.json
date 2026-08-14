@@ -1,0 +1,20 @@
+{
+  "name": "homifyone-e2e",
+  "version": "1.0.0",
+  "private": true,
+  "description": "End-to-end tests for HomifyOne, run separately from the client/server/ai-service test suites. Drives a real browser against real running services and a dedicated test database.",
+  "scripts": {
+    "seed": "node seed.js",
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "mongoose": "^9.7.0"
+  }
+}
