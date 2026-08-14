@@ -9,4 +9,14 @@ module.exports = {
   clearMocks: true,
   verbose: true,
   testTimeout: 30000,
+  collectCoverageFrom: [
+    'src/**/*.js',
+    '!src/test/**',
+    '!src/server.js',
+    '!src/scripts/**',
+    '!src/seed.js',
+    '!src/seedPlots.js',
+  ],
+  coverageDirectory: '<rootDir>/coverage',
+  coverageReporters: ['text', 'text-summary', 'html', 'lcov'],
 };

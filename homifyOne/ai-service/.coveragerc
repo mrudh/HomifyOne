@@ -1,0 +1,9 @@
+[run]
+omit =
+    tests/*
+    evaluation/*
+    evaluation_demo.py
+    prepare_products.py
+    */__pycache__/*
+    */.venv/*
+    */venv/*
