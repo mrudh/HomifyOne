@@ -94,6 +94,7 @@ export default function MessagesPage() {
   const [sending, setSending] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
+  const [exporting, setExporting] = useState(false);
 
   const bottomRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -124,6 +125,7 @@ export default function MessagesPage() {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadContactsAndConversations();
   }, [loadContactsAndConversations]);
 
@@ -240,6 +242,29 @@ export default function MessagesPage() {
       setSending(false);
       if (ack?.success) setInput('');
     });
+  };
+
+  const handleExportPdf = async () => {
+    if (!activeConversationId || exporting) return;
+    setExporting(true);
+    try {
+      const response = await api.get(`/chat/conversations/${activeConversationId}/export-pdf`, {
+        responseType: 'blob',
+      });
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `chat-${(activeContact?.name || 'conversation').replace(/[^a-z0-9]+/gi, '-').toLowerCase()}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch {
+      setUploadError('Could not export this conversation — please try again.');
+    } finally {
+      setExporting(false);
+    }
   };
 
   const handleAttachClick = () => fileInputRef.current?.click();
@@ -366,7 +391,7 @@ export default function MessagesPage() {
                 <div className="w-9 h-9 rounded-full bg-[#1a4a45] text-white font-bold text-xs flex items-center justify-center flex-shrink-0">
                   {initials(activeContact.name)}
                 </div>
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <p className="font-semibold text-sm text-gray-900 truncate">{activeContact.name}</p>
                   <p className="text-xs text-gray-400 truncate">
                     {activeContact.plot
@@ -374,6 +399,16 @@ export default function MessagesPage() {
                       : ROLE_LABEL[activeContact.role] || activeContact.role}
                   </p>
                 </div>
+                <button
+                  onClick={handleExportPdf}
+                  disabled={exporting || messages.length === 0}
+                  title="Export this conversation as a PDF"
+                  className="flex-shrink-0 w-9 h-9 rounded-xl border border-gray-200 text-gray-500 hover:text-[#1a4a45] hover:border-[#9ccdc4] transition flex items-center justify-center disabled:opacity-40"
+                >
+                  {exporting ? (
+                    <span className="w-4 h-4 border-2 border-gray-300 border-t-[#1a4a45] rounded-full animate-spin" />
+                  ) : '⬇️'}
+                </button>
               </div>
 
               <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">

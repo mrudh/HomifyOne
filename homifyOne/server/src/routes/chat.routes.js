@@ -9,6 +9,7 @@ router.get('/contacts', ctrl.getContacts);
 router.get('/conversations', ctrl.getConversations);
 router.post('/conversations', ctrl.openConversation);
 router.get('/conversations/:id/messages', ctrl.getMessages);
+router.get('/conversations/:id/export-pdf', ctrl.exportConversationPdf);
 router.post('/conversations/:id/attachments', chatUpload.single('file'), ctrl.uploadAttachment);
 router.get('/messages/:messageId/attachment-url', ctrl.getAttachmentUrl);
 router.patch('/conversations/:id/read', ctrl.markRead);

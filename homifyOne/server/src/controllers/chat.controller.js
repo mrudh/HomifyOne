@@ -8,6 +8,7 @@ const {
   getOrCreateConversation,
   emitMessage,
 } = require('../services/chat.service');
+const { streamConversationPdf } = require('../services/chatExport.service');
 
 const s3 = new S3Client({
   region: process.env.AWS_REGION,
@@ -139,6 +140,29 @@ exports.getAttachmentUrl = async (req, res, next) => {
       fileName: message.attachment.fileName,
       fileType: message.attachment.fileType,
     });
+  } catch (err) { next(err); }
+};
+
+
+exports.exportConversationPdf = async (req, res, next) => {
+  try {
+    const conversation = await Conversation.findById(req.params.id).populate('participants', 'name email role');
+    if (!conversation || !conversation.participants.some(p => String(p._id) === String(req.user._id))) {
+      return res.status(404).json({ success: false, message: 'Conversation not found.' });
+    }
+
+    const messages = await Message.find({ conversation: conversation._id }).sort({ createdAt: 1 });
+
+    const participantsById = {};
+    conversation.participants.forEach((p) => { participantsById[String(p._id)] = p; });
+
+    const otherUser = conversation.participants.find(p => String(p._id) !== String(req.user._id));
+    const safeName = (otherUser?.name || 'conversation').replace(/[^a-z0-9]+/gi, '-').toLowerCase();
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="chat-${safeName}.pdf"`);
+
+    streamConversationPdf(res, { participantsById, messages, requester: req.user });
   } catch (err) { next(err); }
 };
 
