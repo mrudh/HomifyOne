@@ -42,7 +42,7 @@ export default function ForgotPassword() {
       <div className="bg-white rounded-2xl shadow-lg w-full max-w-md p-8">
 
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-indigo-600">HomifyOne</h1>
+          <h1 className="text-3xl font-bold text-gray-900">HomifyOne</h1>
           <p className="text-gray-500 mt-1 text-sm">
             {step === 1 ? 'Reset your password' : 'Enter the OTP sent to your email'}
           </p>
@@ -50,7 +50,7 @@ export default function ForgotPassword() {
 
         <div className="flex items-center justify-center gap-2 mb-6">
           {[1, 2].map(s => (
-            <div key={s} className={`h-2 w-16 rounded-full transition-all ${step >= s ? 'bg-indigo-600' : 'bg-gray-200'}`} />
+            <div key={s} className={`h-2 w-16 rounded-full transition-all ${step >= s ? 'bg-[#1a4a45]' : 'bg-gray-200'}`} />
           ))}
         </div>
 
@@ -69,13 +69,13 @@ export default function ForgotPassword() {
                 type="email" required
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a4a45]"
                 placeholder="you@example.com"
               />
             </div>
             <button
               type="submit" disabled={loading}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-lg transition disabled:opacity-60"
+              className="w-full bg-[#1a4a45] hover:bg-[#2d6b62] text-white font-semibold py-2.5 rounded-lg transition disabled:opacity-60"
             >
               {loading ? 'Sending OTP...' : 'Send OTP'}
             </button>
@@ -90,7 +90,7 @@ export default function ForgotPassword() {
                 type="text" required maxLength={6}
                 value={otp}
                 onChange={e => setOtp(e.target.value.replace(/\D/g, ''))}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-center tracking-widest font-mono text-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-center tracking-widest font-mono text-xl focus:outline-none focus:ring-2 focus:ring-[#1a4a45]"
                 placeholder="_ _ _ _ _ _"
               />
             </div>
@@ -100,20 +100,20 @@ export default function ForgotPassword() {
                 type="password" required minLength={6}
                 value={newPassword}
                 onChange={e => setNewPassword(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a4a45]"
                 placeholder="Min. 6 characters"
               />
             </div>
             <button
               type="submit" disabled={loading}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-lg transition disabled:opacity-60"
+              className="w-full bg-[#1a4a45] hover:bg-[#2d6b62] text-white font-semibold py-2.5 rounded-lg transition disabled:opacity-60"
             >
               {loading ? 'Resetting...' : 'Reset Password'}
             </button>
             <button
               type="button"
               onClick={() => { setStep(1); setError(''); setOtp(''); }}
-              className="w-full text-sm text-gray-500 hover:text-indigo-600 transition"
+              className="w-full text-sm text-gray-500 hover:text-[#1a4a45] transition"
             >
               ← Back / Resend OTP
             </button>
@@ -121,7 +121,7 @@ export default function ForgotPassword() {
         )}
 
         <p className="text-center text-sm text-gray-500 mt-6">
-          Remembered it? <Link to="/login" className="text-indigo-600 hover:underline">Sign in</Link>
+          Remembered it? <Link to="/login" className="text-[#1a4a45] hover:underline">Sign in</Link>
         </p>
       </div>
     </div>

@@ -85,13 +85,15 @@ function InfoTooltipIcon({ description }) {
   );
 }
 
-export default function BuyerSidebar({ open, onClose }) {
-  const { user, logout } = useAuth();
-  const { unreadCount } = useNotifications();
-  const { unreadCount: chatUnreadCount } = useChat();
-  const navigate = useNavigate();
-  const location = useLocation();
-
+function SidebarContent({
+  user,
+  unreadCount,
+  chatUnreadCount,
+  location,
+  navigate,
+  onClose,
+  logout,
+}) {
   const handleNav = (path) => {
     navigate(path);
     onClose?.();
@@ -102,7 +104,7 @@ export default function BuyerSidebar({ open, onClose }) {
     navigate('/login');
   };
 
-  const SidebarContent = () => (
+  return (
     <div className="flex flex-col h-full bg-[#1a4a45]">
       <div className="flex items-center justify-between px-5 py-5 border-b border-[#2d6b62]">
         <div className="flex items-center gap-2">
@@ -162,18 +164,42 @@ export default function BuyerSidebar({ open, onClose }) {
       </div>
     </div>
   );
+}
+
+export default function BuyerSidebar({ open, onClose }) {
+  const { user, logout } = useAuth();
+  const { unreadCount } = useNotifications();
+  const { unreadCount: chatUnreadCount } = useChat();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   return (
     <>
       <aside className="hidden lg:flex lg:flex-col lg:w-60 lg:fixed lg:inset-y-0 lg:left-0 z-30">
-        <SidebarContent />
+        <SidebarContent
+          user={user}
+          unreadCount={unreadCount}
+          chatUnreadCount={chatUnreadCount}
+          location={location}
+          navigate={navigate}
+          onClose={onClose}
+          logout={logout}
+        />
       </aside>
 
       {open && (
         <>
           <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={onClose} />
           <div className="fixed inset-y-0 left-0 w-64 z-50 lg:hidden">
-            <SidebarContent />
+            <SidebarContent
+              user={user}
+              unreadCount={unreadCount}
+              chatUnreadCount={chatUnreadCount}
+              location={location}
+              navigate={navigate}
+              onClose={onClose}
+              logout={logout}
+            />
           </div>
         </>
       )}

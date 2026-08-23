@@ -9,22 +9,10 @@ const navItems = [
   { label: 'Analytics', icon: '📊', path: '/admin/analytics' },
 ];
 
-export default function AdminSidebar({ open, onClose }) {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+function SidebarContent({ user, onClose, handleNav, handleLogout }) {
   const location = useLocation();
 
-  const handleNav = (path) => {
-    navigate(path);
-    onClose?.();
-  };
-
-  const handleLogout = async () => {
-    await logout();
-    navigate('/login');
-  };
-
-  const SidebarContent = () => (
+  return (
     <div className="flex flex-col h-full bg-[#1a4a45]">
       <div className="flex items-center justify-between px-5 py-5 border-b border-[#2d6b62]">
         <div className="flex items-center gap-2">
@@ -67,17 +55,33 @@ export default function AdminSidebar({ open, onClose }) {
       </div>
     </div>
   );
+}
+
+export default function AdminSidebar({ open, onClose }) {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  //const location = useLocation();
+
+  const handleNav = (path) => {
+    navigate(path);
+    onClose?.();
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
 
   return (
     <>
       <aside className="hidden lg:flex lg:flex-col lg:w-60 lg:fixed lg:inset-y-0 lg:left-0 z-30">
-        <SidebarContent />
+        <SidebarContent user={user} onClose={onClose} handleNav={handleNav} handleLogout={handleLogout} />
       </aside>
       {open && (
         <>
           <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={onClose} />
           <div className="fixed inset-y-0 left-0 w-64 z-50 lg:hidden">
-            <SidebarContent />
+            <SidebarContent user={user} onClose={onClose} handleNav={handleNav} handleLogout={handleLogout} />
           </div>
         </>
       )}

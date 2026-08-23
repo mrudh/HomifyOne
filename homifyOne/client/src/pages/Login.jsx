@@ -29,7 +29,7 @@ export default function Login() {
   //const [keepSignedIn, setKeepSignedIn] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
+  //const [darkMode, setDarkMode] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -46,7 +46,7 @@ export default function Login() {
   };
 
   return (
-    <div className={darkMode ? 'dark' : ''}>
+    <div>
       <div className="flex min-h-screen font-sans">
 
         {/* <div className="hidden lg:flex lg:w-1/2 bg-[#1a4a45] flex-col justify-between p-12 relative overflow-hidden">
@@ -129,13 +129,13 @@ export default function Login() {
         </div>
 
         <div className="w-full lg:w-1/2 bg-[#f8f7f4] dark:bg-gray-900 flex items-center justify-center px-8 py-12 relative">
-          <button
+          {/* <button
             onClick={() => setDarkMode(!darkMode)}
             className="absolute top-6 right-6 p-2 rounded-full bg-white dark:bg-gray-800 shadow text-gray-500 dark:text-gray-300 hover:scale-110 transition"
             aria-label="Toggle dark mode"
           >
             {darkMode ? '☀️' : '🌙'}
-          </button>
+          </button> */}
 
           <div className="w-full max-w-md">
 
