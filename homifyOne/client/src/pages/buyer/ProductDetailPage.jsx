@@ -160,7 +160,7 @@ export default function ProductDetailPage() {
               {tab === 'Overview' && (
                 <div className="space-y-4">
                   {product.description && (
-                    <p className="text-sm text-gray-600 leading-relaxed">{product.description}</p>
+                    <p className="text-left text-sm text-gray-600 leading-relaxed">{product.description}</p>
                   )}
                   {product.why_points?.length > 0 && (
                     <WhyAccordion points={product.why_points} />
