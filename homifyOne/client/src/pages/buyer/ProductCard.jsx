@@ -1,3 +1,6 @@
+import zoomIcon from "../../assets/search.png";
+import compareIcon from "../../assets/justice-scale.png";
+
 export default function ProductCard({ product, isSelected, isComparing, onSelect, onZoom, onCompare }) {
   const isStandard = !product.price || product.price === 0;
 
@@ -14,14 +17,24 @@ export default function ProductCard({ product, isSelected, isComparing, onSelect
           onClick={e => { e.stopPropagation(); onZoom(); }}
           className="absolute top-2 left-2 bg-black/50 hover:bg-black/70 text-white w-8 h-8 rounded-lg flex items-center justify-center text-sm transition"
         >
-          🔍
+          <img
+            src={zoomIcon}
+            alt=""
+            aria-hidden="true"
+            className="w-4 h-4 object-contain"
+          />
         </button>
         <button
           onClick={e => { e.stopPropagation(); onCompare(); }}
           className={`absolute top-2 right-2 w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold transition
             ${isComparing ? 'bg-[#214f49] text-white' : 'bg-black/50 hover:bg-black/70 text-white'}`}
         >
-          ⚖
+          <img
+            src={compareIcon}
+            alt=""
+            aria-hidden="true"
+            className="w-4 h-4 object-contain"
+          />
         </button>
       </div>
 

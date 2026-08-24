@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNotifications } from '../context/NotificationContext';
 import { useChat } from '../context/ChatContext';
+import homifyOneLogo from '../assets/homifyone-color-logo.svg';
 
 const navItems = [
   { label: "Dashboard", icon: "⊞", path: "/developer/dashboard" },
@@ -38,11 +39,16 @@ export default function DeveloperSidebar({ open, onClose }) {
 
         <div className="flex items-center justify-between px-5 py-5 border-b border-[#2d6b62]">
             <div className="flex items-center gap-2">
-            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            {/* <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                 d="M3 9.75L12 3l9 6.75V21a1 1 0 01-1 1H4a1 1 0 01-1-1V9.75z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 21V12h6v9" />
-            </svg>
+            </svg> */}
+            <img
+                src={homifyOneLogo}
+                alt="HomifyOne logo"
+                className="w-9 h-9 object-contain"
+            />
             <span className="text-white font-semibold text-base">HomifyOne</span>
             </div>
             <button onClick={onClose}

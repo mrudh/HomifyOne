@@ -231,10 +231,10 @@ export default function ProductDetailPage() {
                 : 'bg-[#1a4a45] text-white hover:bg-[#153d38] hover:-translate-y-0.5 hover:shadow-lg active:scale-95'
           }`}>
           {inBasket
-            ? '✓ In basket — tap to remove'
+            ? '✓ In basket - tap to remove'
             : overBudget
-              ? `Add anyway — £${Math.abs(remaining - Number(product.price)).toLocaleString()} over allowance`
-              : `Add to basket — £${Number(product.price).toLocaleString()}`}
+              ? `Add anyway - £${Math.abs(remaining - Number(product.price)).toLocaleString()} over allowance`
+              : `Add to basket - £${Number(product.price).toLocaleString()}`}
         </button>
         {/* <button onClick={() => navigate(-1)}
           className="hidden sm:block w-full py-3 rounded-2xl text-sm font-semibold

@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import loginHouse from '../assets/home.png';
+import homifyOneLogo from '../assets/homifyone-color-logo.svg';
+
 
 const ROLE_REDIRECTS = {
   buyer: '/buyer/dashboard',
@@ -95,7 +97,7 @@ export default function Login() {
           <div className="relative z-10 flex flex-col justify-between w-full min-h-screen p-12">
 
             <div className="flex items-center gap-3 text-white">
-              <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {/* <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -108,7 +110,12 @@ export default function Login() {
                   strokeWidth={1.5}
                   d="M9 21V12h6v9"
                 />
-              </svg>
+              </svg> */}
+              <img
+                src={homifyOneLogo}
+                alt="HomifyOne logo"
+                className="w-9 h-9 object-contain"
+              />
               <span className="text-2xl font-semibold tracking-tight">
                 HomifyOne
               </span>

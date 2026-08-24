@@ -210,7 +210,7 @@ def build_why(product: dict, profile: Profile, similarity: float) -> list:
     if profile.budget_max:
         why.append(
             f"Stays within your selected budget of "
-            f"£{int(profile.budget_min or 0)} – £{int(profile.budget_max)}"
+            f"£{int(profile.budget_min or 0)} - £{int(profile.budget_max)}"
         )
     if product.get("category"):
         why.append(

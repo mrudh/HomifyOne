@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useEffect, useState, useRef } from "react";
 import api from "../../services/api";
 import ProductCard from "./ProductCard";
@@ -6,6 +8,7 @@ import CompareDrawer from "./CompareDrawer";
 import { useLocation } from "react-router-dom";
 import { useApp } from "../../context/AppContext";
 import SelectionsLockedNotice from "../../components/SelectionsLockedNotice";
+import compareIcon from "../../assets/justice-scale.png";
 
 const ROOM_ICONS = {
   Kitchen: "🍳",
@@ -274,8 +277,18 @@ export default function ChoicesPortal() {
                       : "border-gray-200 text-gray-400 cursor-not-allowed"
                   }`}
               >
-                ⚖️ Compare{" "}
-                {compareList.length > 0 && `(${compareList.length}/3)`}
+                <img
+                  src={compareIcon}
+                  alt=""
+                  aria-hidden="true"
+                  className={`w-5 h-5 object-contain ${
+                    compareList.length < 2 ? "opacity-40 grayscale" : ""
+                  }`}
+                />
+
+                <span>
+                  Compare {compareList.length > 0 && `(${compareList.length}/3)`}
+                </span>
               </button>
             </div>
           </div>

@@ -15,7 +15,7 @@ export default function ProductModal({ product, isSelected, onSelect, onClose })
             <div>
               <button onClick={onClose} className="text-gray-300 hover:text-gray-500 text-xl float-right">✕</button>
               <span className={`text-xs font-bold uppercase tracking-widest ${isStandard ? 'text-[#1a4a45]' : 'text-amber-500'}`}>
-                {isStandard ? 'Standard — Included' : 'Upgrade'}
+                {isStandard ? 'Standard - Included' : 'Upgrade'}
               </span>
               <h2 className="text-2xl font-bold text-gray-800 mt-2">{product.name}</h2>
               <p className="text-sm text-gray-400 mt-1">{product.subCategory}</p>
