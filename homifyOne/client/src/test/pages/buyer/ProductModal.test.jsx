@@ -7,9 +7,9 @@ const standardProduct = { name: 'Standard Worktop', price: 0, description: 'Incl
 const upgradeProduct = { name: 'Quartz Worktop', price: 850, description: 'Premium finish', tags: ['upgrade', 'premium'] };
 
 describe('ProductModal', () => {
-  it('labels a zero-price product as "Standard — Included" with no price shown', () => {
+  it('labels a zero-price product as "Standard - Included" with no price shown', () => {
     render(<ProductModal product={standardProduct} isSelected={false} onSelect={() => {}} onClose={() => {}} />);
-    expect(screen.getByText('Standard — Included')).toBeInTheDocument();
+    expect(screen.getByText('Standard - Included')).toBeInTheDocument();
     expect(screen.queryByText(/^\+ £/)).not.toBeInTheDocument();
   });
 
