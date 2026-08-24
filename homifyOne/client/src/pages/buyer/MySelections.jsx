@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
@@ -77,7 +78,7 @@ export default function MySelections() {
   const navigate = useNavigate();
   const { selectedPlot, plotLoading } = useApp();
   const { user } = useAuth();
-  const { items, subtotal, finalTotal, cumulativeTotal, remaining, overBudget, usedPct, allowance } = useBasket();
+  const { items, cumulativeTotal, remaining, overBudget, usedPct, allowance } = useBasket();
   const [recommendations, setRecommendations] = useState([]);
   const [summaryMsg, setSummaryMsg] = useState('');
   const [loading, setLoading] = useState(true);

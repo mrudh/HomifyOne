@@ -5,7 +5,7 @@ const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const STATUS_MAP = {
   submitted: { label: 'Under Review', cls: 'bg-blue-100 text-blue-700' },
-  approved: { label: 'Approved', cls: 'bg-green-100 text-green-700' },
+  approved: { label: 'Approved', cls:'bg-green-100 text-green-700' },
   rejected: { label: 'Changes Needed', cls: 'bg-red-100 text-red-700' },
 };
 

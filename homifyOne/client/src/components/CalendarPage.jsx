@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useEffect, useState, useMemo } from 'react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';

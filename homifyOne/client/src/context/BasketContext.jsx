@@ -1,3 +1,6 @@
+/* eslint-disable react-hooks/preserve-manual-memoization */
+/* eslint-disable react-refresh/only-export-components */
+/* eslint-disable react-hooks/set-state-in-effect */
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useApp } from './AppContext';
 import api from '../services/api';

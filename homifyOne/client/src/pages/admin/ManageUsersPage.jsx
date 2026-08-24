@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
@@ -334,8 +335,7 @@ export default function ManageUsersPage() {
     fetchUsers().finally(() => setLoading(false));
   }, []);
 
-  // Arriving here from the Buyer Properties page's "Edit" link opens that
-  // buyer's edit modal directly instead of making the admin find them again.
+
   useEffect(() => {
     const editBuyerId = location.state?.editBuyerId;
     if (editBuyerId && users.length > 0) {

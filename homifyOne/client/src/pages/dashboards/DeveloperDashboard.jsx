@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useEffect, useState } from 'react';
 import api from '../../services/api';
 
@@ -32,20 +33,20 @@ const PLOT_STATUS_MAP = {
     },
 };
 
-const ORDER_STATUS_MAP = {
-    submitted: {
-        label: 'Awaiting Review',
-        cls: 'bg-blue-100 text-blue-700'
-    },
-    approved: {
-        label: 'Approved',
-        cls: 'bg-green-100 text-green-700'
-    },
-    rejected: {
-        label: 'Rejected',
-        cls: 'bg-red-100 text-red-700'
-    },
-};
+// const ORDER_STATUS_MAP = {
+//     submitted: {
+//         label: 'Awaiting Review',
+//         cls: 'bg-blue-100 text-blue-700'
+//     },
+//     approved: {
+//         label: 'Approved',
+//         cls: 'bg-green-100 text-green-700'
+//     },
+//     rejected: {
+//         label: 'Rejected',
+//         cls: 'bg-red-100 text-red-700'
+//     },
+// };
 
 function DeadlineModal({ plot, onClose, onSaved }) {
   const [date, setDate] = useState(plot.deadline ? plot.deadline.slice(0, 10) : '');

@@ -3,9 +3,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import api from '../../services/api';
 
 const STATUS_MAP = {
-  submitted: { label: 'Under Review', cls: 'bg-blue-100 text-blue-700' },
-  approved:  { label: 'Approved',     cls: 'bg-green-100 text-green-700' },
-  rejected:  { label: 'Changes Needed', cls: 'bg-red-100 text-red-700' },
+  submitted: { label: 'Under Review', cls:'bg-blue-100 text-blue-700' },
+  approved: { label: 'Approved', cls: 'bg-green-100 text-green-700' },
+  rejected: { label: 'Changes Needed',cls: 'bg-red-100 text-red-700' },
 };
 
 export default function OrderDetailPage() {

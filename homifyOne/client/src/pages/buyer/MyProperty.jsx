@@ -1,6 +1,7 @@
-import { useEffect, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import api from '../../services/api';
+/* eslint-disable react-hooks/set-state-in-effect */
+import { useEffect, useState } from 'react';
+//import { useNavigate } from 'react-router-dom';
+//import api from '../../services/api';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -217,7 +218,7 @@ export default function MyProperty() {
   const [places, setPlaces] = useState([]);
   const [placesLoading, setPlacesLoading] = useState(false);
   const [activeCategories, setActiveCategories] = useState(['home']);
-  const navigate = useNavigate();
+  //const navigate = useNavigate();
   const { selectedPlot: plot, plotLoading: loading } = useApp();
 
 

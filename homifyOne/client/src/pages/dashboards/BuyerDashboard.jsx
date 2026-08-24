@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/static-components */
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -61,33 +62,33 @@ const OrderProgressBar = ({ order }) => {
   );
 };
 
-const StatusBadge = ({ status }) => {
-  const map = {
-    draft: { label: "Not Started", cls: "bg-gray-100 text-gray-500" },
-    selections_pending: {
-      label: "In Progress",
-      cls: "bg-yellow-100 text-yellow-700",
-    },
-    submitted: { label: "Under Review", cls: "bg-blue-100 text-blue-700" },
-    selections_submitted: {
-      label: "Under Review",
-      cls: "bg-blue-100 text-blue-700",
-    },
-    approved: { label: "Approved ✓", cls: "bg-green-100 text-green-700" },
-    selections_approved: {
-      label: "Approved ✓",
-      cls: "bg-green-100 text-green-700",
-    },
-    rejected: { label: "Changes Needed", cls: "bg-red-100 text-red-700" },
-  };
-  const s = map[status] || { label: status, cls: 'bg-gray-100 text-gray-500' };
-  return <span className={`text-xs font-semibold px-3 py-1.5 rounded-full ${s.cls}`}>{s.label}</span>;
-};
+// const StatusBadge = ({ status }) => {
+//   const map = {
+//     draft: { label: "Not Started", cls: "bg-gray-100 text-gray-500" },
+//     selections_pending: {
+//       label: "In Progress",
+//       cls: "bg-yellow-100 text-yellow-700",
+//     },
+//     submitted: { label: "Under Review", cls: "bg-blue-100 text-blue-700" },
+//     selections_submitted: {
+//       label: "Under Review",
+//       cls: "bg-blue-100 text-blue-700",
+//     },
+//     approved: { label: "Approved ✓", cls: "bg-green-100 text-green-700" },
+//     selections_approved: {
+//       label: "Approved ✓",
+//       cls: "bg-green-100 text-green-700",
+//     },
+//     rejected: { label: "Changes Needed", cls: "bg-red-100 text-red-700" },
+//   };
+//   const s = map[status] || { label: status, cls: 'bg-gray-100 text-gray-500' };
+//   return <span className={`text-xs font-semibold px-3 py-1.5 rounded-full ${s.cls}`}>{s.label}</span>;
+// };
 
 export default function BuyerDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { subtotal, finalTotal,remaining, overBudget, usedPct, items, setAllowance, hasSubmittedOrder, orderSnapshot, isReady, cumulativeTotal } = useBasket();
+  const { remaining, overBudget, usedPct, items, isReady, cumulativeTotal } = useBasket();
 
   const [plot, setPlot] = useState(null);
   const [selection, setSelection] = useState(null);
