@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable no-unused-vars */
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import api from '../../services/api';
 
 const STATUS_STYLES = {
@@ -28,6 +28,77 @@ const fileIcon = (name) => {
 
 function money(n) {
   return typeof n === 'number' ? `£${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '—';
+}
+
+function PlotFilterDropdown({ plots, selected, onChange }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const handleClick = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  const toggle = (plotId) => {
+    if (selected.includes(plotId)) {
+      onChange(selected.filter((id) => id !== plotId));
+    } else {
+      onChange([...selected, plotId]);
+    }
+  };
+
+  const allSelected = selected.length === 0;
+  const label = allSelected
+    ? 'All plots'
+    : selected.length === 1
+      ? plots.find((p) => p.id === selected[0])?.label || '1 plot'
+      : `${selected.length} plots selected`;
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex items-center gap-2 border border-gray-200 bg-white rounded-xl px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-gray-300 transition w-full sm:w-auto justify-between sm:justify-start"
+      >
+        <span className="flex items-center gap-2 truncate">
+          <span className="text-gray-400">📍</span>
+          <span className="truncate">{label}</span>
+        </span>
+        <span className={`text-gray-400 text-xs transition-transform ${open ? 'rotate-180' : ''}`}>▼</span>
+      </button>
+
+      {open && (
+        <div className="absolute z-20 mt-2 w-90 max-h-72 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-lg py-2 left-0 sm:left-auto sm:right-0">
+          <button
+            onClick={() => onChange([])}
+            className="w-full text-left px-4 py-2 text-sm font-medium text-[#1a4a45] hover:bg-gray-50 border-b border-gray-100 mb-1"
+          >
+            Clear filters (show all)
+          </button>
+          {plots.map((plot) => (
+            <label
+              key={plot.id}
+              className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer"
+            >
+              <input
+                type="checkbox"
+                checked={selected.includes(plot.id)}
+                onChange={() => toggle(plot.id)}
+                className="w-4 h-4 rounded border-gray-300 text-[#1a4a45] focus:ring-[#1a4a45]"
+              />
+              <span className="truncate">{plot.label}</span>
+            </label>
+          ))}
+          {plots.length === 0 && (
+            <p className="px-4 py-2 text-sm text-gray-400">No plots available.</p>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }
 
 function AiSummaryPanel({ invoiceId, invoiceAmount, summary, onSummarised }) {
@@ -403,6 +474,7 @@ export default function DeveloperInvoices() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [selectedPlots, setSelectedPlots] = useState([]);
   const [updatingId, setUpdatingId] = useState(null);
   const [preview, setPreview] = useState({ open: false, url: '', name: '', invoiceId: '', amount: 0, aiSummary: null });
 
@@ -457,7 +529,20 @@ export default function DeveloperInvoices() {
     })));
   };
 
+  const plotOptions = Array.from(
+    new Map(
+      groups.filter(g => g.plot).map((g) => [
+        g.plot._id,
+        {
+          id: g.plot._id,
+          label: `Plot ${g.plot.plotNumber} - ${g.plot.development}${g.plot.buyer?.name ? ` (${g.plot.buyer.name})` : ''}`,
+        },
+      ])
+    ).values()
+  );
+
   const filteredGroups = groups
+    .filter(g => selectedPlots.length === 0 || selectedPlots.includes(g.plot?._id))
     .map(g => ({
       ...g,
       invoices: statusFilter === 'all'
@@ -495,6 +580,14 @@ export default function DeveloperInvoices() {
             {error}
           </div>
         )}
+
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <p className="text-sm text-gray-500">
+            {filteredGroups.reduce((sum, g) => sum + g.invoices.length, 0)} invoice{filteredGroups.reduce((sum, g) => sum + g.invoices.length, 0) !== 1 ? 's' : ''}
+            {selectedPlots.length > 0 && ` across ${selectedPlots.length} plot${selectedPlots.length !== 1 ? 's' : ''}`}
+          </p>
+          <PlotFilterDropdown plots={plotOptions} selected={selectedPlots} onChange={setSelectedPlots} />
+        </div>
 
         <div className="flex gap-2 mb-2 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap sm:overflow-visible">
           {['all', 'submitted', 'pending', 'paid', 'flagged'].map(s => (

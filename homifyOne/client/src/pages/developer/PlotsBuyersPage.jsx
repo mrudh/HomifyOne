@@ -118,25 +118,25 @@ function DrillDownPanel({ development, plots, onClose, onEditDeadline }) {
                 <StatusBadge status={plot.status} locked={plot.selectionsLocked} />
             )}
             </div>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-left text-gray-500">
               {plot.buyer ? plot.buyer.name : 'No buyer assigned'}
             </p>
             {plot.buyer && (
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-left text-gray-400">
                     {plot.buyer.email}
                     {/* {plot.buyer.phone && ` · ${plot.buyer.phone}`} */}
                 </p>
             )}
             {plot.buyer && (
               <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-400">
+                <span className="text-xs text-left text-gray-400">
                   {plot.ordersCount ?? 0} order{(plot.ordersCount ?? 0) !== 1 ? 's' : ''}
                 </span>
                 <OrderStatusBadge status={plot.orderStatus || 'none'} />
               </div>
             )}
             {plot.deadline && (
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-left text-gray-400">
                 Deadline: {new Date(plot.deadline).toLocaleDateString('en-GB')}
               </p>
             )}

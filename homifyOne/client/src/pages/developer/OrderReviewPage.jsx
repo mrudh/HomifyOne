@@ -61,7 +61,7 @@ export default function OrderReviewPage() {
       <div className="bg-white border-b border-gray-100 px-6 py-4 sticky top-0 z-10 flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-gray-900">Order Review</h1>
-          <p className="text-xs text-gray-400">Plot {plot.plotNumber} · {plot.development}</p>
+          <p className="text-xs text-left text-gray-400"> Plot {plot.plotNumber} · {plot.development}</p>
         </div>
         <button onClick={() => navigate(-1)} className="text-sm text-gray-500 hover:text-gray-800">← Back</button>
       </div>

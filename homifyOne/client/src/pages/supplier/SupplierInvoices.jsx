@@ -139,7 +139,7 @@ export default function SupplierInvoices() {
               </div>
               <div className="divide-y divide-gray-50">
                 {group.invoices.map((inv) => (
-                  <div key={inv._id} className="flex items-center gap-4 px-5 py-4 justify-between">
+                  <div key={inv._id} className="flex items-center gap-4 px-5 py-4">
                     <button
                       onClick={() => handleView(inv)}
                       className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-lg shrink-0 hover:bg-gray-200 transition cursor-pointer"
@@ -148,9 +148,10 @@ export default function SupplierInvoices() {
                       {fileIcon(inv.fileName)}
                     </button>
 
+                    <div className="flex-1 min-w-0 text-left">
                       <button
                         onClick={() => handleView(inv)}
-                        className="text-sm font-semibold text-[#1a4a45] hover:underline truncate block text-left"
+                        className="text-sm font-semibold text-[#1a4a45] hover:underline truncate block w-full text-left"
                       >
                         {inv.fileName}
                       </button>
@@ -161,7 +162,8 @@ export default function SupplierInvoices() {
                       {inv.status === 'flagged' && inv.flagReason && (
                         <p className="text-xs text-red-600 mt-1 font-medium">Flagged: {inv.flagReason}</p>
                       )}
-                    
+                    </div>
+
                     <div className="text-right shrink-0">
                       <p className="text-sm font-bold text-gray-800">£{Number(inv.amount).toLocaleString()}</p>
                     </div>

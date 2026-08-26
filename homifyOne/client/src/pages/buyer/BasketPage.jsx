@@ -84,9 +84,9 @@ function PromoCodeBox({ plotId, promo, applyPromo, removePromo, rewardPromo }) {
             <p className="text-sm font-bold text-[#214f49]">
               {promo.code} <span className="text-green-600">✓ Applied</span>
             </p>
-            <p className="text-xs text-gray-500 mt-0.5">
+            <p className="text-xs text-left text-gray-500 mt-0.5">
               {promo.auto
-                ? `🎉 Your questionnaire reward — ${promo.discount}% off upgrades/extras above your credit (max £${promo.maxDiscount})`
+                ? `🎉 Your questionnaire reward - ${promo.discount}% off upgrades/extras above your credit (max £${promo.maxDiscount})`
                 : promo.type === 'percent' ? `${promo.discount}% off upgrades/extras` : `£${promo.discount} off upgrades/extras`}
             </p>
           </div>
@@ -239,7 +239,7 @@ export default function BasketPage() {
         <div className="max-w-3xl mx-auto flex items-center justify-between gap-3">
           <div>
             <h1 className="text-md font-extrabold text-gray-900">Basket & Quote</h1>
-            <p className="text-xs text-gray-400 mt-0.5">Review your selections before submitting</p>
+            <p className="text-xs text-left text-gray-400 mt-0.5">Review your selections before submitting</p>
           </div>
           {plot && (
             <div className="text-right text-xs text-gray-400">

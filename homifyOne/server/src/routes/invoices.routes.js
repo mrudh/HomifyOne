@@ -292,7 +292,15 @@ router.get('/developer/invoices/all', verifyToken, authorise('developer'), async
   try {
     const invoices = await Invoice.find({ developer: req.user._id })
       .populate('supplier', 'name email')
-      .populate({ path: 'purchaseOrder', select: 'plot totalCost', populate: { path: 'plot', select: 'plotNumber development' } })
+      .populate({
+        path: 'purchaseOrder',
+        select: 'plot totalCost',
+        populate: {
+          path: 'plot',
+          select: 'plotNumber development buyer',
+          populate: { path: 'buyer', select: 'name' },
+        },
+      })
       .sort({ createdAt: -1 });
 
     const byPlot = new Map();

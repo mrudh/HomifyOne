@@ -1,5 +1,8 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useNotifications } from '../context/NotificationContext';
+
+const PAGE_SIZE = 6;
 
 const TYPE_ICON = {
   order_submitted: '📋',
@@ -17,6 +20,14 @@ const TYPE_ICON = {
 export default function NotificationsPage() {
   const { notifications, unreadCount, markRead, markAllRead } = useNotifications();
   const navigate = useNavigate();
+  const [page, setPage] = useState(1);
+
+  const totalPages = Math.max(1, Math.ceil(notifications.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const paginatedNotifications = notifications.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
+  );
 
   const handleClick = (n) => {
     if (!n.read) markRead(n._id);
@@ -52,37 +63,61 @@ export default function NotificationsPage() {
             </p>
           </div>
         ) : (
-          <div className="space-y-3">
-            {notifications.map(n => (
-              <button
-                key={n._id}
-                onClick={() => handleClick(n)}
-                className={`w-full text-left bg-white rounded-2xl border shadow-sm px-5 py-4 flex items-start gap-4
-                  transition-all hover:shadow-md hover:-translate-y-0.5
-                  ${!n.read ? 'border-l-4 border-l-[#1a4a45] border-y-gray-100 border-r-gray-100' : 'border-gray-100'}`}
-              >
-                <span className="text-2xl shrink-0 mt-0.5">
-                  {TYPE_ICON[n.type] || '🔔'}
-                </span>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-3">
-                    <p className={`text-sm font-semibold ${n.read ? 'text-gray-700' : 'text-gray-900'}`}>
-                      {n.title}
+          <>
+            <div className="space-y-3">
+              {paginatedNotifications.map(n => (
+                <button
+                  key={n._id}
+                  onClick={() => handleClick(n)}
+                  className={`w-full text-left bg-white rounded-2xl border shadow-sm px-5 py-4 flex items-start gap-4
+                    transition-all hover:shadow-md hover:-translate-y-0.5
+                    ${!n.read ? 'border-l-4 border-l-[#1a4a45] border-y-gray-100 border-r-gray-100' : 'border-gray-100'}`}
+                >
+                  <span className="text-2xl shrink-0 mt-0.5">
+                    {TYPE_ICON[n.type] || '🔔'}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className={`text-sm font-semibold ${n.read ? 'text-gray-700' : 'text-gray-900'}`}>
+                        {n.title}
+                      </p>
+                      {!n.read && (
+                        <span className="w-2 h-2 rounded-full bg-[#1a4a45] shrink-0" />
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1 leading-relaxed">{n.message}</p>
+                    <p className="text-[11px] text-gray-400 mt-2">
+                      {new Date(n.createdAt).toLocaleString('en-GB', {
+                        day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
+                      })}
                     </p>
-                    {!n.read && (
-                      <span className="w-2 h-2 rounded-full bg-[#1a4a45] shrink-0" />
-                    )}
                   </div>
-                  <p className="text-xs text-gray-500 mt-1 leading-relaxed">{n.message}</p>
-                  <p className="text-[11px] text-gray-400 mt-2">
-                    {new Date(n.createdAt).toLocaleString('en-GB', {
-                      day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
-                    })}
-                  </p>
-                </div>
-              </button>
-            ))}
-          </div>
+                </button>
+              ))}
+            </div>
+
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between mt-6">
+                <button
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="text-sm font-semibold px-4 py-2 rounded-xl border border-gray-200 text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:border-[#1a4a45] transition"
+                >
+                  Previous
+                </button>
+                <span className="text-xs text-gray-400">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="text-sm font-semibold px-4 py-2 rounded-xl border border-gray-200 text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:border-[#1a4a45] transition"
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

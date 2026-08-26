@@ -8,7 +8,7 @@ export default function CompareDrawer({ products, selections, activeRoom, active
       >
         <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100 shrink-0">
           <div>
-            <h2 className="text-lg font-bold text-gray-800">Compare Options</h2>
+            <h2 className="text-lg text-left font-bold text-gray-800">Compare Options</h2>
             <p className="text-xs text-gray-400 mt-0.5">Comparing {products.length} products side by side</p>
           </div>
           <button
