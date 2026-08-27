@@ -1,10 +1,20 @@
 const router = require('express').Router();
+const rateLimit = require('express-rate-limit');
 const { body } = require('express-validator');
 const { login, forgotPassword, resetPassword, logout } = require('../controllers/auth.controller');
 const { verifyToken, authorise } = require('../middleware/auth');
 
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: () => process.env.NODE_ENV === 'test',
+  message: { success: false, message: 'Too many login attempts. Please try again in a few minutes.' },
+});
 
 router.post('/login',
+  loginLimiter,
   [
     body('email').isEmail(),
     body('password').notEmpty(),
