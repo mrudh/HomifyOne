@@ -4,6 +4,8 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const path = require('path');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./config/swagger');
 const invoiceRoutes = require('./routes/invoices.routes');
 
 
@@ -38,6 +40,8 @@ app.use('/api/notifications', require('./routes/notification.routes'));
 app.use('/api/chat', require('./routes/chat.routes'));
 app.use('/api/assistant', require('./routes/assistant.routes'));
 app.use('/api/analytics', require('./routes/analytics.routes'));
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
