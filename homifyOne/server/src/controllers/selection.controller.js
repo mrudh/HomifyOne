@@ -313,6 +313,8 @@ exports.rejectOrder = async (req, res, next) => {
     order.rejectionReason = reason.trim();
     await order.save();
 
+    await Selection.updateMany({ plot: order.plot._id }, { status: 'pending' });
+
     const newDeadline = new Date();
     newDeadline.setDate(newDeadline.getDate() + 14);
 

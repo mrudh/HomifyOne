@@ -76,7 +76,7 @@ else:
     index = faiss.IndexFlatIP(dimension)
     index.add(product_embeddings.astype(np.float32))
 
-    print(f"✅ FAISS index built — {index.ntotal} vectors, dim={dimension}")
+    print(f"✅ FAISS index built - {index.ntotal} vectors, dim={dimension}")
 
     # FAQ index
     faq_texts = [f"{f['topic']}. {f['text']}" for f in FAQ_ENTRIES]
@@ -84,7 +84,7 @@ else:
     faiss.normalize_L2(faq_embeddings)
     faq_index = faiss.IndexFlatIP(faq_embeddings.shape[1])
     faq_index.add(faq_embeddings.astype(np.float32))
-    print(f"✅ FAQ index built — {faq_index.ntotal} vectors")
+    print(f"✅ FAQ index built - {faq_index.ntotal} vectors")
 
     GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
     GEMINI_MODEL_NAME = "gemini-2.5-flash"

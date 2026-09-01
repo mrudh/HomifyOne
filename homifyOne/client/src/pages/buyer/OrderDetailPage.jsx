@@ -11,13 +11,20 @@ const STATUS_MAP = {
 export default function OrderDetailPage() {
   const { id } = useParams();
   const [order, setOrder] = useState(null);
+  const [approvedSpend, setApprovedSpend] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
-    api.get(`/selections/orders/${id}`)
-      .then(r => setOrder(r.data.order))
+    Promise.all([
+      api.get(`/selections/orders/${id}`),
+      api.get('/selections/approved-spend'),
+    ])
+      .then(([orderRes, spendRes]) => {
+        setOrder(orderRes.data.order);
+        setApprovedSpend(spendRes.data.approvedSpend || 0);
+      })
       .catch(() => setError('Order not found.'))
       .finally(() => setLoading(false));
   }, [id]);
@@ -42,8 +49,10 @@ export default function OrderDetailPage() {
   );
 
   const { items, pricing, status } = order;
-  const usedPct = pricing.allowance > 0 ? Math.min((pricing.finalTotal / pricing.allowance) * 100, 100) : 0;
-  const overBudget = pricing.finalTotal > pricing.allowance;
+  const otherApprovedSpend = approvedSpend - (status === 'approved' ? pricing.finalTotal : 0);
+  const cumulativeTotal = pricing.finalTotal + otherApprovedSpend;
+  const usedPct = pricing.allowance > 0 ? Math.min((cumulativeTotal / pricing.allowance) * 100, 100) : 0;
+  const overBudget = cumulativeTotal > pricing.allowance;
   const s = STATUS_MAP[status] || STATUS_MAP.submitted;
 
   return (
@@ -95,9 +104,14 @@ export default function OrderDetailPage() {
             </div>
             <p className={`text-sm font-semibold ${overBudget ? 'text-red-500' : 'text-[#1a4a45]'}`}>
               {overBudget
-                ? `⚠️ £${Math.abs(pricing.allowance - pricing.finalTotal).toLocaleString()} over your allowance`
-                : `✓ £${(pricing.allowance - pricing.finalTotal).toLocaleString()} remaining from your allowance`}
+                ? `⚠️ £${Math.abs(pricing.allowance - cumulativeTotal).toLocaleString()} over your allowance`
+                : `✓ £${(pricing.allowance - cumulativeTotal).toLocaleString()} remaining from your allowance`}
             </p>
+            {otherApprovedSpend > 0 && (
+              <p className="text-xs text-gray-400 mt-1">
+                Includes £{otherApprovedSpend.toLocaleString()} already committed from your other approved orders.
+              </p>
+            )}
           </div>
         )}
 
