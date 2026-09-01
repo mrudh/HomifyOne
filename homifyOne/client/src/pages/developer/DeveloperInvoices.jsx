@@ -143,7 +143,7 @@ function AiSummaryPanel({ invoiceId, invoiceAmount, summary, onSummarised }) {
       {hasResult && (
         <div className="space-y-3">
           {summary.summary && (
-            <p className="text-sm text-gray-700 leading-relaxed bg-gray-50 border border-gray-100 rounded-xl px-3 py-3">
+            <p className="text-sm text-gray-700 text-left leading-relaxed bg-gray-50 border border-gray-100 rounded-xl px-3 py-3">
               {summary.summary}
             </p>
           )}
