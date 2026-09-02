@@ -12,6 +12,7 @@ function PropertyEditModal({ plot, developers, onClose, onSaved }) {
     bedrooms: plot.bedrooms || '',
     bathrooms: plot.bathrooms || '',
     floorArea: plot.floorArea || '',
+    extrasAllowance: plot.extrasAllowance ?? '',
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -98,6 +99,10 @@ function PropertyEditModal({ plot, developers, onClose, onSaved }) {
               className="border border-gray-200 rounded-xl px-4 py-2.5 text-sm" />
           </div>
 
+          <input type="number" min="0" placeholder="Extras allowance (£)" value={form.extrasAllowance}
+            onChange={handleChange('extrasAllowance')}
+            className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm" />
+
           {error && <p className="text-xs text-red-600">{error}</p>}
 
           <button type="submit" disabled={saving}
@@ -183,6 +188,7 @@ export default function BuyerPropertiesPage() {
                   <th className="text-left align-middle font-semibold text-[#1a4a45] text-xs uppercase tracking-wide px-4 py-3">Beds</th>
                   <th className="text-left align-middle font-semibold text-[#1a4a45] text-xs uppercase tracking-wide px-4 py-3">Baths</th>
                   <th className="text-left align-middle font-semibold text-[#1a4a45] text-xs uppercase tracking-wide px-4 py-3">Floor Area</th>
+                  <th className="text-left align-middle font-semibold text-[#1a4a45] text-xs uppercase tracking-wide px-4 py-3">Extras Allowance</th>
                   <th className="text-left align-middle font-semibold text-[#1a4a45] text-xs uppercase tracking-wide px-4 py-3">Address</th>
                   <th className="text-left align-middle font-semibold text-[#1a4a45] text-xs uppercase tracking-wide px-4 py-3">Floor Plan</th>
                   <th className="text-left align-middle font-semibold text-[#1a4a45] text-xs uppercase tracking-wide px-4 py-3">Actions</th>
@@ -202,6 +208,9 @@ export default function BuyerPropertiesPage() {
                     <td className="text-left px-4 py-4 text-gray-600">{p.bedrooms || '—'}</td>
                     <td className="text-left px-4 py-4 text-gray-600">{p.bathrooms || '—'}</td>
                     <td className="text-left px-4 py-4 text-gray-600">{p.floorArea || '—'}</td>
+                    <td className="text-left px-4 py-4 text-gray-600">
+                      {p.extrasAllowance > 0 ? `£${p.extrasAllowance.toLocaleString()}` : '—'}
+                    </td>
                     <td className="text-left px-4 py-4 text-gray-600">{p.address}</td>
                     <td className="text-left px-4 py-4">
                       {p.floorPlanUrl ? (
@@ -221,7 +230,7 @@ export default function BuyerPropertiesPage() {
                   </tr>
                 ))}
                 {plots.length === 0 && (
-                  <tr><td colSpan={11} className="px-4 py-8 text-center text-gray-400 text-sm whitespace-normal">No buyer properties yet.</td></tr>
+                  <tr><td colSpan={12} className="px-4 py-8 text-center text-gray-400 text-sm whitespace-normal">No buyer properties yet.</td></tr>
                 )}
               </tbody>
             </table>

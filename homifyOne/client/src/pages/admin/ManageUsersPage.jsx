@@ -21,7 +21,7 @@ function RoleBadge({ role }) {
 }
 
 function CreateUserModal({ onClose, onCreated }) {
-  const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', role: 'buyer' });
+  const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', role: 'buyer', extrasAllowance: '' });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
@@ -32,8 +32,9 @@ function CreateUserModal({ onClose, onCreated }) {
     setSaving(true);
     setError('');
     try {
-      await api.post('/users', form);
-      await onCreated();
+      const { name, email, phone, password, role } = form;
+      const { data } = await api.post('/users', { name, email, phone, password, role });
+      await onCreated(data.user, form.role === 'buyer' ? form.extrasAllowance : '');
       onClose();
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to create user.');
@@ -60,6 +61,16 @@ function CreateUserModal({ onClose, onCreated }) {
             className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm capitalize">
             {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
           </select>
+          {form.role === 'buyer' && (
+            <div>
+              <input type="number" min="0" placeholder="Extras allowance (£, optional)" value={form.extrasAllowance}
+                onChange={handleChange('extrasAllowance')}
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm" />
+              <p className="text-xs text-gray-400 mt-1">
+                You'll set up the rest of their property details right after creating them, this just carries the allowance over.
+              </p>
+            </div>
+          )}
         </div>
 
         {error && <p className="text-xs text-red-600">{error}</p>}
@@ -80,13 +91,15 @@ function CreateUserModal({ onClose, onCreated }) {
 
 const EMPTY_PROPERTY = {
   developer: '', plotNumber: '', address: '', development: '',
-  houseType: '', bedrooms: '', bathrooms: '', floorArea: '',
+  houseType: '', bedrooms: '', bathrooms: '', floorArea: '', extrasAllowance: '',
 };
 
-function PropertyDetailsSection({ user, developers }) {
+function PropertyDetailsSection({ user, developers, initialAllowance }) {
   const [plot, setPlot] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [form, setForm] = useState(EMPTY_PROPERTY);
+  const [form, setForm] = useState(
+    initialAllowance ? { ...EMPTY_PROPERTY, extrasAllowance: initialAllowance } : EMPTY_PROPERTY
+  );
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -110,7 +123,10 @@ function PropertyDetailsSection({ user, developers }) {
             bedrooms: p.bedrooms || '',
             bathrooms: p.bathrooms || '',
             floorArea: p.floorArea || '',
+            extrasAllowance: p.extrasAllowance ?? '',
           });
+        } else if (initialAllowance) {
+          setForm((f) => ({ ...f, extrasAllowance: initialAllowance }));
         }
       })
       .catch(() => setError('Failed to load property details.'))
@@ -197,6 +213,10 @@ function PropertyDetailsSection({ user, developers }) {
           className="border border-gray-200 rounded-xl px-4 py-2.5 text-sm" />
       </div>
 
+      <input type="number" min="0" placeholder="Extras allowance (£)" value={form.extrasAllowance}
+        onChange={handleChange('extrasAllowance')}
+        className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm" />
+
       {error && <p className="text-xs text-red-600">{error}</p>}
       {success && <p className="text-xs text-green-600">Saved ✓</p>}
 
@@ -230,7 +250,7 @@ function PropertyDetailsSection({ user, developers }) {
   );
 }
 
-function EditUserModal({ user, developers, onClose, onSaved }) {
+function EditUserModal({ user, developers, onClose, onSaved, initialAllowance }) {
   const [profile, setProfile] = useState({ name: user.name, email: user.email, phone: user.phone || '' });
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileError, setProfileError] = useState('');
@@ -310,7 +330,7 @@ function EditUserModal({ user, developers, onClose, onSaved }) {
         </form>
 
         {user.role === 'buyer' && (
-          <PropertyDetailsSection user={user} developers={developers} />
+          <PropertyDetailsSection user={user} developers={developers} initialAllowance={initialAllowance} />
         )}
       </div>
     </div>
@@ -323,12 +343,21 @@ export default function ManageUsersPage() {
   const [roleFilter, setRoleFilter] = useState('all');
   const [creating, setCreating] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
+  const [pendingAllowance, setPendingAllowance] = useState('');
   const location = useLocation();
   const navigate = useNavigate();
 
   const fetchUsers = async () => {
     const { data } = await api.get('/users');
     setUsers(data.users || []);
+  };
+
+  const handleUserCreated = async (user, allowance) => {
+    await fetchUsers();
+    if (user?.role === 'buyer') {
+      setPendingAllowance(allowance || '');
+      setEditingUser(user);
+    }
   };
 
   useEffect(() => {
@@ -394,7 +423,7 @@ export default function ManageUsersPage() {
                     <td className="text-left px-5 py-4 align-middle text-gray-500">{u.email}</td>
                     <td className="text-left px-5 py-4 align-middle"><RoleBadge role={u.role} /></td>
                     <td className="text-left px-5 py-4 align-middle whitespace-nowrap">
-                      <button onClick={() => setEditingUser(u)}
+                      <button onClick={() => { setPendingAllowance(''); setEditingUser(u); }}
                         className="text-xs font-semibold text-[#1a4a45] hover:underline">
                         Edit
                       </button>
@@ -411,15 +440,16 @@ export default function ManageUsersPage() {
       </div>
 
       {creating && (
-        <CreateUserModal onClose={() => setCreating(false)} onCreated={fetchUsers} />
+        <CreateUserModal onClose={() => setCreating(false)} onCreated={handleUserCreated} />
       )}
 
       {editingUser && (
         <EditUserModal
           user={editingUser}
           developers={developers}
-          onClose={() => setEditingUser(null)}
+          onClose={() => { setEditingUser(null); setPendingAllowance(''); }}
           onSaved={fetchUsers}
+          initialAllowance={pendingAllowance}
         />
       )}
     </div>

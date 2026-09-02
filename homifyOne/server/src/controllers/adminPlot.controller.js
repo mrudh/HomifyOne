@@ -28,7 +28,7 @@ exports.upsertPlotForBuyer = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Buyer not found.' });
     }
 
-    const { developer, plotNumber, address, development, houseType, bedrooms, bathrooms, floorArea } = req.body;
+    const { developer, plotNumber, address, development, houseType, bedrooms, bathrooms, floorArea, extrasAllowance } = req.body;
     if (!developer || !plotNumber || !address || !development) {
       return res.status(400).json({
         success: false,
@@ -54,6 +54,7 @@ exports.upsertPlotForBuyer = async (req, res, next) => {
           bedrooms: Number(bedrooms) || 0,
           bathrooms: Number(bathrooms) || 0,
           floorArea: floorArea || '',
+          extrasAllowance: extrasAllowance === undefined || extrasAllowance === '' ? 0 : Number(extrasAllowance) || 0,
         },
         $setOnInsert: { status: 'assigned' },
       },
