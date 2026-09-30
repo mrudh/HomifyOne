@@ -3,6 +3,9 @@
 ### Project description: 
 HomifyOne is a centralised, role-based web application that modernises the selection of standard finishes (choices), paid upgrades (extras) and procurement process for new build residential developments. The digitalisation of the UK new build home personalisation process remains largely superficial. Existing tools offer basic catalogue browsing but lack intelligent preference-driven support, thus leaving home buyers to make unaided financial decisions and forcing developers to manage multi-party workflows manually. HomifyOne replaces this disconnected experience by bringing Buyers, Developers, Suppliers, and Administrators together in a single application. It empowers buyers with AI-tailored recommendations to support better home personalisation decisions, while streamlining developer workflows, supplier coordination, and administrative governance across the platform. Unlike existing applications in this domain, HomifyOne consolidates every stakeholder's journey into one cohesive, intelligent platform focused on delivering a better home personalisation experience for the buyer. The technical challenges include developing an NLP-driven recommendation pipeline, orchestrating a multi-role, event-driven approval workflow, and integrating multiple AI capabilities into a unified buyer experience that no existing new build platform currently offers.  
 
+### Tech Stack:
+React.js, Node.js, Express.js, MongoDB, AWS S3, Python FastAPI, Pydantic, REST APIs, Sentence-transformer models, vector embeddings, AI Integration, Gemini API, RAG Concepts, Vitest, React Testing Library, Jest, Playwright, Supertest
+
 ### List of requirements (objectives): 
 
 Essential:
