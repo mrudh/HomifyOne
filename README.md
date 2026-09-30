@@ -1,17 +1,9 @@
-[comment]: # (You may find the following markdown cheat sheet useful: https://www.markdownguide.org/cheat-sheet/. You may also consider using an online Markdown editor such as StackEdit.) 
-
 ## Project title: HomifyOne: An AI-Powered Personalisation and Workflow Management Platform for New-Build Residential Developments
-
-### Student name: Mrudhulaa Peechanary Vinodkumar
-
-### Student email: mpv4@student.le.ac.uk
 
 ### Project description: 
 HomifyOne is a centralised, role-based web application that modernises the selection of standard finishes (choices), paid upgrades (extras) and procurement process for new build residential developments. The digitalisation of the UK new build home personalisation process remains largely superficial. Existing tools offer basic catalogue browsing but lack intelligent preference-driven support, thus leaving home buyers to make unaided financial decisions and forcing developers to manage multi-party workflows manually. HomifyOne replaces this disconnected experience by bringing Buyers, Developers, Suppliers, and Administrators together in a single application. It empowers buyers with AI-tailored recommendations to support better home personalisation decisions, while streamlining developer workflows, supplier coordination, and administrative governance across the platform. Unlike existing applications in this domain, HomifyOne consolidates every stakeholder's journey into one cohesive, intelligent platform focused on delivering a better home personalisation experience for the buyer. The technical challenges include developing an NLP-driven recommendation pipeline, orchestrating a multi-role, event-driven approval workflow, and integrating multiple AI capabilities into a unified buyer experience that no existing new build platform currently offers.  
 
 ### List of requirements (objectives): 
-
-[comment]: # (You can add as many additional bullet points as necessary by adding an additional hyphon symbol '-' at the end of each list) 
 
 Essential:
 - Multi-role secure authentication for Buyer, Developer, Supplier, and Admin using JWT and bcrypt password hashing 
@@ -45,9 +37,3 @@ Optional:
 - Email notifications for all key workflow events as a fallback to in-app notifications for all user roles 
 
 
-## Information about this repository
-This is the repository that you are going to use **individually** for developing your project. Please use the resources provided in the module to learn about **plagiarism** and how plagiarism awareness can foster your learning.
-
-Regarding the use of this repository, once a feature (or part of it) is developed and **working** or parts of your system are integrated and **working**, define a commit and push it to the remote repository. You may find yourself making a commit after a productive hour of work (or even after 20 minutes!), for example. Choose commit message wisely and be concise.
-
-Please choose the structure of the contents of this repository that suits the needs of your project but do indicate in this file where the main software artefacts are located.
